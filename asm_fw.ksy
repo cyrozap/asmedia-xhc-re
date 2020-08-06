@@ -8,10 +8,8 @@ seq:
     size: header_len
   - id: header_checksum
     type: u1
-  - id: unk1
-    type: u2
-  - id: unk2
-    type: u2
+  - id: header_crc32
+    type: u4
   - id: body_len
     type:
       switch-on: magic
@@ -27,10 +25,8 @@ seq:
     encoding: ascii
   - id: body_checksum
     type: u1
-  - id: unk3
-    type: u2
-  - id: unk4
-    type: u2
+  - id: body_crc32
+    type: u4
 types:
   body:
     seq:
