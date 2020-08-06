@@ -33,6 +33,9 @@ seq:
     type: u2
 types:
   body:
+    seq:
+      - id: data
+        size-eos: true
     instances:
       version:
         pos: 0x80
