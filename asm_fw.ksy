@@ -59,3 +59,8 @@ types:
           version:
             pos: 0x80
             size: 6
+          magic:
+            pos: 0x87
+            size: 8
+            type: str
+            encoding: ascii
