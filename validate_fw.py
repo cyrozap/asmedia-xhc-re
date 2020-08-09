@@ -14,6 +14,22 @@ except ModuleNotFoundError:
 def checksum(data : bytes):
     return sum(data) & 0xff
 
+def validate_checksum(name, data, expected):
+    calc_csum = checksum(data)
+    exp_csum = expected
+    if calc_csum != exp_csum:
+        print("Error: Invalid {} checksum: expected {:#04x}, got: {:#04x}".format(name, exp_csum, calc_csum), file=sys.stderr)
+        sys.exit(1)
+    print("{} checksum OK!".format(name.capitalize()))
+
+def validate_crc32(name, data, expected):
+    calc_crc32 = crc32(data)
+    exp_crc32 = expected
+    if calc_crc32 != exp_crc32:
+        print("Error: Invalid {} crc32: expected {:#010x}, got: {:#010x}".format(name, exp_crc32, calc_crc32), file=sys.stderr)
+        sys.exit(1)
+    print("{} CRC32 OK!".format(name.capitalize()))
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("firmware", type=str, help="The ASM1142/ASM2142/ASM3142 firmware binary.")
@@ -23,33 +39,11 @@ def main():
     fw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
     header_bytes = fw_bytes[:fw.header.len]
-    calc_csum = checksum(header_bytes)
-    exp_csum = fw.header.checksum
-    if calc_csum != exp_csum:
-        print("Error: Invalid header checksum: expected {:#04x}, got: {:#04x}".format(exp_csum, calc_csum), file=sys.stderr)
-        sys.exit(1)
-    print("Header checksum OK!")
+    validate_checksum("header", header_bytes, fw.header.checksum)
+    validate_crc32("header", header_bytes, fw.header.crc32)
 
-    calc_crc32 = crc32(header_bytes)
-    exp_crc32 = fw.header.crc32
-    if calc_crc32 != exp_crc32:
-        print("Error: Invalid header crc32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32), file=sys.stderr)
-        sys.exit(1)
-    print("Header CRC32 OK!")
-
-    calc_csum = checksum(fw.body.firmware.code)
-    exp_csum = fw.body.checksum
-    if calc_csum != exp_csum:
-        print("Error: Invalid body checksum: expected {:#04x}, got: {:#04x}".format(exp_csum, calc_csum), file=sys.stderr)
-        sys.exit(1)
-    print("Body checksum OK!")
-
-    calc_crc32 = crc32(fw.body.firmware.code)
-    exp_crc32 = fw.body.crc32
-    if calc_crc32 != exp_crc32:
-        print("Error: Invalid body crc32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32), file=sys.stderr)
-        sys.exit(1)
-    print("Body CRC32 OK!")
+    validate_checksum("body", fw.body.firmware.code, fw.body.checksum)
+    validate_crc32("body", fw.body.firmware.code, fw.body.crc32)
 
     version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
     print("Firmware version: {}".format(version_string))
