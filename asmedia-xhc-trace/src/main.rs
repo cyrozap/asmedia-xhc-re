@@ -29,7 +29,7 @@ impl PciConfig {
         }
     }
 
-    fn reg_read(&mut self, reg: u64) -> Result<u32, std::io::Error> {
+    fn readl(&mut self, reg: u64) -> Result<u32, std::io::Error> {
         match self.reg.seek(SeekFrom::Start(reg)) {
             Ok(_) => (),
             Err(err) => return Err(err),
@@ -37,7 +37,7 @@ impl PciConfig {
         self.reg.read_u32::<LittleEndian>()
     }
 
-    fn reg_write(&mut self, reg: u64, value: u32) -> Result<(), std::io::Error> {
+    fn writel(&mut self, reg: u64, value: u32) -> Result<(), std::io::Error> {
         match self.reg.seek(SeekFrom::Start(reg)) {
             Ok(_) => (),
             Err(err) => return Err(err),
@@ -90,14 +90,14 @@ fn main() {
     let mut statuses: Vec<u32> = Vec::with_capacity(sample_count);
     if reset_device {
         println!("Resetting device...");
-        match config.reg_write(0xec, 1 << 31) {
+        match config.writel(0xec, 1 << 31) {
             Ok(_) => (),
             Err(err) => {
                 eprintln!("Error: Failed to set reset flag: {:?}", err);
                 exit(1);
             }
         }
-        match config.reg_write(0xec, 0) {
+        match config.writel(0xec, 0) {
             Ok(_) => (),
             Err(err) => {
                 eprintln!("Error: Failed to clear reset flag: {:?}", err);
@@ -108,7 +108,7 @@ fn main() {
     }
     let now = Instant::now();
     for _ in 0..statuses.capacity() {
-        match config.reg_read(0xe4) {
+        match config.readl(0xe4) {
             Ok(val) => statuses.push(val),
             Err(err) => {
                 eprintln!("Error: Failed to read status: {:?}", err);
