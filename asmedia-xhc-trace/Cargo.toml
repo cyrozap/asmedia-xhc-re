@@ -1,0 +1,9 @@
+[package]
+name = "asmedia-xhc-trace"
+version = "0.1.0"
+authors = ["cyrozap"]
+edition = "2018"
+
+[dependencies]
+byteorder = "1.3.4"
+clap = "2.33.2"
