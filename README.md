@@ -24,6 +24,11 @@
    check the integrity and version of the firmware.
 
 
+## Reverse engineering notes
+
+See [Notes.md](Notes.md).
+
+
 [ksc]: https://github.com/kaitai-io/kaitai_struct_compiler
 [kspr]: https://github.com/kaitai-io/kaitai_struct_python_runtime
 [urls]: firmware-urls.txt
