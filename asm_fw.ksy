@@ -35,6 +35,7 @@ types:
         type:
           switch-on: _parent.header.magic
           cases:
+            '"U2104_RCFG"': u2
             '"2114A_RCFG"': u2
             '"2214A_RCFG"': u4
       - id: firmware
