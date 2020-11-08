@@ -1,0 +1,12 @@
+*.asm
+*.bin
+*.ihx
+*.img
+*.lk
+*.lst
+*.map
+*.mem
+*.rel
+*.rst
+*.sym
+build_info.c
