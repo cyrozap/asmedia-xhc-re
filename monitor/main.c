@@ -8,7 +8,7 @@ static uint8_t volatile __xdata * const mem = 0x0000;
 static uint16_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
 #define UART_THR (UART_BASE + 1)
-#define UART_RSR (UART_BASE + 5)
+#define UART_RFBR (UART_BASE + 5)
 #define UART_TFBF (UART_BASE + 6)
 
 #define MAX_CMD_LEN 80
@@ -53,7 +53,7 @@ static char getchar(void) {
 	char ret;
 
 	// Wait for the UART to assert the "data ready" flag.
-	while (readb(UART_RSR) < 1);
+	while (readb(UART_RFBR) < 1);
 
 	ret = readb(UART_RBR);
 
