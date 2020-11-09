@@ -25,9 +25,11 @@ static uint8_t readb(uint16_t reg) {
 	return *(uint8_t *)(mem + reg);
 }
 
+#if 0
 static uint16_t readw(uint16_t reg) {
 	return *(uint16_t *)(mem + reg);
 }
+#endif
 
 static uint32_t readl(uint16_t reg) {
 	return *(uint32_t *)(mem + reg);
@@ -37,9 +39,11 @@ static void writeb(uint16_t reg, uint8_t value) {
 	*(uint8_t *)(mem + reg) = value;
 }
 
+#if 0
 static void writew(uint16_t reg, uint16_t value) {
 	*(uint16_t *)(mem + reg) = value;
 }
+#endif
 
 static void writel(uint16_t reg, uint32_t value) {
 	*(uint32_t *)(mem + reg) = value;
@@ -88,25 +92,30 @@ static void println(const char * buf) {
 
 static void init(void) {
 	switch(CHIP_ID) {
+#if 0
 	case 0x1042:
 		chip_name = "ASM1042";
 		break;
 	case 0x1142:
 		chip_name = "ASM1042A";
 		break;
+#endif
 	case 0x1242:
 		chip_name = "ASM1142";
 		UART_BASE = 0xF100;
 		break;
+#if 0
 	case 0x2142:
 		chip_name = "ASM2142";
 		break;
 	default:
 		chip_name = "UNKNOWN";
 		break;
+#endif
 	}
 }
 
+#if 0
 static int parse_dec(uint32_t * value, const char * str) {
 	size_t len = strlen(str);
 	if (len > 10) {
@@ -132,6 +141,7 @@ static int parse_dec(uint32_t * value, const char * str) {
 
 	return 0;
 }
+#endif
 
 static int parse_hex(uint32_t * value, const char * str) {
 	size_t start = 0;
@@ -167,6 +177,7 @@ static int parse_hex(uint32_t * value, const char * str) {
 	return 0;
 }
 
+#if 0
 static void print_dec(uint32_t value, size_t min_digits) {
 	size_t digits = 0;
 	for (uint32_t remaining = value; remaining != 0; remaining /= 10) {
@@ -187,6 +198,7 @@ static void print_dec(uint32_t value, size_t min_digits) {
 		putchar(chr);
 	}
 }
+#endif
 
 static void print_hex(uint32_t value, size_t min_digits) {
 	size_t digits = 0;
