@@ -396,7 +396,11 @@ static int reset_handler(size_t argc, const char * argv[]) {
 	println("Resetting chip...");
 
 	// Wait for the UART to finish printing.
-	while (readb(UART_TSR) < 8);
+	while (readb(UART_TSR) < 15);
+
+	// Delay hack because for some reason waiting while(UART_TSR < 16)
+	// returns instantly and so nothing gets printed.
+	for (uint8_t i = 0; i < 200; i++);
 
 	uint8_t tmp = readb(0xf342);
 	writeb(0xf342, tmp | 1);
