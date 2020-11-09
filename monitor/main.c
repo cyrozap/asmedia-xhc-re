@@ -205,7 +205,7 @@ static void print_hex(uint32_t value, size_t min_digits) {
 	for (size_t i = 0; i < digits; i++) {
 		uint8_t nybble = (value >> (4 * (digits - i - 1))) & 0xf;
 		uint8_t chr = 0;
-		if (0 <= nybble && nybble <= 9) {
+		if (nybble <= 9) {
 			chr = nybble + '0';
 		} else if (0xa <= nybble && nybble <= 0xf) {
 			chr = nybble - 0xa + 'a';
