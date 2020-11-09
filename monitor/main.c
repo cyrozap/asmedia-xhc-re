@@ -648,7 +648,7 @@ static void cmdloop(void) {
 
 int main(void) {
 	init();
-	println("Hello from monitor!");
+	println("\nHello from monitor!");
 	print("monitor version ");
 	print(build_version);
 	print(" (built on ");
