@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <string.h>
 
+static char volatile __code * const fw_magic = 0x0087;
 static uint8_t volatile __xdata * const mem = 0x0000;
 #define ADDR_MAX 0xFFFFUL
 
@@ -16,8 +17,6 @@ static uint16_t UART_BASE;
 
 extern char const * const build_version;
 extern char const * const build_time;
-
-#define CHIP_ID 0x1242
 
 static char const * chip_name;
 
@@ -90,28 +89,47 @@ static void println(const char * buf) {
 	putchar('\n');
 }
 
+typedef struct {
+	char * fw_magic;
+	uint16_t chip_id;
+} magic_id_t;
+
+static magic_id_t const magic_id_map[] = {
+	{"U2104_FW", 0x1042},
+	{"2114A_FW", 0x1242},
+	{"2214A_FW", 0x2142},
+	{NULL, 0},
+};
+
+static uint16_t get_chip_id(void) {
+	for (size_t i = 0; magic_id_map[i].fw_magic != NULL; i++) {
+		if (!strncmp(magic_id_map[i].fw_magic, fw_magic, 8)) {
+			return magic_id_map[i].chip_id;
+		}
+	}
+
+	return 0;
+}
+
 static void init(void) {
-	switch(CHIP_ID) {
-#if 0
+	uint16_t chip_id = get_chip_id();
+	switch(chip_id) {
 	case 0x1042:
 		chip_name = "ASM1042";
 		break;
 	case 0x1142:
 		chip_name = "ASM1042A";
 		break;
-#endif
 	case 0x1242:
 		chip_name = "ASM1142";
 		UART_BASE = 0xF100;
 		break;
-#if 0
 	case 0x2142:
 		chip_name = "ASM2142";
 		break;
 	default:
 		chip_name = "UNKNOWN";
 		break;
-#endif
 	}
 }
 
