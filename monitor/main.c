@@ -3,6 +3,7 @@
 #include <string.h>
 
 static uint8_t volatile __xdata * const mem = 0x0000;
+#define ADDR_MAX 0xFFFFUL
 
 static uint16_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
@@ -235,6 +236,10 @@ static int mrw_handler(size_t argc, const char * argv[]) {
 		println("Error: parse_hex() failed.");
 		return -1;
 	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
+		return -1;
+	}
 	print_hex(ptr, 8);
 	print(": ");
 
@@ -264,6 +269,10 @@ static int mww_handler(size_t argc, const char * argv[]) {
 	ret = parse_hex(&ptr, argv[1]);
 	if (ret != 0) {
 		println("Error: parse_hex(argv[1]) failed.");
+		return -1;
+	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
 		return -1;
 	}
 	print_hex(ptr, 8);
