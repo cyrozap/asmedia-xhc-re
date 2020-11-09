@@ -146,7 +146,7 @@ static int parse_hex(uint32_t * value, const char * str) {
 
 	*value = 0;
 	for (size_t i = start; i < len + start; i++) {
-		uint8_t nybble = 0;
+		uint32_t nybble = 0;
 		if ('a' <= str[i] && str[i] <= 'f') {
 			nybble = str[i] - 'a' + 0xa;
 		} else if ('A' <= str[i] && str[i] <= 'F') {
