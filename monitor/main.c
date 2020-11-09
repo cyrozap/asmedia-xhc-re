@@ -446,7 +446,6 @@ static int bmo_handler(size_t argc, const char * argv[]) {
 	println("OK");
 	while (!done) {
 		uint32_t addr = 0;
-		uint32_t val = 0;
 		uint32_t len = 0;
 		bmo_command_t command = getchar();
 		switch (command) {
@@ -455,49 +454,40 @@ static int bmo_handler(size_t argc, const char * argv[]) {
 			break;
 		case READ:
 			for (int i = 0; i < 4; i++) {
-				addr |= getchar() << (i * 8);
+				((uint8_t *)&addr)[i] = getchar();
 			}
-			val = readl(addr);
-			for (int i = 0; i < 4; i++) {
-				putbyte((val >> (i * 8)) & 0xff);
+			for (uint32_t off = 0; off < 4; off++) {
+				putbyte(readb(addr + off));
 			}
 			break;
 		case WRITE:
 			for (int i = 0; i < 4; i++) {
-				addr |= getchar() << (i * 8);
+				((uint8_t *)&addr)[i] = getchar();
 			}
-			for (int i = 0; i < 4; i++) {
-				val |= getchar() << (i * 8);
+			for (uint32_t off = 0; off < 4; off++) {
+				writeb(addr + off, getchar());
 			}
-			writel(addr, val);
 			break;
 		case MEM_READ:
 			for (int i = 0; i < 4; i++) {
-				addr |= getchar() << (i * 8);
+				((uint8_t *)&addr)[i] = getchar();
 			}
 			for (int i = 0; i < 4; i++) {
-				len |= getchar() << (i * 8);
+				((uint8_t *)&len)[i] = getchar();
 			}
-			for (uint32_t off = 0; off < len; off += 4) {
-				val = readl(addr + off);
-				for (int i = 0; i < 4; i++) {
-					putbyte((val >> (i * 8)) & 0xff);
-				}
+			for (uint32_t off = 0; off < len; off++) {
+				putbyte(readb(addr + off));
 			}
 			break;
 		case MEM_WRITE:
 			for (int i = 0; i < 4; i++) {
-				addr |= getchar() << (i * 8);
+				((uint8_t *)&addr)[i] = getchar();
 			}
 			for (int i = 0; i < 4; i++) {
-				len |= getchar() << (i * 8);
+				((uint8_t *)&len)[i] = getchar();
 			}
-			for (uint32_t off = 0; off < len; off += 4) {
-				val = 0;
-				for (int i = 0; i < 4; i++) {
-					val |= getchar() << (i * 8);
-				}
-				writel(addr + off, val);
+			for (uint32_t off = 0; off < len; off++) {
+				writeb(addr + off, getchar());
 			}
 			break;
 		default:
