@@ -9,7 +9,7 @@ static uint16_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
 #define UART_THR (UART_BASE + 1)
 #define UART_RSR (UART_BASE + 5)
-#define UART_TSR (UART_BASE + 6)
+#define UART_TFBF (UART_BASE + 6)
 
 #define MAX_CMD_LEN 80
 #define MAX_ARGS 3
@@ -62,7 +62,7 @@ static char getchar(void) {
 
 static void putchar(char c) {
 	// Wait for the UART to become ready.
-	while (readb(UART_TSR) < 8);
+	while (readb(UART_TFBF) < 8);
 
 	if (c == '\n')
 		putchar('\r');
@@ -72,7 +72,7 @@ static void putchar(char c) {
 
 static void putbyte(uint8_t b) {
 	// Wait for the UART to become ready.
-	while (readb(UART_TSR) < 8);
+	while (readb(UART_TFBF) < 8);
 
 	writeb(UART_THR, b);
 }
@@ -396,10 +396,11 @@ static int reset_handler(size_t argc, const char * argv[]) {
 	println("Resetting chip...");
 
 	// Wait for the UART to finish printing.
-	while (readb(UART_TSR) < 15);
+	while (readb(UART_TFBF) < 15);
 
-	// Delay hack because for some reason waiting while(UART_TSR < 16)
-	// returns instantly and so nothing gets printed.
+	// Delay hack because for some reason waiting
+	// while(UART_TFBF < 16) returns instantly and so nothing gets
+	// printed.
 	for (uint8_t i = 0; i < 200; i++);
 
 	uint8_t tmp = readb(0xf342);
