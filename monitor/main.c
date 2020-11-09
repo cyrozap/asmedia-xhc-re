@@ -216,6 +216,40 @@ static void print_hex(uint32_t value, size_t min_digits) {
 	}
 }
 
+static int mrb_handler(size_t argc, const char * argv[]) {
+	if (argc < 2) {
+		println("Error: Too few arguments.");
+		println("Usage: mrb address");
+		println("Examples:");
+		println("    mrb 0x00000000");
+		println("    mrb 0x8");
+		println("    mrb 00000");
+		println("    mrb c");
+		println("    mrb 00201000");
+		println("    mrb 201000");
+		return -1;
+	}
+
+	uint32_t ptr = 0;
+	int ret = parse_hex(&ptr, argv[1]);
+	if (ret != 0) {
+		println("Error: parse_hex() failed.");
+		return -1;
+	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
+		return -1;
+	}
+	print_hex(ptr, 8);
+	print(": ");
+
+	uint32_t value = readb(ptr);
+	print_hex(value, 2);
+	putchar('\n');
+
+	return 0;
+}
+
 static int mrw_handler(size_t argc, const char * argv[]) {
 	if (argc < 2) {
 		println("Error: Too few arguments.");
@@ -248,6 +282,56 @@ static int mrw_handler(size_t argc, const char * argv[]) {
 	putchar('\n');
 
 	return 0;
+}
+
+static int mwb_handler(size_t argc, const char * argv[]) {
+	if (argc < 3) {
+		println("Error: Too few arguments.");
+		println("Usage: mwb address value");
+		println("Examples:");
+		println("    mwb 0x00200000 0");
+		println("    mwb 0x100008 c0");
+		println("    mwb 100000 0x08");
+		println("    mwb 20100c 0x1");
+		println("    mwb 00201000 0");
+		return -1;
+	}
+
+	int ret = 0;
+
+	uint32_t ptr = 0;
+	ret = parse_hex(&ptr, argv[1]);
+	if (ret != 0) {
+		println("Error: parse_hex(argv[1]) failed.");
+		return -1;
+	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
+		return -1;
+	}
+	print_hex(ptr, 8);
+	print(": ");
+	print_hex(readb(ptr), 2);
+	putchar('\n');
+
+	uint32_t value = 0;
+	ret = parse_hex(&value, argv[2]);
+	if (ret != 0) {
+		println("Error: parse_hex(argv[2]) failed.");
+		return -1;
+	}
+	if (value > 0xFF) {
+		println("Error: Value too large.");
+		return -1;
+	}
+	writeb(ptr, value);
+
+	print_hex(ptr, 8);
+	print(": ");
+	print_hex(readb(ptr), 2);
+	putchar('\n');
+
+	return ret;
 }
 
 static int mww_handler(size_t argc, const char * argv[]) {
@@ -408,7 +492,9 @@ typedef struct {
 static const command cmd_table[] = {
 	{ "help", help_handler },
 	{ "version", version_handler },
+	{ "mrb", mrb_handler },
 	{ "mrw", mrw_handler },
+	{ "mwb", mwb_handler },
 	{ "mww", mww_handler },
 	{ "reset", reset_handler },
 	{ "bmo", bmo_handler },
