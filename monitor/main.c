@@ -51,17 +51,20 @@ static uint32_t readl(uint32_t reg) {
 }
 
 static void writeb(uint32_t reg, uint8_t value) {
-	*(uint8_t *)(reg) = value;
+	if ((reg & 0xFF0000UL) != 0x800000UL)
+		*(uint8_t *)(reg) = value;
 }
 
 #if 0
 static void writew(uint32_t reg, uint16_t value) {
-	*(uint16_t *)(reg) = value;
+	if ((reg & 0xFF0000UL) != 0x800000UL)
+		*(uint16_t *)(reg) = value;
 }
 #endif
 
 static void writel(uint32_t reg, uint32_t value) {
-	*(uint32_t *)(reg) = value;
+	if ((reg & 0xFF0000UL) != 0x800000UL)
+		*(uint32_t *)(reg) = value;
 }
 
 static char getchar(void) {
