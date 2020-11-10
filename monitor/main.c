@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -412,7 +413,17 @@ static int mww_handler(size_t argc, const char * argv[]) {
 }
 
 static int reset_handler(size_t argc, const char * argv[]) {
-	println("Resetting chip...");
+	bool reload = false;
+
+	if (argc > 1) {
+		reload = true;
+	}
+
+	print("Resetting chip");
+	if (reload) {
+		print(" to mask ROM");
+	}
+	println("...");
 
 	// Wait for the UART to finish printing.
 	while (readb(UART_TFBF) < 15);
@@ -422,8 +433,13 @@ static int reset_handler(size_t argc, const char * argv[]) {
 	// printed.
 	for (uint8_t i = 0; i < 200; i++);
 
-	uint8_t tmp = readb(0xf342);
-	writeb(0xf342, tmp | 1);
+	if (reload) {
+		// Boot from the mask ROM so it can reload our code from
+		// flash.
+		writeb(0xf340, readb(0xf340) & 0xfe);
+	}
+
+	writeb(0xf342, readb(0xf342) | 1);
 
 	// Loop until the chip resets.
 	while (1);
