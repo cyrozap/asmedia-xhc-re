@@ -17,6 +17,8 @@ static uint16_t CPU_CON_BASE;
 #define CPU_MODE_NEXT (CPU_CON_BASE + 0)
 #define CPU_MODE_CURRENT (CPU_CON_BASE + 1)
 #define CPU_EXEC_CON (CPU_CON_BASE + 2)
+#define CPU_EXEC_CON_RESET (1 << 0)
+#define CPU_EXEC_CON_HALT (1 << 1)
 
 #define MAX_CMD_LEN 80
 #define MAX_ARGS 3
@@ -445,7 +447,8 @@ static int reset_handler(size_t argc, const char * argv[]) {
 		writeb(CPU_MODE_NEXT, readb(CPU_MODE_NEXT) & 0xfe);
 	}
 
-	writeb(CPU_EXEC_CON, readb(CPU_EXEC_CON) | 1);
+	// Trigger the reset.
+	writeb(CPU_EXEC_CON, readb(CPU_EXEC_CON) | CPU_EXEC_CON_RESET);
 
 	// Loop until the chip resets.
 	while (1);
