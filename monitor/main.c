@@ -51,7 +51,8 @@ static void writel(uint16_t reg, uint32_t value) {
 static char getchar(void) {
 	char ret;
 
-	// Wait for the UART to assert the "data ready" flag.
+	// Wait for at least one byte of data to appear in the UART RX
+	// FIFO.
 	while (readb(UART_RFBR) < 1);
 
 	ret = readb(UART_RBR);
@@ -60,7 +61,7 @@ static char getchar(void) {
 }
 
 static void putchar(char c) {
-	// Wait for the UART to become ready.
+	// Wait for space to free up in the UART TX FIFO.
 	while (readb(UART_TFBF) < 8);
 
 	if (c == '\n')
@@ -70,7 +71,7 @@ static void putchar(char c) {
 }
 
 static void putbyte(uint8_t b) {
-	// Wait for the UART to become ready.
+	// Wait for space to free up in the UART TX FIFO.
 	while (readb(UART_TFBF) < 8);
 
 	writeb(UART_THR, b);
