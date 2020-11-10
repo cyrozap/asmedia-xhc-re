@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
-static char volatile __code * const fw_magic = 0x0087;
+static char const __code __at (0x0087) fw_magic[8];
 
 static uint16_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
