@@ -4,8 +4,6 @@
 #include <string.h>
 
 static char volatile __code * const fw_magic = 0x0087;
-static uint8_t volatile __xdata * const mem = 0x0000;
-#define ADDR_MAX 0xFFFFUL
 
 static uint16_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
@@ -28,32 +26,42 @@ extern char const * const build_time;
 
 static char const * chip_name;
 
-static uint8_t readb(uint16_t reg) {
-	return *(uint8_t *)(mem + reg);
+/*
+ * Prefix the 16-bit address with one of the following bytes to access
+ * the corresponding memory region:
+ *   0x00: XRAM
+ *   0x40: IRAM
+ *   0x80: PMEM
+ */
+
+#define ADDR_MAX 0xFFFFFFUL
+
+static uint8_t readb(uint32_t reg) {
+	return *(uint8_t *)(reg);
 }
 
 #if 0
-static uint16_t readw(uint16_t reg) {
-	return *(uint16_t *)(mem + reg);
+static uint16_t readw(uint32_t reg) {
+	return *(uint16_t *)(reg);
 }
 #endif
 
-static uint32_t readl(uint16_t reg) {
-	return *(uint32_t *)(mem + reg);
+static uint32_t readl(uint32_t reg) {
+	return *(uint32_t *)(reg);
 }
 
-static void writeb(uint16_t reg, uint8_t value) {
-	*(uint8_t *)(mem + reg) = value;
+static void writeb(uint32_t reg, uint8_t value) {
+	*(uint8_t *)(reg) = value;
 }
 
 #if 0
-static void writew(uint16_t reg, uint16_t value) {
-	*(uint16_t *)(mem + reg) = value;
+static void writew(uint32_t reg, uint16_t value) {
+	*(uint16_t *)(reg) = value;
 }
 #endif
 
-static void writel(uint16_t reg, uint32_t value) {
-	*(uint32_t *)(mem + reg) = value;
+static void writel(uint32_t reg, uint32_t value) {
+	*(uint32_t *)(reg) = value;
 }
 
 static char getchar(void) {
@@ -256,6 +264,27 @@ static void print_hex(uint32_t value, size_t min_digits) {
 	}
 }
 
+static char const * const get_region_name_for_addr(uint32_t addr) {
+	switch (addr & 0xFFFF0000UL) {
+	case 0x00000000UL:
+		return "XDATA";
+	case 0x00400000UL:
+		return "IDATA";
+	case 0x00600000UL:
+		return "PDATA";
+	case 0x00800000UL:
+		return "CODE";
+	default:
+		return "INVALID";
+	}
+}
+
+static void print_addr_with_region(uint32_t addr) {
+	print(get_region_name_for_addr(addr));
+	print(" ");
+	print_hex(addr & 0xffff, 4);
+}
+
 static int mrb_handler(size_t argc, const char * argv[]) {
 	if (argc < 2) {
 		println("Error: Too few arguments.");
@@ -280,7 +309,7 @@ static int mrb_handler(size_t argc, const char * argv[]) {
 		println("Error: Address too large.");
 		return -1;
 	}
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 
 	uint32_t value = readb(ptr);
@@ -314,7 +343,7 @@ static int mrw_handler(size_t argc, const char * argv[]) {
 		println("Error: Address too large.");
 		return -1;
 	}
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 
 	uint32_t value = readl(ptr);
@@ -349,7 +378,7 @@ static int mwb_handler(size_t argc, const char * argv[]) {
 		println("Error: Address too large.");
 		return -1;
 	}
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 	print_hex(readb(ptr), 2);
 	putchar('\n');
@@ -366,7 +395,7 @@ static int mwb_handler(size_t argc, const char * argv[]) {
 	}
 	writeb(ptr, value);
 
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 	print_hex(readb(ptr), 2);
 	putchar('\n');
@@ -399,7 +428,7 @@ static int mww_handler(size_t argc, const char * argv[]) {
 		println("Error: Address too large.");
 		return -1;
 	}
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 	print_hex(readl(ptr), 8);
 	putchar('\n');
@@ -412,7 +441,7 @@ static int mww_handler(size_t argc, const char * argv[]) {
 	}
 	writel(ptr, value);
 
-	print_hex(ptr, 8);
+	print_addr_with_region(ptr);
 	print(": ");
 	print_hex(readl(ptr), 8);
 	putchar('\n');
