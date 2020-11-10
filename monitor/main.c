@@ -51,19 +51,19 @@ static uint32_t readl(uint32_t reg) {
 }
 
 static void writeb(uint32_t reg, uint8_t value) {
-	if ((reg & 0xFF0000UL) != 0x800000UL)
+	if (reg < 0x800000UL)
 		*(uint8_t *)(reg) = value;
 }
 
 #if 0
 static void writew(uint32_t reg, uint16_t value) {
-	if ((reg & 0xFF0000UL) != 0x800000UL)
+	if (reg < 0x800000UL)
 		*(uint16_t *)(reg) = value;
 }
 #endif
 
 static void writel(uint32_t reg, uint32_t value) {
-	if ((reg & 0xFF0000UL) != 0x800000UL)
+	if (reg < 0x800000UL)
 		*(uint32_t *)(reg) = value;
 }
 
@@ -268,17 +268,14 @@ static void print_hex(uint32_t value, size_t min_digits) {
 }
 
 static char const * const get_region_name_for_addr(uint32_t addr) {
-	switch (addr & 0xFFFF0000UL) {
-	case 0x00000000UL:
+	if (addr < 0x400000UL) {
 		return "XDATA";
-	case 0x00400000UL:
+	} else if (addr < 0x600000UL) {
 		return "IDATA";
-	case 0x00600000UL:
+	} else if (addr < 0x800000UL) {
 		return "PDATA";
-	case 0x00800000UL:
+	} else {
 		return "CODE";
-	default:
-		return "INVALID";
 	}
 }
 
