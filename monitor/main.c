@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "sfr.h"
+
 static char const __code __at (0x0087) fw_magic[8];
 
 static uint16_t UART_BASE;
@@ -37,34 +39,65 @@ static char const * chip_name;
 #define ADDR_MAX 0xFFFFFFUL
 
 static uint8_t readb(uint32_t reg) {
-	return *(uint8_t *)(reg);
+	if (reg < 0xC00000UL)
+		return *(uint8_t *)(reg);
+	else
+		return get_sfr(reg);
 }
 
 #if 0
 static uint16_t readw(uint32_t reg) {
-	return *(uint16_t *)(reg);
+	if (reg < 0xC00000UL)
+		return *(uint16_t *)(reg);
+	else {
+		uint32_t value;
+		for (size_t i = 0; i < 2; i++) {
+			((uint8_t *)&value)[i] = get_sfr(reg+i);
+		}
+		return value;
+	}
 }
 #endif
 
 static uint32_t readl(uint32_t reg) {
-	return *(uint32_t *)(reg);
+	if (reg < 0xC00000UL)
+		return *(uint32_t *)(reg);
+	else {
+		uint32_t value;
+		for (size_t i = 0; i < 4; i++) {
+			((uint8_t *)&value)[i] = get_sfr(reg+i);
+		}
+		return value;
+	}
 }
 
 static void writeb(uint32_t reg, uint8_t value) {
 	if (reg < 0x800000UL)
 		*(uint8_t *)(reg) = value;
+	else if (reg >= 0xC00000UL)
+		set_sfr(reg, value);
 }
 
 #if 0
 static void writew(uint32_t reg, uint16_t value) {
 	if (reg < 0x800000UL)
 		*(uint16_t *)(reg) = value;
+	else if (reg >= 0xC00000UL) {
+		set_sfr(reg, value & 0xff);
+		set_sfr(reg, (value >> 8) & 0xff);
+	}
 }
 #endif
 
 static void writel(uint32_t reg, uint32_t value) {
 	if (reg < 0x800000UL)
 		*(uint32_t *)(reg) = value;
+	else if (reg >= 0xC00000UL) {
+		set_sfr(reg, value & 0xff);
+		set_sfr(reg, (value >> 8) & 0xff);
+		set_sfr(reg, (value >> 16) & 0xff);
+		set_sfr(reg, (value >> 24) & 0xff);
+	}
 }
 
 static char getchar(void) {
@@ -274,8 +307,10 @@ static char const * const get_region_name_for_addr(uint32_t addr) {
 		return "IDATA";
 	} else if (addr < 0x800000UL) {
 		return "PDATA";
-	} else {
+	} else if (addr < 0xC00000UL) {
 		return "CODE";
+	} else {
+		return "SFR";
 	}
 }
 

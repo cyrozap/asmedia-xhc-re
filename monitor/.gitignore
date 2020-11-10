@@ -10,3 +10,4 @@
 *.rst
 *.sym
 build_info.c
+sfr.c
