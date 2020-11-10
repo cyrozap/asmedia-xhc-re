@@ -13,6 +13,11 @@ static uint16_t UART_BASE;
 #define UART_RFBR (UART_BASE + 5)
 #define UART_TFBF (UART_BASE + 6)
 
+static uint16_t CPU_CON_BASE;
+#define CPU_MODE_NEXT (CPU_CON_BASE + 0)
+#define CPU_MODE_CURRENT (CPU_CON_BASE + 1)
+#define CPU_EXEC_CON (CPU_CON_BASE + 2)
+
 #define MAX_CMD_LEN 80
 #define MAX_ARGS 3
 
@@ -125,6 +130,7 @@ static void init(void) {
 	case 0x1242:
 		chip_name = "ASM1142";
 		UART_BASE = 0xF100;
+		CPU_CON_BASE = 0xF340;
 		break;
 	case 0x2142:
 		chip_name = "ASM2142";
@@ -436,10 +442,10 @@ static int reset_handler(size_t argc, const char * argv[]) {
 	if (reload) {
 		// Boot from the mask ROM so it can reload our code from
 		// flash.
-		writeb(0xf340, readb(0xf340) & 0xfe);
+		writeb(CPU_MODE_NEXT, readb(CPU_MODE_NEXT) & 0xfe);
 	}
 
-	writeb(0xf342, readb(0xf342) | 1);
+	writeb(CPU_EXEC_CON, readb(CPU_EXEC_CON) | 1);
 
 	// Loop until the chip resets.
 	while (1);
