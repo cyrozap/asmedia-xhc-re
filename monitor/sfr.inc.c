@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #include <mcs51/compiler.h>
 
 #include "sfr.h"
