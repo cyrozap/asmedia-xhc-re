@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <mcs51/8051.h>
+
 #include "sfr.h"
 
 static char const __code __at (0x0087) fw_magic[8];
@@ -27,6 +29,20 @@ extern char const * const build_version;
 extern char const * const build_time;
 
 static char const * chip_name;
+
+__bit volatile eint0_triggered = 0;
+__bit volatile eint1_triggered = 0;
+
+
+void isr_eint0 (void) __interrupt {
+	EX0 = 0;
+	eint0_triggered = 1;
+}
+
+void isr_eint1 (void) __interrupt {
+	EX1 = 0;
+	eint1_triggered = 1;
+}
 
 /*
  * Prefix the 16-bit address with one of the following bytes to access
