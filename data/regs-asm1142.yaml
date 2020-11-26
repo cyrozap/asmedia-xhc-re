@@ -231,8 +231,8 @@ registers:
             This bit is set if the clock frequency is 78 MHz, and clear if
             it's 156 MHz.
       notes: |
-        The value of this register is latched from `CPU_MODE_CURRENT` on
-        reset, and indicates the settings for the currently-executing code.
+        The value of this register is latched from `CPU_MODE_NEXT` on reset,
+        and indicates the settings for the currently-executing code.
     - name: CPU_EXEC_CTRL
       start: 0xF342
       end: 0xF342
