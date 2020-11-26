@@ -1,0 +1,63 @@
+meta:
+  chip: ASM2142/ASM3142
+
+registers:
+  xdata:
+    - name: PCI_CONFIG_VID_DID
+      start: 0x18550
+      end: 0x18553
+      bits:
+        - name: VENDOR_ID
+          start: 0
+          end: 15
+          permissions: RW
+          notes: |
+            PCI Vendor ID.
+        - name: DEVICE_ID
+          start: 16
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Device ID.
+      notes: |
+        The Vendor ID and Device ID register in PCI configuration space
+        (offset 0x00).
+    - name: PCI_CONFIG_CLASS_REV
+      start: 0x18554
+      end: 0x18557
+      bits:
+        - name: REVISION_ID
+          start: 0
+          end: 7
+          permissions: RW
+          notes: |
+            PCI Revision ID.
+        - name: CLASS_CODE
+          start: 8
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Class Code.
+      notes: |
+        The Class Code and Revision ID register in PCI configuration space
+        (offset 0x08).
+    - name: XHCI_HCCPARAMS1
+      start: 0x18810
+      end: 0x18813
+      permissions: RW
+      notes: |
+        Host Controller Capability Parameters 1. See the xHCI specification
+        for details.
+    - name: XHCI_CRCR
+      start: 0x18838
+      end: 0x1883F
+      permissions: RO
+      notes: |
+        Command Ring Control Register. See the xHCI specification for details.
+    - name: XHCI_DCBAAP
+      start: 0x18850
+      end: 0x18857
+      permissions: RO
+      notes: |
+        Device Context Base Address Array Pointer Register. See the xHCI
+        specification for details.
