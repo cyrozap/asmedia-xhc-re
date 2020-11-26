@@ -120,8 +120,10 @@ def gen_xhtml(doc):
     ET.SubElement(body, 'h2').text = "Register Map"
     register_regions = doc.get('registers', dict())
     for region_name, region_registers in register_regions.items():
+        ET.SubElement(body, 'hr')
         ET.SubElement(body, 'h3').text = "{} Region Registers".format(region_name.upper())
         for register in region_registers:
+            ET.SubElement(body, 'hr')
             reg_name = register.get('name', "")
             addr_format = "0x{:04X}"
             if region_name == "sfr":
