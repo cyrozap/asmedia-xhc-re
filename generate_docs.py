@@ -190,9 +190,11 @@ def gen_xhtml(doc):
                     }
             if max_bits > 32:
                 bit_table_upper_header = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_header, 'th').text = "Bit"
                 for bit in range(48, 64)[::-1]:
                     ET.SubElement(bit_table_upper_header, 'th').text = str(bit)
                 bit_table_upper_perms = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_perms, 'th').text = "Type"
                 for bit in range(48, 64)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -204,6 +206,7 @@ def gen_xhtml(doc):
                     elif bit in unused_bits:
                         ET.SubElement(bit_table_upper_perms, 'td', {'class': 'bitfield bitfield-unused'})
                 bit_table_upper_data = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_data, 'th').text = "Name"
                 for bit in range(48, 64)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -215,9 +218,11 @@ def gen_xhtml(doc):
                     elif bit in unused_bits:
                         ET.SubElement(bit_table_upper_data, 'td', {'class': 'bitfield bitfield-unused'})
                 bit_table_lower_header = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_lower_header, 'th').text = "Bit"
                 for bit in range(32, 48)[::-1]:
                     ET.SubElement(bit_table_lower_header, 'th').text = str(bit)
                 bit_table_lower_perms = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_lower_perms, 'th').text = "Type"
                 for bit in range(32, 48)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -229,6 +234,7 @@ def gen_xhtml(doc):
                     elif bit in unused_bits:
                         ET.SubElement(bit_table_lower_perms, 'td', {'class': 'bitfield bitfield-unused'})
                 bit_table_lower_data = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_lower_data, 'th').text = "Name"
                 for bit in range(32, 48)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -241,9 +247,11 @@ def gen_xhtml(doc):
                         ET.SubElement(bit_table_lower_data, 'td', {'class': 'bitfield bitfield-unused'})
             if max_bits > 16:
                 bit_table_upper_header = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_header, 'th').text = "Bit"
                 for bit in range(16, 32)[::-1]:
                     ET.SubElement(bit_table_upper_header, 'th').text = str(bit)
                 bit_table_upper_perms = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_perms, 'th').text = "Type"
                 for bit in range(16, 32)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -255,6 +263,7 @@ def gen_xhtml(doc):
                     elif bit in unused_bits:
                         ET.SubElement(bit_table_upper_perms, 'td', {'class': 'bitfield bitfield-unused'})
                 bit_table_upper_data = ET.SubElement(bit_table, 'tr')
+                ET.SubElement(bit_table_upper_data, 'th').text = "Name"
                 for bit in range(16, 32)[::-1]:
                     if bit in bit_spans.keys():
                         span = bit_spans[bit]
@@ -266,9 +275,11 @@ def gen_xhtml(doc):
                     elif bit in unused_bits:
                         ET.SubElement(bit_table_upper_data, 'td', {'class': 'bitfield bitfield-unused'})
             bit_table_lower_header = ET.SubElement(bit_table, 'tr')
+            ET.SubElement(bit_table_lower_header, 'th').text = "Bit"
             for bit in range(0, min(16, max_bits))[::-1]:
                 ET.SubElement(bit_table_lower_header, 'th').text = str(bit)
             bit_table_lower_perms = ET.SubElement(bit_table, 'tr')
+            ET.SubElement(bit_table_lower_perms, 'th').text = "Type"
             for bit in range(0, min(16, max_bits))[::-1]:
                 if bit in bit_spans.keys():
                     span = bit_spans[bit]
@@ -280,6 +291,7 @@ def gen_xhtml(doc):
                 elif bit in unused_bits:
                     ET.SubElement(bit_table_lower_perms, 'td', {'class': 'bitfield bitfield-unused'})
             bit_table_lower_data = ET.SubElement(bit_table, 'tr')
+            ET.SubElement(bit_table_lower_data, 'th').text = "Name"
             for bit in range(0, min(16, max_bits))[::-1]:
                 if bit in bit_spans.keys():
                     span = bit_spans[bit]
