@@ -23,12 +23,39 @@ types:
         encoding: ascii
       - id: data
         size: len - 16
+        type: config_words
       - id: checksum
         type: u1
         doc: "A uint8 sum of all the bytes in the header, excluding the checksum and crc32."
       - id: crc32
         type: u4
         doc: "A CRC32 of all the bytes in the header, excluding the checksum and crc32."
+    types:
+      config_words:
+        seq:
+          - id: config_words
+            size: 8
+            type: config_word
+            repeat: eos
+      config_word:
+        seq:
+          - id: type
+            type: u1
+          - id: info
+            size-eos: true
+            type:
+              switch-on: type
+              cases:
+                0xcc: write_data
+        types:
+          write_data:
+            seq:
+              - id: len
+                type: u1
+              - id: addr
+                type: u2
+              - id: data
+                size: len
   body:
     seq:
       - id: len
