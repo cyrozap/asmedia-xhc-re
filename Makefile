@@ -12,5 +12,8 @@ doc/%.xhtml: data/%.yaml generate_docs.py
 
 doc: $(DOC_TARGETS)
 
+clean:
+	rm -f asm_fw.py $(DOC_TARGETS)
 
-.PHONY: doc
+
+.PHONY: clean doc
