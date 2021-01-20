@@ -65,6 +65,7 @@ types:
             '"U2104_RCFG"': u2
             '"2114A_RCFG"': u2
             '"2214A_RCFG"': u4
+            '"2324A_RCFG"': u4
       - id: firmware
         size: len
         type: firmware
