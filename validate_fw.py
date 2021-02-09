@@ -45,6 +45,14 @@ def main():
     validate_checksum("body", fw.body.firmware.code, fw.body.checksum)
     validate_crc32("body", fw.body.firmware.code, fw.body.crc32)
 
+    chip_name = {
+        "U2104_RCFG": "ASM1042",
+        "2114A_RCFG": "ASM1142",
+        "2214A_RCFG": "ASM2142/ASM3142",
+        "2324A_RCFG": "ASM3242",
+    }.get(fw.header.magic, "UNKNOWN (\"{}\")".format(fw.header.magic))
+    print("Chip: {}".format(chip_name))
+
     version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
     print("Firmware version: {}".format(version_string))
 
