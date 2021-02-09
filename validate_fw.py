@@ -47,6 +47,7 @@ def main():
 
     chip_name = {
         "U2104_RCFG": "ASM1042",
+        "2104B_RCFG": "ASM1042A",
         "2114A_RCFG": "ASM1142",
         "2214A_RCFG": "ASM2142/ASM3142",
         "2324A_RCFG": "ASM3242",
