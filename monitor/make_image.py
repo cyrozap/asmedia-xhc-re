@@ -9,8 +9,10 @@ from zlib import crc32
 
 CHIP_INFO = {
     "ASM1042": ("U2104_RCFG", "U2104_FW", "H"),
+    "ASM1042A": ("2104B_RCFG", "2104B_FW", "H"),
     "ASM1142": ("2114A_RCFG", "2114A_FW", "H"),
     "ASM2142": ("2214A_RCFG", "2214A_FW", "I"),
+    "ASM3242": ("2324A_RCFG", "2324A_FW", "I"),
 }
 
 

@@ -165,8 +165,10 @@ typedef struct {
 
 static magic_id_t const magic_id_map[] = {
 	{"U2104_FW", 0x1042},
+	{"2104B_FW", 0x1142},
 	{"2114A_FW", 0x1242},
 	{"2214A_FW", 0x2142},
+	{"2324A_FW", 0x3242},
 	{NULL, 0},
 };
 
@@ -196,6 +198,9 @@ static void init(void) {
 		break;
 	case 0x2142:
 		chip_name = "ASM2142";
+		break;
+	case 0x3242:
+		chip_name = "ASM3242";
 		break;
 	default:
 		chip_name = "UNKNOWN";
