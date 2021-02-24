@@ -158,48 +158,57 @@ static void println(const char * buf) {
 	putchar('\n');
 }
 
+typedef enum {
+	CHIP_ASM1042,
+	CHIP_ASM1042A,
+	CHIP_ASM1142,
+	CHIP_ASM2142,
+	CHIP_ASM3242,
+	CHIP_UNKNOWN,
+} chip_t;
+
 typedef struct {
 	char * fw_magic;
-	uint16_t chip_id;
-} magic_id_t;
+	chip_t chip;
+} magic_chip_t;
 
-static magic_id_t const magic_id_map[] = {
-	{"U2104_FW", 0x1042},
-	{"2104B_FW", 0x1142},
-	{"2114A_FW", 0x1242},
-	{"2214A_FW", 0x2142},
-	{"2324A_FW", 0x3242},
-	{NULL, 0},
+static magic_chip_t const magic_chip_map[] = {
+	{"U2104_FW", CHIP_ASM1042},
+	{"2104B_FW", CHIP_ASM1042A},
+	{"2114A_FW", CHIP_ASM1142},
+	{"2214A_FW", CHIP_ASM2142},
+	{"2324A_FW", CHIP_ASM3242},
+	{NULL, CHIP_UNKNOWN},
 };
 
-static uint16_t get_chip_id(void) {
-	for (size_t i = 0; magic_id_map[i].fw_magic != NULL; i++) {
-		if (!strncmp(magic_id_map[i].fw_magic, fw_magic, 8)) {
-			return magic_id_map[i].chip_id;
+static chip_t get_chip_type(void) {
+	for (size_t i = 0; magic_chip_map[i].fw_magic != NULL; i++) {
+		if (!strncmp(magic_chip_map[i].fw_magic, fw_magic, 8)) {
+			return magic_chip_map[i].chip;
 		}
 	}
 
-	return 0;
+	return CHIP_UNKNOWN;
 }
 
 static void init(void) {
-	uint16_t chip_id = get_chip_id();
-	switch(chip_id) {
-	case 0x1042:
+	chip_t chip = get_chip_type();
+	switch(chip) {
+	case CHIP_ASM1042:
 		chip_name = "ASM1042";
 		break;
-	case 0x1142:
+	case CHIP_ASM1042A:
 		chip_name = "ASM1042A";
 		break;
-	case 0x1242:
+	case CHIP_ASM1142:
 		chip_name = "ASM1142";
 		UART_BASE = 0xF100;
 		CPU_CON_BASE = 0xF340;
 		break;
-	case 0x2142:
+	case CHIP_ASM2142:
 		chip_name = "ASM2142";
 		break;
-	case 0x3242:
+	case CHIP_ASM3242:
 		chip_name = "ASM3242";
 		break;
 	default:
