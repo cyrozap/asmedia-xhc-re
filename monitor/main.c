@@ -9,13 +9,13 @@
 
 static char const __code __at (0x0087) fw_magic[8];
 
-static uint16_t UART_BASE;
+static uint32_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
 #define UART_THR (UART_BASE + 1)
 #define UART_RFBR (UART_BASE + 5)
 #define UART_TFBF (UART_BASE + 6)
 
-static uint16_t CPU_CON_BASE;
+static uint32_t CPU_CON_BASE;
 #define CPU_MODE_NEXT (CPU_CON_BASE + 0)
 #define CPU_MODE_CURRENT (CPU_CON_BASE + 1)
 #define CPU_EXEC_CTRL (CPU_CON_BASE + 2)
@@ -207,6 +207,8 @@ static void init(void) {
 		break;
 	case CHIP_ASM2142:
 		chip_name = "ASM2142";
+		UART_BASE = 0x15100;
+		CPU_CON_BASE = 0x15040;
 		break;
 	case CHIP_ASM3242:
 		chip_name = "ASM3242";
