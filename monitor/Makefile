@@ -4,6 +4,8 @@ CC := sdcc
 CFLAGS := -mmcs51 --std-sdcc11 --model-small --stack-auto
 OBJCOPY := sdobjcopy
 
+TARGET ?= ASM1142
+
 all: monitor.img monitor.bin
 
 %.rel: %.c
@@ -26,7 +28,7 @@ monitor.ihx: main.rel sfr.rel vectors.rel build_info.rel
 	$(OBJCOPY) -I ihex -O binary $< $@
 
 %.img: %.bin
-	./make_image.py -o $@ $<
+	./make_image.py -c $(TARGET) -o $@ $<
 
 flash: monitor.img
 	flashrom -p ch341a_spi -w $<
