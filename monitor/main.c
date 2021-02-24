@@ -7,6 +7,8 @@
 
 #include "sfr.h"
 
+static __sfr __at (0x93) DPX;
+
 static char const __code __at (0x0087) fw_magic[8];
 
 static uint32_t UART_BASE;
@@ -55,17 +57,27 @@ void isr_eint1 (void) __interrupt {
 #define ADDR_MAX 0xFFFFFFUL
 
 static uint8_t readb(uint32_t reg) {
-	if (reg < 0xC00000UL)
-		return *(uint8_t *)(reg);
-	else
+	if (reg < 0xC00000UL) {
+		uint8_t ret;
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		ret = *(uint8_t *)(reg);
+		DPX = dpx;
+		return ret;
+	} else
 		return get_sfr(reg);
 }
 
 #if 0
 static uint16_t readw(uint32_t reg) {
-	if (reg < 0xC00000UL)
-		return *(uint16_t *)(reg);
-	else {
+	if (reg < 0xC00000UL) {
+		uint16_t ret;
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		ret = *(uint16_t *)(reg);
+		DPX = dpx;
+		return ret;
+	} else {
 		uint32_t value;
 		for (size_t i = 0; i < 2; i++) {
 			((uint8_t *)&value)[i] = get_sfr(reg+i);
@@ -76,9 +88,14 @@ static uint16_t readw(uint32_t reg) {
 #endif
 
 static uint32_t readl(uint32_t reg) {
-	if (reg < 0xC00000UL)
-		return *(uint32_t *)(reg);
-	else {
+	if (reg < 0xC00000UL) {
+		uint32_t ret;
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		ret = *(uint32_t *)(reg);
+		DPX = dpx;
+		return ret;
+	} else {
 		uint32_t value;
 		for (size_t i = 0; i < 4; i++) {
 			((uint8_t *)&value)[i] = get_sfr(reg+i);
@@ -88,17 +105,23 @@ static uint32_t readl(uint32_t reg) {
 }
 
 static void writeb(uint32_t reg, uint8_t value) {
-	if (reg < 0x800000UL)
+	if (reg < 0x800000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
 		*(uint8_t *)(reg) = value;
-	else if (reg >= 0xC00000UL)
+		DPX = dpx;
+	} else if (reg >= 0xC00000UL)
 		set_sfr(reg, value);
 }
 
 #if 0
 static void writew(uint32_t reg, uint16_t value) {
-	if (reg < 0x800000UL)
+	if (reg < 0x800000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
 		*(uint16_t *)(reg) = value;
-	else if (reg >= 0xC00000UL) {
+		DPX = dpx;
+	} else if (reg >= 0xC00000UL) {
 		set_sfr(reg, value & 0xff);
 		set_sfr(reg, (value >> 8) & 0xff);
 	}
@@ -106,9 +129,12 @@ static void writew(uint32_t reg, uint16_t value) {
 #endif
 
 static void writel(uint32_t reg, uint32_t value) {
-	if (reg < 0x800000UL)
+	if (reg < 0x800000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
 		*(uint32_t *)(reg) = value;
-	else if (reg >= 0xC00000UL) {
+		DPX = dpx;
+	} else if (reg >= 0xC00000UL) {
 		set_sfr(reg, value & 0xff);
 		set_sfr(reg, (value >> 8) & 0xff);
 		set_sfr(reg, (value >> 16) & 0xff);
@@ -349,7 +375,7 @@ static char const * const get_region_name_for_addr(uint32_t addr) {
 static void print_addr_with_region(uint32_t addr) {
 	print(get_region_name_for_addr(addr));
 	print(" ");
-	print_hex(addr & 0xffff, 4);
+	print_hex(addr & 0x1fffff, 6);
 }
 
 static int mrb_handler(size_t argc, const char * argv[]) {
