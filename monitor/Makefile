@@ -5,6 +5,7 @@ CFLAGS := -mmcs51 --std-sdcc11 --model-small --stack-auto
 OBJCOPY := sdobjcopy
 
 TARGET ?= ASM1142
+FLASH_SIZE ?= 64K
 
 all: monitor.img monitor.bin
 
@@ -29,6 +30,7 @@ monitor.ihx: main.rel sfr.rel vectors.rel build_info.rel
 
 %.img: %.bin
 	./make_image.py -c $(TARGET) -o $@ $<
+	truncate -s $(FLASH_SIZE) $@
 
 flash: monitor.img
 	flashrom -p ch341a_spi -w $<

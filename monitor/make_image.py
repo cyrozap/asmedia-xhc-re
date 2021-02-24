@@ -66,7 +66,6 @@ def main():
     body = gen_body(args.chip, binary)
 
     image = header + body
-    image += (0x10000 - len(image)) * b'\0'
 
     output = open(args.output, 'wb')
     output.write(image)
