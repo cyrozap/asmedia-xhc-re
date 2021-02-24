@@ -1,6 +1,27 @@
 meta:
   chip: ASM2142/ASM3142
 
+xdata:
+  - name: XRAM
+    start: 0x00000
+    end: 0x0BFFF
+    permissions: RW
+    notes: |
+      48 kB of data memory, used primarily for DMA buffers between the USB and
+      PCIe controllers, but also for the firmware's temporary data storage.
+  - name: N/A
+    start: 0x0C000
+    end: 0x0FFFF
+    permissions: RO
+    notes: |
+      16 kB of unused address space.
+  - name: MMIO
+    start: 0x10000
+    end: 0x1FFFF
+    permissions: RW
+    notes: |
+      64 kB of memory-mapped peripheral address space.
+
 registers:
   xdata:
     - name: CPU_MODE_NEXT
