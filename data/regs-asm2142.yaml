@@ -3,6 +3,94 @@ meta:
 
 registers:
   xdata:
+    - name: CPU_MODE_NEXT
+      start: 0x15040
+      end: 0x15040
+      bits:
+        - name: CODE_LOCATION
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set this bit to boot from CODE RAM, clear to boot from CODE ROM.
+        - name: CLOCK_FREQ
+          start: 1
+          end: 1
+          permissions: RW
+          notes: |
+            Set if the clock frequency is 78 MHz, cleared if it's 156 MHz.
+      notes: |
+        The value of this register will be latched into `CPU_MODE_CURRENT` on
+        reset.
+    - name: CPU_MODE_CURRENT
+      start: 0x15041
+      end: 0x15041
+      bits:
+        - name: CODE_LOCATION
+          start: 0
+          end: 0
+          permissions: RO
+          notes: |
+            This bit is set if the current code is executing from CODE RAM,
+            and it's clear if executing from CODE ROM. This bit will always be
+            set when our code is running, since our code is always loaded from
+            flash into CODE RAM by the CODE ROM.
+        - name: CLOCK_FREQ
+          start: 1
+          end: 1
+          permissions: RO
+          notes: |
+            This bit is set if the clock frequency is 78 MHz, and clear if
+            it's 156 MHz.
+      notes: |
+        The value of this register is latched from `CPU_MODE_NEXT` on reset,
+        and indicates the settings for the currently-executing code.
+    - name: CPU_EXEC_CTRL
+      start: 0x15042
+      end: 0x15042
+      bits:
+        - name: RESET
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set this bit to reset the CPU.
+        - name: HALT
+          start: 1
+          end: 1
+          permissions: RW
+          notes: |
+            Set this bit to halt the CPU. Doing this is not advised, since
+            there is no way to recover from this halted state except by
+            removing and re-applying power.
+    - name: UART_RBR
+      start: 0x15100
+      end: 0x15100
+      permissions: RO
+      notes: |
+        UART Receive Buffer Register.
+    - name: UART_THR
+      start: 0x15101
+      end: 0x15101
+      permissions: RW
+      notes: |
+        UART Transmit Hold Register.
+    - name: UART_RFBR
+      start: 0x15105
+      end: 0x15105
+      permissions: RO
+      notes: |
+        UART RX FIFO Bytes Received. Indicates the number of bytes in the RX
+        FIFO available for reading, and decreases by 1 each time `UART_RBR` is
+        read.
+    - name: UART_TFBF
+      start: 0x15106
+      end: 0x15106
+      permissions: RO
+      notes: |
+        UART TX FIFO Bytes Free. Indicates the amount of space available in
+        the TX FIFO. Increases by 1 each time `UART_THR` is written to, and
+        decreases by 1 for each byte that gets transmitted.
     - name: PCI_CONFIG_VID_DID
       start: 0x18550
       end: 0x18553
