@@ -23,6 +23,123 @@ xdata:
       8 kB of memory-mapped peripheral address space.
 
 registers:
+  pci:
+    - name: MBOX_DOORBELL
+      start: 0xE0
+      end: 0xE0
+      bits:
+        - name: READ_ACK
+          start: 0
+          end: 0
+          permissions: RW1C
+          notes: |
+            A flag that can be read, set, or cleared by the 8051, but can only
+            be read or cleared by the host. Corresponds to
+            `PCI_CONFIG_READ_ACK` in XDATA.
+        - name: WRITE_START
+          start: 1
+          end: 1
+          permissions: RW1S
+          notes: |
+            A flag that can be read, set, or cleared by the 8051, but can only
+            be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
+            in XDATA.
+    - name: CODE_RAM_ADDR
+      start: 0xE2
+      end: 0xE3
+      permissions: RW
+      notes: |
+        The next address in CODE RAM to be written to. Aligned on 2-byte
+        boudaries (bit zero is permanently set to zero). Highest bit is always
+        zero--the 32 kB bank to write to is selected by writing the data to
+        either `LOWER_BANK_DATA` or `UPPER_BANK_DATA`. Increments by two on
+        every write to `LOWER_BANK_DATA` or `UPPER_BANK_DATA`.
+    - name: CODE_RAM_DATA
+      start: 0xE4
+      end: 0xE7
+      bits:
+        - name: LOWER_BANK_DATA
+          start: 0
+          end: 15
+          permissions: WO
+          notes: |
+            The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x0000`.
+        - name: UPPER_BANK_DATA
+          start: 16
+          end: 31
+          permissions: WO
+          notes: |
+            The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x8000`.
+      notes: |
+        Bit 15 in the CODE RAM write address is cleared when writing to
+        `LOWER_BANK_DATA` and set when writing to `UPPER_BANK_DATA`. After
+        writing to either `LOWER_BANK_DATA` or `UPPER_BANK_DATA`,
+        `CODE_RAM_ADDR` is increased by two.
+    - name: CPU_STATUS
+      start: 0xE4
+      end: 0xE7
+      bits:
+        - name: PC
+          start: 0
+          end: 15
+          permissions: RO
+          notes: |
+            The current 8051 program counter.
+    - name: MMIO_ACCESS
+      start: 0xE8
+      end: 0xEB
+      bits:
+        - name: ADDRESS
+          start: 0
+          end: 15
+          permissions: RW
+          notes: |
+            The address of the MMIO byte that you want to access.
+        - name: WRITE_DATA
+          start: 16
+          end: 23
+          permissions: RW
+          notes: |
+            The data you want to write to `ADDRESS`.
+        - name: READ_DATA
+          start: 24
+          end: 31
+          permissions: RO
+          notes: |
+            The byte read from `ADDRESS`.
+      notes: |
+        This register grants access to MMIO registers entirely in hardware,
+        without involving the 8051 core. To read or write a register, first
+        write the address to `ADDRESS`, then either write your data to
+        `WRITE_DATA` or read it from `READ_DATA`. Please note that data is
+        latched into `READ_DATA` only when writing to `ADDRESS`, so if you want
+        to read a register you have just written to, you need to write the
+        address to `ADDRESS` again before reading `READ_DATA`. Also note that
+        this register can not be used to access XRAM--only MMIO access is
+        possible.
+    - name: CPU_CONTROL
+      start: 0xEC
+      end: 0xEF
+      bits:
+        - name: RESET
+          start: 31
+          end: 31
+          permissions: RW
+          notes: |
+            Set to hold the 8051 and xHC in reset, clear to release from reset.
+    - name: MBOX_D2H
+      start: 0xF0
+      end: 0xF7
+      permissions: RO
+      notes: |
+        A mailbox register, from which data sent by the device can be read.
+    - name: MBOX_H2D
+      start: 0xF8
+      end: 0xFF
+      permissions: RW
+      notes: |
+        A mailbox register, to which data from the host can be written.
+
   sfr:
     - name: HARD_COPY_CTRL
       start: 0x80
@@ -149,7 +266,8 @@ registers:
           end: 0
           permissions: RW
           notes: |
-            Corresponds to PCI configuration space register 0xE0, bit 0.
+            Corresponds to PCI configuration space register 0xE0
+            (`MBOX_DOORBELL`), bit 0.
     - name: PCI_CONFIG_WRITE_START
       start: 0xF0E1
       end: 0xF0E1
@@ -159,35 +277,36 @@ registers:
           end: 0
           permissions: RW
           notes: |
-            Corresponds to PCI configuration space register 0xE0, bit 1.
+            Corresponds to PCI configuration space register 0xE0
+            (`MBOX_DOORBELL`), bit 1.
     - name: PCI_CONFIG_D2H0
       start: 0xF0E8
       end: 0xF0EB
       permissions: RW
       notes: |
-        Corresponds to PCI configuration space register 0xF0. Writable by the
-        device, RO for the host.
+        Corresponds to PCI configuration space register 0xF0 (`MBOX_D2H`).
+        Writable by the device, RO for the host.
     - name: PCI_CONFIG_D2H1
       start: 0xF0EC
       end: 0xF0EF
       permissions: RW
       notes: |
-        Corresponds to PCI configuration space register 0xF4. Writable by the
-        device, RO for the host.
+        Corresponds to PCI configuration space register 0xF4 (`MBOX_D2H`).
+        Writable by the device, RO for the host.
     - name: PCI_CONFIG_H2D0
       start: 0xF0F0
       end: 0xF0F3
       permissions: RO
       notes: |
-        Corresponds to PCI configuration space register 0xF8. Writable by the
-        host, RO for the device.
+        Corresponds to PCI configuration space register 0xF8 (`MBOX_H2D`).
+        Writable by the host, RO for the device.
     - name: PCI_CONFIG_H2D1
       start: 0xF0F4
       end: 0xF0F7
       permissions: RO
       notes: |
-        Corresponds to PCI configuration space register 0xFC. Writable by the
-        host, RO for the device.
+        Corresponds to PCI configuration space register 0xFC (`MBOX_H2D`).
+        Writable by the host, RO for the device.
     - name: UART_RBR
       start: 0xF100
       end: 0xF100

@@ -7,6 +7,12 @@ import xml.etree.ElementTree as ET
 import yaml
 
 
+REGION_NAMES = {
+    "pci": "PCI Configuration",
+    "sfr": "SFR",
+    "xdata": "XDATA",
+}
+
 def validate(doc):
     unknown_keys = set(doc.keys()).difference(set(['meta', 'xdata', 'registers']))
     if unknown_keys:
@@ -29,7 +35,7 @@ def validate(doc):
         print("Error: \"registers\" is not a dict.")
         return False
 
-    for region in ['sfr', 'xdata']:
+    for region in REGION_NAMES.keys():
         region_registers = registers.get(region, list())
         if type(region_registers) is not list:
             print("Error: Register region \"{}\" is not a list.".format(region))
@@ -121,12 +127,12 @@ def gen_xhtml(doc):
     register_regions = doc.get('registers', dict())
     for region_name, region_registers in register_regions.items():
         ET.SubElement(body, 'hr')
-        ET.SubElement(body, 'h3').text = "{} Region Registers".format(region_name.upper())
+        ET.SubElement(body, 'h3').text = "{} Region Registers".format(REGION_NAMES[region_name])
         for register in region_registers:
             ET.SubElement(body, 'hr')
             reg_name = register.get('name', "")
             addr_format = "0x{:04X}"
-            if region_name == "sfr":
+            if region_name in ("pci", "sfr"):
                 addr_format = "0x{:02X}"
             start = register.get('start')
             addr_string = ""
