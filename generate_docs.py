@@ -62,6 +62,15 @@ def validate(doc):
 
 def gen_css():
     style = '''
+    span.monospace {
+        font-family: monospace;
+        background-color: #dedede;
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-radius: 3px;
+    }
     table, th, td {
         border: 1px solid black;
     }
@@ -73,6 +82,15 @@ def gen_css():
     }
     '''
     return style
+
+def markdown_lite(parent, tag, md):
+    parts = " ".join(md.strip('\n').split('\n')).split('`')
+    for i, part in enumerate(parts):
+        if i % 2 == 1:
+            span = ET.Element('span', {'class': 'monospace'})
+            span.text = part
+            parts[i] = ET.tostring(span, encoding='utf-8', xml_declaration=False).decode('utf-8')
+    parent.append(ET.fromstring("<{}>{}</{}>".format(tag, "".join(parts), tag)))
 
 def gen_xhtml(doc):
     html = ET.Element('html', {
@@ -121,7 +139,7 @@ def gen_xhtml(doc):
         ET.SubElement(tr, 'td').text = size_text
         ET.SubElement(tr, 'td').text = region.get('name', "")
         ET.SubElement(tr, 'td').text = region.get('permissions', "")
-        ET.SubElement(tr, 'td').text = " ".join(region.get('notes', "").strip('\n').split('\n'))
+        markdown_lite(tr, 'td', region.get('notes', ""))
 
     ET.SubElement(body, 'h2').text = "Register Map"
     register_regions = doc.get('registers', dict())
@@ -145,7 +163,7 @@ def gen_xhtml(doc):
                 size = end + 1 - start
             max_bits = size * 8
             ET.SubElement(body, 'p').text = "Size: {} byte{}".format(size, "s" if size > 1 else "")
-            ET.SubElement(body, 'p').text = " ".join(register.get('notes', "").strip('\n').split('\n'))
+            markdown_lite(body, 'p', register.get('notes', ""))
             if max_bits > 64:
                 continue
             bit_table = ET.SubElement(body, 'table')
@@ -320,8 +338,8 @@ def gen_xhtml(doc):
                 bit = "Bit [{}]".format(start_bit)
                 if end_bit != start_bit:
                     bit = "Bits [{}:{}]".format(end_bit, start_bit)
-                bit_notes = " ".join(bit_range.get('notes', "").strip('\n').split('\n'))
-                ET.SubElement(body, 'p').text = "{}, {}: {}".format(bit, bit_range.get('name', ""), bit_notes)
+                bit_notes = "{}, `{}`: {}".format(bit, bit_range.get('name', ""), bit_range.get('notes', ""))
+                markdown_lite(body, 'p', bit_notes)
 
     return ET.tostring(html, encoding='utf-8', xml_declaration=False)
 
