@@ -184,7 +184,7 @@ registers:
     - name: PCI_CONFIG_H2D1
       start: 0xF0F4
       end: 0xF0F7
-      permissions: RW
+      permissions: RO
       notes: |
         Corresponds to PCI configuration space register 0xFC. Writable by the
         host, RO for the device.
