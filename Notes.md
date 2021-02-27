@@ -16,7 +16,7 @@
 
 ## Feature comparison
 
-| IC | PCI VID:DID | USB 3 Ports × Generation × Lanes | PCIe Version x Lanes | IC Package |
+| IC | PCI VID:DID | USB 3 Ports × Generation × Lanes | PCIe Version × Lanes | IC Package |
 | --- | --- | --- | --- | --- |
 | ASM1042 | 1b21:1042 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
 | ASM1042A | 1b21:1142 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
