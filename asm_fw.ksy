@@ -50,12 +50,17 @@ types:
         types:
           write_data:
             seq:
-              - id: len
+              - id: size
                 type: u1
               - id: addr
                 type: u2
-              - id: data
-                size: len
+              - id: value
+                type:
+                  switch-on: size
+                  cases:
+                    1: u1
+                    2: u2
+                    4: u4
   body:
     seq:
       - id: len
