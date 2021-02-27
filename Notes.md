@@ -1,7 +1,7 @@
 # Notes
 
 
-# Miscellaneous
+## Miscellaneous
 
 - UART
   - 3V3
