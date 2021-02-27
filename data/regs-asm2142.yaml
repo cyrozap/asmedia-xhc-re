@@ -24,6 +24,25 @@ xdata:
 
 registers:
   xdata:
+    - name: PCI_CONFIG_SVID_SSID
+      start: 0x10050
+      end: 0x10053
+      bits:
+        - name: SUBSYSTEM_VID
+          start: 0
+          end: 15
+          permissions: RW
+          notes: |
+            PCI Subsystem Vendor ID.
+        - name: SUBSYSTEM_ID
+          start: 16
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Subsystem ID.
+      notes: |
+        The Subsystem Vendor ID and Subsystem ID register in PCI configuration
+        space (offset 0x2C).
     - name: CPU_MODE_NEXT
       start: 0x15040
       end: 0x15040
