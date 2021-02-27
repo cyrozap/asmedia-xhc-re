@@ -24,6 +24,12 @@ xdata:
 
 registers:
   xdata:
+    - name: PCI_CONFIG_C4
+      start: 0x10030
+      end: 0x10033
+      permissions: RW
+      notes: |
+        Corresponds to PCI configuration space register 0xC4.
     - name: PCI_CONFIG_SVID_SSID
       start: 0x10050
       end: 0x10053
