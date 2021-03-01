@@ -345,15 +345,20 @@ registers:
           permissions: RW
           notes: |
             Set this bit to boot from CODE RAM, clear to boot from CODE ROM.
-        - name: CLOCK_FREQ
+        - name: CLOCK_DIV
           start: 1
           end: 1
           permissions: RW
           notes: |
-            Set if the clock frequency is 78 MHz, cleared if it's 156 MHz.
+            Set this bit to divide the CPU clock frequency by two. This affects
+            both the CPU and the timer peripheral, as the timer clock is derived
+            from the CPU clock. Set this bit to set the CPU clock to 78.125 MHz
+            and the timer clock to approximately 9.537 kHz. Clear this bit to
+            use the undivided CPU clock speed of 156 MHz and timer clock speed
+            of approximately 19.073 kHz.
       notes: |
-        The value of this register will be latched into `CPU_MODE_CURRENT` on
-        reset.
+        The settings in this register will take effect and be latched into
+        `CPU_MODE_CURRENT` at the next reset.
     - name: CPU_MODE_CURRENT
       start: 0xF341
       end: 0xF341
@@ -367,13 +372,14 @@ registers:
             and it's clear if executing from CODE ROM. This bit will always be
             set when our code is running, since our code is always loaded from
             flash into CODE RAM by the CODE ROM.
-        - name: CLOCK_FREQ
+        - name: CLOCK_DIV
           start: 1
           end: 1
           permissions: RO
           notes: |
-            This bit is set if the clock frequency is 78 MHz, and clear if
-            it's 156 MHz.
+            If set, this bit indicates that the CPU clock is being divided by
+            two. If it's clear, the CPU clock is not being divided by two. See
+            `CPU_MODE_NEXT.CLOCK_DIV` for more information.
       notes: |
         The value of this register is latched from `CPU_MODE_NEXT` on reset,
         and indicates the settings for the currently-executing code.
