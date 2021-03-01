@@ -335,6 +335,38 @@ registers:
         UART TX FIFO Bytes Free. Indicates the amount of space available in
         the TX FIFO. Increases by 1 each time `UART_THR` is written to, and
         decreases by 1 for each byte that gets transmitted.
+    - name: TIMER_DIV
+      start: 0xF300
+      end: 0xF300
+      permissions: RW
+      notes: |
+        The timer clock divisor. The frequency of the timer's clock is divided
+        by the value in this register. Must be greater than or equal to 1.
+    - name: TIMER_THRESHOLD
+      start: 0xF301
+      end: 0xF302
+      permissions: RW
+      notes: |
+        When the timer's counter reaches this value, the
+        `TIMER_CSR.THRESHOLD_MET` bit will be set, and the `TIMER_CSR.RUN` bit
+        will be cleared.
+    - name: TIMER_CSR
+      start: 0xF303
+      end: 0xF303
+      bits:
+        - name: RUN
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set to start the timer. Clear to stop the timer.
+        - name: THRESHOLD_MET
+          start: 1
+          end: 1
+          permissions: RW1C
+          notes: |
+            Indicates that the timer's internal counter has reached the value of
+            `TIMER_THRESHOLD`.
     - name: CPU_MODE_NEXT
       start: 0xF340
       end: 0xF340
