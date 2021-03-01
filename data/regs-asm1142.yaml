@@ -392,9 +392,10 @@ registers:
           end: 1
           permissions: RW
           notes: |
-            Set this bit to halt the CPU. Doing this is not advised, since
-            there is no way to recover from this halted state except by
-            removing and re-applying power.
+            Set this bit to halt the CPU and hold it in reset. Since the CPU
+            can't un-halt itself, the only way to recover from this state is to
+            use the `MMIO_ACCESS` register in PCI config space to clear this
+            bit.
     - name: BOOT_PARAMS
       start: 0xF3D8
       end: 0xF3DB
