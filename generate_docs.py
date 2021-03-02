@@ -62,8 +62,7 @@ def validate(doc):
 
 def gen_css():
     style = '''
-    span.monospace {
-        font-family: monospace;
+    code {
         background-color: #dedede;
         padding-left: 5px;
         padding-right: 5px;
@@ -87,9 +86,9 @@ def markdown_lite(parent, tag, md):
     parts = " ".join(md.strip('\n').split('\n')).split('`')
     for i, part in enumerate(parts):
         if i % 2 == 1:
-            span = ET.Element('span', {'class': 'monospace'})
-            span.text = part
-            parts[i] = ET.tostring(span, encoding='utf-8', xml_declaration=False).decode('utf-8')
+            code = ET.Element('code')
+            code.text = part
+            parts[i] = ET.tostring(code, encoding='utf-8', xml_declaration=False).decode('utf-8')
     parent.append(ET.fromstring("<{}>{}</{}>".format(tag, "".join(parts), tag)))
 
 def gen_xhtml(doc):
