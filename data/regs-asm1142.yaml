@@ -434,6 +434,99 @@ registers:
             can't un-halt itself, the only way to recover from this state is to
             use the `MMIO_ACCESS` register in PCI config space to clear this
             bit.
+    - name: FLASH_CON_DIV
+      start: 0xF360
+      end: 0xF360
+      permissions: RW
+      notes: |
+        SPI clock divider. SPI clock frequency is equal to
+        `78.125 MHz / (FLASH_CON_DIV + 1)`. The SPI clock is not affected by the
+        CPU clock divider--the base frequency is always 78.125 MHz.
+    - name: FLASH_CON_ADDR_LEN
+      start: 0xF361
+      end: 0xF361
+      permissions: RW
+      notes: |
+        The number of flash address (`FLASH_CON_FLASH_ADDR`)  bytes to write to
+        the SPI bus. The minimum is zero bytes while the maximum is three.
+    - name: FLASH_CON_CMD
+      start: 0xF362
+      end: 0xF362
+      permissions: RW
+      notes: |
+        The flash command you want to execute. e.g., to read data from flash,
+        write command 0x03 into this register.
+    - name: FLASH_CON_MODE
+      start: 0xF363
+      end: 0xF363
+      bits:
+        - name: WRITE_N_READ
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set to write data from XRAM to the SPI bus, clear to read data from
+            the bus into XRAM. Note that reading/writing here refers only to the
+            transaction on the bus--whether data is stored into or retrieved
+            from the flash memory (or one of its registers) depends on the flash
+            command in `FLASH_CON_CMD`.
+    - name: FLASH_CON_MEMSEL
+      start: 0xF364
+      end: 0xF364
+      bits:
+        - name: SEL
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set to make the flash controller access CODE RAM. Clear to have it
+            access XRAM. Note that the flash controller cannot read into CODE
+            RAM while the CPU is executing from it.
+    - name: FLASH_CON_XRAM_ADDR
+      start: 0xF366
+      end: 0xF367
+      permissions: RW
+      notes: |
+        The address in XRAM to read SPI bus data into/write SPI bus data from.
+    - name: FLASH_CON_FLASH_ADDR
+      start: 0xF368
+      end: 0xF36B
+      permissions: RW
+      notes: |
+        The flash address to read from/write to.
+    - name: FLASH_CON_DATA_LEN
+      start: 0xF36C
+      end: 0xF36D
+      permissions: RW
+      notes: |
+        The number of data bytes to read from the SPI bus into XRAM/write to the
+        SPI bus from XRAM.
+    - name: FLASH_CON_CSR
+      start: 0xF36E
+      end: 0xF36E
+      bits:
+        - name: RUN
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set to start the SPI transaction. This bit will remain set until the
+            transaction has completed, at which point it will automatically
+            clear itself.
+    - name: FLASH_CON_CRC32_IN
+      start: 0xF370
+      end: 0xF373
+      permissions: RW
+      notes: |
+        The initial value to use for the CRC32 calculation. Generally, this
+        should be set to 0xFFFFFFFF.
+    - name: FLASH_CON_CRC32_OUT
+      start: 0xF374
+      end: 0xF377
+      permissions: RW
+      notes: |
+        The CRC32 of the data read by the flash controller. This is the standard
+        CRC32 used in Ethernet, zlib, and many other systems.
     - name: BOOT_PARAMS
       start: 0xF3D8
       end: 0xF3DB
