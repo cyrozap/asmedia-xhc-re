@@ -41,7 +41,8 @@ $(BINARIES): monitor.bin
 	./make_image.py -t image -c $$(echo $@ | sed -e 's/monitor-\([0-9a-z]\+\)\.img/\1/g' | tr a-z A-Z) -o $@ $<
 
 %.flash: %.img
-	truncate -s $(FLASH_SIZE) $@
+	cp $< $@
+	truncate -c -s $(FLASH_SIZE) $@
 
 flash: monitor-$(TARGET_LOWER).flash
 	flashrom -p ch341a_spi -w $<
