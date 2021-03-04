@@ -238,6 +238,8 @@ static void init(void) {
 		break;
 	case CHIP_ASM3242:
 		chip_name = "ASM3242";
+		UART_BASE = 0x15100;
+		CPU_CON_BASE = 0x15040;
 		break;
 	default:
 		chip_name = "UNKNOWN";
