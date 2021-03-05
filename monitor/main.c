@@ -16,6 +16,7 @@ static uint32_t UART_BASE;
 #define UART_THR (UART_BASE + 1)
 #define UART_RFBR (UART_BASE + 5)
 #define UART_TFBF (UART_BASE + 6)
+#define UART_LCR (UART_BASE + 7)
 
 static uint32_t CPU_CON_BASE;
 #define CPU_MODE_NEXT (CPU_CON_BASE + 0)
@@ -245,6 +246,9 @@ static void init(void) {
 		chip_name = "UNKNOWN";
 		break;
 	}
+
+	/* Serial port setup */
+	writeb(UART_LCR, 3);  /* 8N1 */
 }
 
 #if 0
