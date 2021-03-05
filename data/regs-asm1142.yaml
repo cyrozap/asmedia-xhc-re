@@ -415,8 +415,8 @@ registers:
             both the CPU and the timer peripheral, as the timer clock is derived
             from the CPU clock. Set this bit to set the CPU clock to 78.125 MHz
             and the timer clock to approximately 9.537 kHz. Clear this bit to
-            use the undivided CPU clock speed of 156 MHz and timer clock speed
-            of approximately 19.073 kHz.
+            use the undivided CPU clock speed of 156.25 MHz and timer clock
+            speed of approximately 19.073 kHz.
       notes: |
         The settings in this register will take effect and be latched into
         `CPU_MODE_CURRENT` at the next reset.
