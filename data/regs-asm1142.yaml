@@ -364,6 +364,14 @@ registers:
       notes: |
         UART Line Control Register. The reset value is 0x0B (mode 8O1), so if
         you want to use mode 8N1, you need to set this to 0x03.
+    - name: UART_DIV
+      start: 0xF109
+      end: 0xF10A
+      permissions: RW
+      notes: |
+        UART clock divider. The baudrate of the UART is equal to
+        `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
+        divider--the base frequency is always 156.25 MHz.
     - name: TIMER_DIV
       start: 0xF300
       end: 0xF300
