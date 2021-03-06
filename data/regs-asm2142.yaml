@@ -23,6 +23,50 @@ xdata:
       64 kB of memory-mapped peripheral address space.
 
 registers:
+  pci:
+    - name: MBOX_DOORBELL
+      start: 0xE0
+      end: 0xE0
+      bits:
+        - name: READ_ACK
+          start: 0
+          end: 0
+          permissions: RW1C
+          notes: |
+            A flag that can be read, set, or cleared by the 8051, but can only
+            be read or cleared by the host. Corresponds to
+            `PCI_CONFIG_READ_ACK` in XDATA.
+        - name: WRITE_START
+          start: 1
+          end: 1
+          permissions: RW1S
+          notes: |
+            A flag that can be read, set, or cleared by the 8051, but can only
+            be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
+            in XDATA.
+    - name: CPU_CONTROL
+      start: 0xEC
+      end: 0xEF
+      bits:
+        - name: RESET
+          start: 31
+          end: 31
+          permissions: RW
+          notes: |
+            Set to hold the 8051 and xHC in reset, clear to release from reset.
+    - name: MBOX_D2H
+      start: 0xF0
+      end: 0xF7
+      permissions: RO
+      notes: |
+        A mailbox register, from which data sent by the device can be read.
+    - name: MBOX_H2D
+      start: 0xF8
+      end: 0xFF
+      permissions: RW
+      notes: |
+        A mailbox register, to which data from the host can be written.
+
   xdata:
     - name: PCI_CONFIG_C4
       start: 0x10030
