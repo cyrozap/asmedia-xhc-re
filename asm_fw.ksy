@@ -85,6 +85,9 @@ types:
       - id: crc32
         type: u4
         doc: "A CRC32 of all the bytes in body.firmware."
+      - id: signature
+        type: signature
+        if: _parent.header.magic == "2324A_RCFG"
     types:
       firmware:
         seq:
@@ -99,3 +102,18 @@ types:
             size: 8
             type: str
             encoding: ascii
+      signature:
+        instances:
+          encoded_start:
+            pos: _root.header.len + 5 + _root.body.len + 17 + 1
+            type: u1
+          encoded_15180_high_nybble:
+            pos: _root.header.len + 5 + _root.body.len + 17 + 2
+            type: u1
+          actual_start:
+            value: '(encoded_start >> 1) & 0x3f'
+          actual_15180_high_nybble:
+            value: '(encoded_15180_high_nybble << 2) & 0xf0'
+          data:
+            pos: _root.header.len + 5 + _root.body.len + 17 + actual_start
+            size: 0x20
