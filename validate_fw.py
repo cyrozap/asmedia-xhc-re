@@ -45,6 +45,11 @@ def main():
     validate_checksum("body", fw.body.firmware.code, fw.body.checksum)
     validate_crc32("body", fw.body.firmware.code, fw.body.crc32)
 
+    try:
+        print("Body signature: {}".format(fw.body.signature.data.hex()))
+    except AttributeError:
+        pass
+
     chip_name = {
         "U2104_RCFG": "ASM1042",
         "2104B_RCFG": "ASM1042A",
