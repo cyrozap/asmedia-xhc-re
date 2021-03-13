@@ -196,6 +196,39 @@ typedef enum {
 } chip_t;
 
 typedef struct {
+	chip_t chip;
+	char const * base;
+	char const * divided;
+} chip_clocks_t;
+
+#define CLK_062500MHZ "62.5 MHz"
+#define CLK_125000MHZ "125 MHz"
+#define CLK_078125MHZ "78.125 MHz"
+#define CLK_156250MHZ "156.25 MHz"
+#define CLK_UNKNOWNHZ "UNKNOWN MHz"
+
+static chip_clocks_t const chip_clocks_map[] = {
+	{CHIP_ASM1042A, CLK_125000MHZ, CLK_062500MHZ},
+	{CHIP_ASM1142,  CLK_156250MHZ, CLK_078125MHZ},
+	{CHIP_ASM2142,  CLK_156250MHZ, CLK_078125MHZ},
+	{CHIP_ASM3242,  CLK_156250MHZ, CLK_078125MHZ},
+	{CHIP_UNKNOWN,  CLK_UNKNOWNHZ, CLK_UNKNOWNHZ},
+};
+
+static char const * get_current_clock_speed(chip_t chip) {
+	for (size_t i = 0; chip_clocks_map[i].chip != CHIP_UNKNOWN; i++) {
+		if (chip == chip_clocks_map[i].chip) {
+			if (readb(CPU_MODE_CURRENT) & CPU_MODE_NEXT_CURRENT_CLOCK_DIV)
+				return chip_clocks_map[i].divided;
+			else
+				return chip_clocks_map[i].base;
+		}
+	}
+
+	return CLK_UNKNOWNHZ;
+}
+
+typedef struct {
 	char * fw_magic;
 	chip_t chip;
 } magic_chip_t;
@@ -664,6 +697,8 @@ static int version_handler(size_t argc, const char * argv[]) {
 	println(build_time);
 	print("Chip name: ");
 	println(chip_name);
+	print("CPU frequency: ");
+	println(get_current_clock_speed(get_chip_type()));
 	return 0;
 }
 
