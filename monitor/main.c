@@ -21,6 +21,7 @@ static uint32_t UART_BASE;
 static uint32_t CPU_CON_BASE;
 #define CPU_MODE_NEXT (CPU_CON_BASE + 0)
 #define CPU_MODE_CURRENT (CPU_CON_BASE + 1)
+#define CPU_MODE_NEXT_CURRENT_CLOCK_DIV (1 << 1)
 #define CPU_EXEC_CTRL (CPU_CON_BASE + 2)
 #define CPU_EXEC_CTRL_RESET (1 << 0)
 #define CPU_EXEC_CTRL_HALT (1 << 1)
@@ -567,7 +568,12 @@ static int reset_handler(size_t argc, const char * argv[]) {
 	// Delay hack because for some reason waiting
 	// while(UART_TFBF < 16) returns instantly and so nothing gets
 	// printed.
-	for (uint8_t i = 0; i < 200; i++);
+	const uint8_t delay_count = 200;
+	for (uint8_t i = 0; i < delay_count; i++);
+
+	// Delay twice as long when the clock is twice as fast.
+	if (!(readb(CPU_MODE_CURRENT) & CPU_MODE_NEXT_CURRENT_CLOCK_DIV))
+		for (uint8_t i = 0; i < delay_count; i++);
 
 	if (reload) {
 		// Boot from the mask ROM so it can reload our code from
