@@ -7,6 +7,9 @@
   - 3V3
   - 921600 8N1
   - Pins:
+    - ASM1042/ASM1042A
+      - RX: IC pin 14
+      - TX: IC pin 15
     - ASM1142/ASM2142/ASM3142
       - RX: IC pin 10
       - TX: IC pin 11
