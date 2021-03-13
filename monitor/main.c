@@ -257,6 +257,8 @@ static void init(void) {
 	switch(chip) {
 	case CHIP_ASM1042:
 		chip_name = "ASM1042";
+		UART_BASE = 0xF100;
+		CPU_CON_BASE = 0xF340;
 		break;
 	case CHIP_ASM1042A:
 		chip_name = "ASM1042A";
