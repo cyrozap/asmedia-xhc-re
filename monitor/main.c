@@ -260,6 +260,8 @@ static void init(void) {
 		break;
 	case CHIP_ASM1042A:
 		chip_name = "ASM1042A";
+		UART_BASE = 0xF100;
+		CPU_CON_BASE = 0xF340;
 		break;
 	case CHIP_ASM1142:
 		chip_name = "ASM1142";
