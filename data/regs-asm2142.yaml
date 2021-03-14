@@ -44,6 +44,17 @@ registers:
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
             in XDATA.
+    - name: CPU_STATUS
+      start: 0xE4
+      end: 0xE7
+      bits:
+        - name: MODE
+          start: 16
+          end: 23
+          permissions: RO
+          notes: |
+            The current value of `CPU_MODE_CURRENT`. See `CPU_MODE_CURRENT` for
+            more information.
     - name: CPU_CONTROL
       start: 0xEC
       end: 0xEF
