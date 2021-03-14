@@ -587,6 +587,13 @@ registers:
       notes: |
         The CRC32 of the data read by the flash controller. This is the standard
         CRC32 used in Ethernet, zlib, and many other systems.
+    - name: CHIP_VERSION
+      start: 0xF38C
+      end: 0xF38C
+      permissions: RO
+      notes: |
+        Some hardware version number that is set during the manufacturing
+        process. Presumably, this represents the silicon die revision.
     - name: BOOT_PARAMS
       start: 0xF3D8
       end: 0xF3DB

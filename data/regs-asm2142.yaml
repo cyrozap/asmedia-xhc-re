@@ -170,6 +170,13 @@ registers:
             Set this bit to halt the CPU. Doing this is not advised, since
             there is no way to recover from this halted state except by
             removing and re-applying power.
+    - name: CHIP_VERSION
+      start: 0x150B2
+      end: 0x150B2
+      permissions: RO
+      notes: |
+        Some hardware version number that is set during the manufacturing
+        process. Presumably, this represents the silicon die revision.
     - name: UART_RBR
       start: 0x15100
       end: 0x15100
