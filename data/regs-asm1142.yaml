@@ -208,6 +208,7 @@ registers:
       permissions: RW
       notes: |
         The lower 8 bits ([7:0]) of the 12-bit copy length.
+
   xdata:
     - name: PCI_CONFIG_C4
       start: 0xE244
