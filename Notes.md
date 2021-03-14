@@ -3,6 +3,19 @@
 
 ## Miscellaneous
 
+- CPU
+  - Compatible with the MCS-51 (8051) instruction set.
+  - One clock cycle per machine cycle ("1T").
+  - Operating frequency (high/low):
+    - ASM1042, ASM1042A: 125 MHz/62.5 MHz
+    - ASM1142, ASM2142/ASM3142, ASM3242: 156.25 MHz/78.125 MHz
+  - IRAM size: 256 bytes
+  - PMEM size:
+    - ASM1042, ASM1042A, ASM1142: 64 kB
+    - ASM2142/ASM3142, ASM3242: 128 kB
+  - XDATA size:
+    - ASM1042, ASM1042A, ASM1142: 64 kB
+    - ASM2142/ASM3142, ASM3242: 128 kB
 - UART
   - 3V3
   - 921600 8N1
