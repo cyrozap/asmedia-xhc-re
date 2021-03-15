@@ -375,7 +375,7 @@ registers:
           permissions: RW
           notes: |
             The number of stop bits per character. 0: 1 stop bit, 1: 2 stop
-            bits. Unlike 8250-compatible UARTs, when this bit it set, 5-bit
+            bits. Unlike 8250-compatible UARTs, when this bit is set, 5-bit
             characters will have two stop bits, not 1.5.
         - name: PARITY
           start: 3
