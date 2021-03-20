@@ -6,8 +6,11 @@
 ### Software dependencies
 
 * Python 3
-* [Kaitai Struct Compiler][ksc]
-* [Kaitai Struct Python Runtime][kspr]
+* Firmware image parser:
+  * [Kaitai Struct Compiler][ksc]
+  * [Kaitai Struct Python Runtime][kspr]
+* Documentation generator:
+  * [PyYAML][pyyaml]
 
 ### Procedure
 
@@ -22,6 +25,7 @@
 4. Explore the firmware with [the Kaitai Web IDE][ide] and the
    [Kaitai Struct definition file][ksy], or run `./validate_fw.py` to
    check the integrity and version of the firmware.
+5. Run `make doc` to generate XHTML documentation in [doc][doc].
 
 
 ## Reverse engineering notes
@@ -31,6 +35,8 @@ See [Notes.md](Notes.md).
 
 [ksc]: https://github.com/kaitai-io/kaitai_struct_compiler
 [kspr]: https://github.com/kaitai-io/kaitai_struct_python_runtime
+[pyyaml]: https://pyyaml.org/
 [urls]: firmware-urls.txt
 [ide]: https://ide.kaitai.io/
 [ksy]: asm_fw.ksy
+[doc]: doc
