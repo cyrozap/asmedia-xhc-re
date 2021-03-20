@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 import yaml
 
@@ -91,7 +93,7 @@ def markdown_lite(parent, tag, md):
             parts[i] = ET.tostring(code, encoding='utf-8', xml_declaration=False).decode('utf-8')
     parent.append(ET.fromstring("<{}>{}</{}>".format(tag, "".join(parts), tag)))
 
-def gen_xhtml(doc):
+def gen_xhtml(filename, doc):
     html = ET.Element('html', {
         'xmlns': "http://www.w3.org/1999/xhtml",
         'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
@@ -340,6 +342,18 @@ def gen_xhtml(doc):
                 bit_notes = "{}, `{}`: {}".format(bit, bit_range.get('name', ""), bit_range.get('notes', ""))
                 markdown_lite(body, 'p', bit_notes)
 
+    ET.SubElement(body, 'hr')
+    try:
+        git_rev = "r{}.g{}".format(
+            subprocess.check_output(["git", "rev-list", "--count", "HEAD"]).rstrip().decode('utf-8'),
+            subprocess.check_output(["git", "rev-parse", "--short", "HEAD"]).rstrip().decode('utf-8'),
+        )
+    except subprocess.CalledProcessError:
+        git_rev = "UNKNOWN"
+    date_string = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    footer = ET.SubElement(body, 'p')
+    ET.SubElement(footer, 'i').text = "Generated from {} version {} on {}.".format(filename, git_rev, date_string)
+
     return ET.tostring(html, encoding='utf-8', xml_declaration=False)
 
 def main():
@@ -355,7 +369,7 @@ def main():
         print("Error: Document \"{}\" invalid.".format(args.input))
         return 1
 
-    xhtml = gen_xhtml(doc)
+    xhtml = gen_xhtml(args.input, doc)
     output = open(args.output, 'wb')
     output.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
     output.write(b"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n")
