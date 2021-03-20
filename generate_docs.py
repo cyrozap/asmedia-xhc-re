@@ -83,7 +83,7 @@ def gen_css():
     return style
 
 def markdown_lite(parent, tag, md):
-    parts = " ".join(md.strip('\n').split('\n')).split('`')
+    parts = md.split('`')
     for i, part in enumerate(parts):
         if i % 2 == 1:
             code = ET.Element('code')

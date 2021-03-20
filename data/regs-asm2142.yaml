@@ -6,20 +6,20 @@ xdata:
     start: 0x00000
     end: 0x0BFFF
     permissions: RW
-    notes: |
+    notes: >-
       48 kB of data memory, used primarily for DMA buffers between the USB and
       PCIe controllers, but also for the firmware's temporary data storage.
   - name: N/A
     start: 0x0C000
     end: 0x0FFFF
     permissions: RO
-    notes: |
+    notes: >-
       16 kB of unused address space.
   - name: MMIO
     start: 0x10000
     end: 0x1FFFF
     permissions: RW
-    notes: |
+    notes: >-
       64 kB of memory-mapped peripheral address space.
 
 registers:
@@ -32,7 +32,7 @@ registers:
           start: 0
           end: 0
           permissions: RW1C
-          notes: |
+          notes: >-
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or cleared by the host. Corresponds to
             `PCI_CONFIG_READ_ACK` in XDATA.
@@ -40,7 +40,7 @@ registers:
           start: 1
           end: 1
           permissions: RW1S
-          notes: |
+          notes: >-
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
             in XDATA.
@@ -52,7 +52,7 @@ registers:
           start: 16
           end: 23
           permissions: RO
-          notes: |
+          notes: >-
             The current value of `CPU_MODE_CURRENT`. See `CPU_MODE_CURRENT` for
             more information.
     - name: CPU_CONTROL
@@ -63,19 +63,19 @@ registers:
           start: 31
           end: 31
           permissions: RW
-          notes: |
+          notes: >-
             Set to hold the 8051 and xHC in reset, clear to release from reset.
     - name: MBOX_D2H
       start: 0xF0
       end: 0xF7
       permissions: RO
-      notes: |
+      notes: >-
         A mailbox register, from which data sent by the device can be read.
     - name: MBOX_H2D
       start: 0xF8
       end: 0xFF
       permissions: RW
-      notes: |
+      notes: >-
         A mailbox register, to which data from the host can be written.
 
   xdata:
@@ -83,7 +83,7 @@ registers:
       start: 0x10030
       end: 0x10033
       permissions: RW
-      notes: |
+      notes: >-
         Corresponds to PCI configuration space register 0xC4.
     - name: PCI_CONFIG_SVID_SSID
       start: 0x10050
@@ -93,15 +93,15 @@ registers:
           start: 0
           end: 15
           permissions: RW
-          notes: |
+          notes: >-
             PCI Subsystem Vendor ID.
         - name: SUBSYSTEM_ID
           start: 16
           end: 31
           permissions: RW
-          notes: |
+          notes: >-
             PCI Subsystem ID.
-      notes: |
+      notes: >-
         The Subsystem Vendor ID and Subsystem ID register in PCI configuration
         space (offset 0x2C).
     - name: CPU_MODE_NEXT
@@ -112,20 +112,20 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: |
+          notes: >-
             Set this bit to boot from CODE RAM, clear to boot from CODE ROM.
         - name: CLOCK_DIV
           start: 1
           end: 1
           permissions: RW
-          notes: |
+          notes: >-
             Set this bit to divide the CPU clock frequency by two. This affects
             both the CPU and the timer peripheral, as the timer clock is derived
             from the CPU clock. Set this bit to set the CPU clock to 78.125 MHz
             and the timer clock to approximately 9.537 kHz. Clear this bit to
             use the undivided CPU clock speed of 156.25 MHz and timer clock
             speed of approximately 19.073 kHz.
-      notes: |
+      notes: >-
         The settings in this register will take effect and be latched into
         `CPU_MODE_CURRENT` at the next reset.
     - name: CPU_MODE_CURRENT
@@ -136,7 +136,7 @@ registers:
           start: 0
           end: 0
           permissions: RO
-          notes: |
+          notes: >-
             This bit is set if the current code is executing from CODE RAM,
             and it's clear if executing from CODE ROM. This bit will always be
             set when our code is running, since our code is always loaded from
@@ -145,11 +145,11 @@ registers:
           start: 1
           end: 1
           permissions: RO
-          notes: |
+          notes: >-
             If set, this bit indicates that the CPU clock is being divided by
             two. If it's clear, the CPU clock is not being divided by two. See
             `CPU_MODE_NEXT.CLOCK_DIV` for more information.
-      notes: |
+      notes: >-
         The value of this register is latched from `CPU_MODE_NEXT` on reset,
         and indicates the settings for the currently-executing code.
     - name: CPU_EXEC_CTRL
@@ -160,13 +160,13 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: |
+          notes: >-
             Set this bit to reset the CPU.
         - name: HALT
           start: 1
           end: 1
           permissions: RW
-          notes: |
+          notes: >-
             Set this bit to halt the CPU. Doing this is not advised, since
             there is no way to recover from this halted state except by
             removing and re-applying power.
@@ -174,26 +174,26 @@ registers:
       start: 0x150B2
       end: 0x150B2
       permissions: RO
-      notes: |
+      notes: >-
         Some hardware version number that is set during the manufacturing
         process. Presumably, this represents the silicon die revision.
     - name: UART_RBR
       start: 0x15100
       end: 0x15100
       permissions: RO
-      notes: |
+      notes: >-
         UART Receive Buffer Register.
     - name: UART_THR
       start: 0x15101
       end: 0x15101
       permissions: RW
-      notes: |
+      notes: >-
         UART Transmit Hold Register.
     - name: UART_RFBR
       start: 0x15105
       end: 0x15105
       permissions: RO
-      notes: |
+      notes: >-
         UART RX FIFO Bytes Received. Indicates the number of bytes in the RX
         FIFO available for reading, and decreases by 1 each time `UART_RBR` is
         read.
@@ -201,7 +201,7 @@ registers:
       start: 0x15106
       end: 0x15106
       permissions: RO
-      notes: |
+      notes: >-
         UART TX FIFO Bytes Free. Indicates the amount of space available in
         the TX FIFO. Increases by 1 each time `UART_THR` is written to, and
         decreases by 1 for each byte that gets transmitted.
@@ -213,14 +213,14 @@ registers:
           start: 0
           end: 1
           permissions: RW
-          notes: |
+          notes: >-
             The number of data bits per character. 0: 5 bits, 1: 6 bits, 2: 7
             bits, 3: 8 bits.
         - name: STOP_BITS
           start: 2
           end: 2
           permissions: RW
-          notes: |
+          notes: >-
             The number of stop bits per character. 0: 1 stop bit, 1: 2 stop
             bits. Unlike 8250-compatible UARTs, when this bit is set, 5-bit
             characters will have two stop bits, not 1.5.
@@ -228,17 +228,17 @@ registers:
           start: 3
           end: 5
           permissions: RW
-          notes: |
+          notes: >-
             The parity bit setting. 0bXX0: None, 0b001: Odd, 0b011: Even, 0b101:
             Mark, 0b111: Space.
-      notes: |
+      notes: >-
         UART Line Control Register. The reset value is 0x0B (mode 8O1), so if
         you want to use mode 8N1, you need to set this to 0x03.
     - name: UART_DIV
       start: 0x15109
       end: 0x1510A
       permissions: RW
-      notes: |
+      notes: >-
         UART clock divider. The baudrate of the UART is equal to
         `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 156.25 MHz.
@@ -250,15 +250,15 @@ registers:
           start: 0
           end: 15
           permissions: RW
-          notes: |
+          notes: >-
             PCI Vendor ID.
         - name: DEVICE_ID
           start: 16
           end: 31
           permissions: RW
-          notes: |
+          notes: >-
             PCI Device ID.
-      notes: |
+      notes: >-
         The Vendor ID and Device ID register in PCI configuration space
         (offset 0x00).
     - name: PCI_CONFIG_CLASS_REV
@@ -269,34 +269,34 @@ registers:
           start: 0
           end: 7
           permissions: RW
-          notes: |
+          notes: >-
             PCI Revision ID.
         - name: CLASS_CODE
           start: 8
           end: 31
           permissions: RW
-          notes: |
+          notes: >-
             PCI Class Code.
-      notes: |
+      notes: >-
         The Class Code and Revision ID register in PCI configuration space
         (offset 0x08).
     - name: XHCI_HCCPARAMS1
       start: 0x18810
       end: 0x18813
       permissions: RW
-      notes: |
+      notes: >-
         Host Controller Capability Parameters 1. See the xHCI specification
         for details.
     - name: XHCI_CRCR
       start: 0x18838
       end: 0x1883F
       permissions: RO
-      notes: |
+      notes: >-
         Command Ring Control Register. See the xHCI specification for details.
     - name: XHCI_DCBAAP
       start: 0x18850
       end: 0x18857
       permissions: RO
-      notes: |
+      notes: >-
         Device Context Base Address Array Pointer Register. See the xHCI
         specification for details.
