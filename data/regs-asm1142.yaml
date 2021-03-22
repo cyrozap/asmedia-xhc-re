@@ -430,6 +430,21 @@ registers:
           notes: >-
             Indicates that the timer's internal counter has reached the value of
             `TIMER_THRESHOLD`.
+    - name: TIMER_IE
+      start: 0xF304
+      end: 0xF304
+      bits:
+        - name: EX1
+          start: 0
+          end: 0
+          permissions: RW
+          notes: >-
+            This bit controls whether the `TIMER_CSR.THRESHOLD_MET` signal will
+            trigger External Interrupt 1. When this bit is set and
+            `TIMER_CSR.THRESHOLD_MET` is high, the External Interrupt 1 signal
+            will be pulled low. When either this bit or
+            `TIMER_CSR.THRESHOLD_MET` are cleared, the External Interrupt 1
+            signal will return to the state it was before either bit was set.
     - name: CPU_MODE_NEXT
       start: 0xF340
       end: 0xF340
