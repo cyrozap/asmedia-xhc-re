@@ -400,8 +400,11 @@ registers:
       end: 0xF300
       permissions: RW
       notes: >-
-        The timer clock divisor. The frequency of the timer's clock is divided
-        by the value in this register. Must be greater than or equal to 1.
+        The timer clock divisor. Must be greater than or equal to 1. The timer
+        clock frequency is equal to `CPU clock frequency / 8192 / TIMER_DIV`.
+        The CPU clock frequency is either 156.25 MHz or 78.125 MHz, depending on
+        the value of `CPU_MODE_CURRENT.CLOCK_DIV`, so the timer's base clock
+        frequency is approximately equal to either 19.073 kHz or 9.537 kHz.
     - name: TIMER_THRESHOLD
       start: 0xF301
       end: 0xF302
