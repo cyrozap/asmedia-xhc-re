@@ -239,7 +239,7 @@ registers:
       end: 0x1510A
       permissions: RW
       notes: >-
-        UART clock divider. The baudrate of the UART is equal to
+        UART clock divisor. The baudrate of the UART is equal to
         `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 156.25 MHz.
     - name: PCI_CONFIG_VID_DID

@@ -392,7 +392,7 @@ registers:
       end: 0xF10A
       permissions: RW
       notes: >-
-        UART clock divider. The baudrate of the UART is equal to
+        UART clock divisor. The baudrate of the UART is equal to
         `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 156.25 MHz.
     - name: TIMER_DIV
@@ -502,7 +502,7 @@ registers:
       end: 0xF360
       permissions: RW
       notes: >-
-        SPI clock divider. SPI clock frequency is equal to
+        SPI clock divisor. SPI clock frequency is equal to
         `78.125 MHz / (FLASH_CON_DIV + 1)`. The SPI clock is not affected by the
         CPU clock divider--the base frequency is always 78.125 MHz.
     - name: FLASH_CON_ADDR_LEN
