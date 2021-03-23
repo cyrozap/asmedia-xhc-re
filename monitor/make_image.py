@@ -23,6 +23,48 @@ def gen_header(chip : str):
     header_magic = CHIP_INFO[chip][0]
 
     data = bytes()
+    if CHIP_INFO[chip][2] == "I":
+        # Config words start at 0x20 on ASM2142 and later.
+        data += bytes([0] * 16)
+
+    if chip == "ASM3242":
+        # Bypass the signature check via ROM config MMIO writes.
+        xram_addr = 0x000000  # Always zero.
+        data_len = 0x008000  # Limited by the flash read speed.
+
+        cc_words = 14
+        delay_writes = (0x400 - (16 + len(data) + 8 * cc_words)) // 8
+        firmware_flash_addr = 16 + len(data) + 8 * (cc_words + delay_writes) + 9
+
+        writes_pre_delay = (
+            (0x505c, 2, data_len & 0xffff),  # DATA_LEN
+            (0x505e, 1, (data_len >> 16) & 0xff),  # DATA_LEN_HI
+            (0x5060, 1, 0x01),  # DIV
+            (0x5061, 1, 0x03),  # ADDR_LEN
+            (0x5062, 1, 0x03),  # CMD
+            (0x5063, 1, 0x00),  # MODE
+            (0x5064, 1, 0x01),  # MEMSEL
+            (0x5066, 2, xram_addr & 0xffff),  # XRAM_ADDR
+            (0x5068, 1, (xram_addr >> 16) & 0xff),  # XRAM_ADDR_HI
+            (0x506b, 2, firmware_flash_addr & 0xffff),  # FLASH_ADDR
+            (0x506d, 1, (firmware_flash_addr >> 16) & 0xff),  # FLASH_ADDR_HI
+            (0x506e, 1, 0x04 | 0x08 | 0x01),  # CSR
+        )
+
+        writes_post_delay = (
+            (0x5040, 1, 0x03),  # CPU_MODE_NEXT
+            (0x5042, 1, 0x01),  # CPU_EXEC_CTRL
+        )
+
+        loading_string = b"\r\nLoading..."
+        loading_string += b"." * (delay_writes - len(loading_string))
+
+        for addr, count, value in writes_pre_delay:
+            data += struct.pack('<BBHI', 0xCC, count, addr, value)
+        for char in loading_string:
+            data += struct.pack('<BBHI', 0xCC, 4, 0x5100, char << 8)
+        for addr, count, value in writes_post_delay:
+            data += struct.pack('<BBHI', 0xCC, count, addr, value)
 
     header = struct.pack('<HHH10s', 0, 1, 16 + len(data), header_magic.encode('ASCII'))
     header += data
