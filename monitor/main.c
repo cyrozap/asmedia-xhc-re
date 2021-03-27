@@ -26,6 +26,8 @@ static uint32_t CPU_CON_BASE;
 #define CPU_EXEC_CTRL_RESET (1 << 0)
 #define CPU_EXEC_CTRL_HALT (1 << 1)
 
+static uint32_t CHIP_VERSION_ADDR;
+
 #define MAX_CMD_LEN 80
 #define MAX_ARGS 3
 
@@ -259,26 +261,31 @@ static void init(void) {
 		chip_name = "ASM1042";
 		UART_BASE = 0xF100;
 		CPU_CON_BASE = 0xF340;
+		CHIP_VERSION_ADDR = 0xF38C;
 		break;
 	case CHIP_ASM1042A:
 		chip_name = "ASM1042A";
 		UART_BASE = 0xF100;
 		CPU_CON_BASE = 0xF340;
+		CHIP_VERSION_ADDR = 0xF38C;
 		break;
 	case CHIP_ASM1142:
 		chip_name = "ASM1142";
 		UART_BASE = 0xF100;
 		CPU_CON_BASE = 0xF340;
+		CHIP_VERSION_ADDR = 0xF38C;
 		break;
 	case CHIP_ASM2142:
 		chip_name = "ASM2142";
 		UART_BASE = 0x15100;
 		CPU_CON_BASE = 0x15040;
+		CHIP_VERSION_ADDR = 0x150B2;
 		break;
 	case CHIP_ASM3242:
 		chip_name = "ASM3242";
 		UART_BASE = 0x15100;
 		CPU_CON_BASE = 0x15040;
+		CHIP_VERSION_ADDR = 0x1508C;
 		break;
 	default:
 		chip_name = "UNKNOWN";
@@ -699,8 +706,11 @@ static int version_handler(size_t argc, const char * argv[]) {
 	println(build_version);
 	print("Build time: ");
 	println(build_time);
-	print("Chip name: ");
-	println(chip_name);
+	print("Chip: ");
+	print(chip_name);
+	print(", version ");
+	print_hex(readb(CHIP_VERSION_ADDR), 2);
+	println("");
 	print("CPU frequency: ");
 	println(get_current_clock_speed(get_chip_type()));
 	return 0;
