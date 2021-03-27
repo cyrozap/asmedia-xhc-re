@@ -140,8 +140,8 @@ static void writew(uint32_t reg, uint16_t value) {
 		PCON &= ~(1 << 4);
 		DPX = dpx;
 	} else {
-		set_sfr(reg, value & 0xff);
-		set_sfr(reg, (value >> 8) & 0xff);
+		set_sfr(reg+0, value & 0xff);
+		set_sfr(reg+1, (value >> 8) & 0xff);
 	}
 }
 #endif
@@ -160,10 +160,10 @@ static void writel(uint32_t reg, uint32_t value) {
 		PCON &= ~(1 << 4);
 		DPX = dpx;
 	} else {
-		set_sfr(reg, value & 0xff);
-		set_sfr(reg, (value >> 8) & 0xff);
-		set_sfr(reg, (value >> 16) & 0xff);
-		set_sfr(reg, (value >> 24) & 0xff);
+		set_sfr(reg+0, value & 0xff);
+		set_sfr(reg+1, (value >> 8) & 0xff);
+		set_sfr(reg+2, (value >> 16) & 0xff);
+		set_sfr(reg+3, (value >> 24) & 0xff);
 	}
 }
 
