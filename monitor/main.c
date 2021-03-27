@@ -72,7 +72,6 @@ static uint8_t readb(uint32_t reg) {
 		return get_sfr(reg);
 }
 
-#if 0
 static uint16_t readw(uint32_t reg) {
 	if (reg < 0xC00000UL) {
 		uint16_t ret;
@@ -89,7 +88,6 @@ static uint16_t readw(uint32_t reg) {
 		return value;
 	}
 }
-#endif
 
 static uint32_t readl(uint32_t reg) {
 	if (reg < 0xC00000UL) {
@@ -125,7 +123,6 @@ static void writeb(uint32_t reg, uint8_t value) {
 		set_sfr(reg, value);
 }
 
-#if 0
 static void writew(uint32_t reg, uint16_t value) {
 	if (reg < 0x800000UL) {
 		uint8_t dpx = DPX;
@@ -144,7 +141,6 @@ static void writew(uint32_t reg, uint16_t value) {
 		set_sfr(reg+1, (value >> 8) & 0xff);
 	}
 }
-#endif
 
 static void writel(uint32_t reg, uint32_t value) {
 	if (reg < 0x800000UL) {
@@ -451,6 +447,7 @@ static void print_addr_with_region(uint32_t addr) {
 static int mr_common(const char * addr_str, uint8_t size) {
 	switch (size) {
 	case 1:
+	case 2:
 	case 4:
 		break;
 	default:
@@ -479,6 +476,9 @@ static int mr_common(const char * addr_str, uint8_t size) {
 	switch (size) {
 	case 1:
 		value = readb(ptr);
+		break;
+	case 2:
+		value = readw(ptr);
 		break;
 	case 4:
 		value = readl(ptr);
@@ -510,6 +510,23 @@ static int mrb_handler(size_t argc, const char * argv[]) {
 	return mr_common(argv[1], 1);
 }
 
+static int mrh_handler(size_t argc, const char * argv[]) {
+	if (argc < 2) {
+		println("Error: Too few arguments.");
+		println("Usage: mrh address");
+		println("Examples:");
+		println("    mrh 0x00000000");
+		println("    mrh 0x8");
+		println("    mrh 00000");
+		println("    mrh c");
+		println("    mrh 00201000");
+		println("    mrh 201000");
+		return -1;
+	}
+
+	return mr_common(argv[1], 2);
+}
+
 static int mrw_handler(size_t argc, const char * argv[]) {
 	if (argc < 2) {
 		println("Error: Too few arguments.");
@@ -535,6 +552,9 @@ static int mw_common(const char * addr_str, const char * value_str, uint8_t size
 	switch (size) {
 	case 1:
 		max_value = 0xFF;
+		break;
+	case 2:
+		max_value = 0xFFFF;
 		break;
 	case 4:
 		break;
@@ -563,6 +583,9 @@ static int mw_common(const char * addr_str, const char * value_str, uint8_t size
 	case 1:
 		tmp = readb(ptr);
 		break;
+	case 2:
+		tmp = readw(ptr);
+		break;
 	case 4:
 		tmp = readl(ptr);
 		break;
@@ -587,6 +610,9 @@ static int mw_common(const char * addr_str, const char * value_str, uint8_t size
 	case 1:
 		writeb(ptr, value);
 		break;
+	case 2:
+		writew(ptr, value);
+		break;
 	case 4:
 		writel(ptr, value);
 		break;
@@ -599,6 +625,9 @@ static int mw_common(const char * addr_str, const char * value_str, uint8_t size
 	switch (size) {
 	case 1:
 		tmp = readb(ptr);
+		break;
+	case 2:
+		tmp = readw(ptr);
 		break;
 	case 4:
 		tmp = readl(ptr);
@@ -627,6 +656,22 @@ static int mwb_handler(size_t argc, const char * argv[]) {
 	}
 
 	return mw_common(argv[1], argv[2], 1);
+}
+
+static int mwh_handler(size_t argc, const char * argv[]) {
+	if (argc < 3) {
+		println("Error: Too few arguments.");
+		println("Usage: mwh address value");
+		println("Examples:");
+		println("    mwh 0x00200000 0");
+		println("    mwh 0x100008 1234");
+		println("    mwh 100000 0x008");
+		println("    mwh 20100c 0x1");
+		println("    mwh 00201000 0");
+		return -1;
+	}
+
+	return mw_common(argv[1], argv[2], 2);
 }
 
 static int mww_handler(size_t argc, const char * argv[]) {
@@ -779,8 +824,10 @@ static const command cmd_table[] = {
 	{ "help", help_handler },
 	{ "version", version_handler },
 	{ "mrb", mrb_handler },
+	{ "mrh", mrh_handler },
 	{ "mrw", mrw_handler },
 	{ "mwb", mwb_handler },
+	{ "mwh", mwh_handler },
 	{ "mww", mww_handler },
 	{ "reset", reset_handler },
 	{ "bmo", bmo_handler },
