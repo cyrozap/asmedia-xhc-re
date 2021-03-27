@@ -448,6 +448,51 @@ static void print_addr_with_region(uint32_t addr) {
 	print_hex(addr & 0x1fffff, 6);
 }
 
+static int mr_common(const char * addr_str, uint8_t size) {
+	switch (size) {
+	case 1:
+	case 4:
+		break;
+	default:
+		print("Error: invalid size passed to mr_common: ");
+		print_dec(size, 1);
+		putchar('\n');
+		return -1;
+	}
+
+	uint8_t digits = size * 2;
+
+	uint32_t ptr = 0;
+	int ret = parse_hex(&ptr, addr_str);
+	if (ret != 0) {
+		println("Error: parse_hex(addr_str) failed.");
+		return -1;
+	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
+		return -1;
+	}
+	print_addr_with_region(ptr);
+	print(": ");
+
+	uint32_t value;
+	switch (size) {
+	case 1:
+		value = readb(ptr);
+		break;
+	case 4:
+		value = readl(ptr);
+		break;
+	default:
+		value = 0xdeaddeadUL;
+		break;
+	}
+	print_hex(value, digits);
+	putchar('\n');
+
+	return 0;
+}
+
 static int mrb_handler(size_t argc, const char * argv[]) {
 	if (argc < 2) {
 		println("Error: Too few arguments.");
@@ -462,24 +507,7 @@ static int mrb_handler(size_t argc, const char * argv[]) {
 		return -1;
 	}
 
-	uint32_t ptr = 0;
-	int ret = parse_hex(&ptr, argv[1]);
-	if (ret != 0) {
-		println("Error: parse_hex() failed.");
-		return -1;
-	}
-	if (ptr > ADDR_MAX) {
-		println("Error: Address too large.");
-		return -1;
-	}
-	print_addr_with_region(ptr);
-	print(": ");
-
-	uint32_t value = readb(ptr);
-	print_hex(value, 2);
-	putchar('\n');
-
-	return 0;
+	return mr_common(argv[1], 1);
 }
 
 static int mrw_handler(size_t argc, const char * argv[]) {
@@ -496,24 +524,7 @@ static int mrw_handler(size_t argc, const char * argv[]) {
 		return -1;
 	}
 
-	uint32_t ptr = 0;
-	int ret = parse_hex(&ptr, argv[1]);
-	if (ret != 0) {
-		println("Error: parse_hex() failed.");
-		return -1;
-	}
-	if (ptr > ADDR_MAX) {
-		println("Error: Address too large.");
-		return -1;
-	}
-	print_addr_with_region(ptr);
-	print(": ");
-
-	uint32_t value = readl(ptr);
-	print_hex(value, 8);
-	putchar('\n');
-
-	return 0;
+	return mr_common(argv[1], 4);
 }
 
 static int mw_common(const char * addr_str, const char * value_str, uint8_t size) {
