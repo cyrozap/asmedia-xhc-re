@@ -114,7 +114,14 @@ static void writeb(uint32_t reg, uint8_t value) {
 		DPX = (reg >> 16) & 0x1f;
 		*(uint8_t *)(reg) = value;
 		DPX = dpx;
-	} else if (reg >= 0xC00000UL)
+	} else if (reg < 0xC00000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		PCON |= (1 << 4);
+		*(uint8_t *)(reg & 0xffff) = value;
+		PCON &= ~(1 << 4);
+		DPX = dpx;
+	} else
 		set_sfr(reg, value);
 }
 
@@ -125,7 +132,14 @@ static void writew(uint32_t reg, uint16_t value) {
 		DPX = (reg >> 16) & 0x1f;
 		*(uint16_t *)(reg) = value;
 		DPX = dpx;
-	} else if (reg >= 0xC00000UL) {
+	} else if (reg < 0xC00000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		PCON |= (1 << 4);
+		*(uint16_t *)(reg & 0xffff) = value;
+		PCON &= ~(1 << 4);
+		DPX = dpx;
+	} else {
 		set_sfr(reg, value & 0xff);
 		set_sfr(reg, (value >> 8) & 0xff);
 	}
@@ -138,7 +152,14 @@ static void writel(uint32_t reg, uint32_t value) {
 		DPX = (reg >> 16) & 0x1f;
 		*(uint32_t *)(reg) = value;
 		DPX = dpx;
-	} else if (reg >= 0xC00000UL) {
+	} else if (reg < 0xC00000UL) {
+		uint8_t dpx = DPX;
+		DPX = (reg >> 16) & 0x1f;
+		PCON |= (1 << 4);
+		*(uint32_t *)(reg & 0xffff) = value;
+		PCON &= ~(1 << 4);
+		DPX = dpx;
+	} else {
 		set_sfr(reg, value & 0xff);
 		set_sfr(reg, (value >> 8) & 0xff);
 		set_sfr(reg, (value >> 16) & 0xff);

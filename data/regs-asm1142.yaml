@@ -175,10 +175,6 @@ registers:
           notes: >-
             Select whether XDATA or CODE RAM should be accessed with MOVX
             instructions. Set to access CODE RAM, clear to access XDATA.
-            Unfortunately, setting this bit while the 8051 is executing from
-            CODE RAM causes the CPU to lock up (or at least the firmware stops
-            executing normally), so since our own code only ever runs from CODE
-            RAM we can't utilize this functionality.
     - name: MISC_CTRL
       start: 0x90
       end: 0x90
