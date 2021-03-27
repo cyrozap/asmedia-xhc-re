@@ -24,6 +24,9 @@ def main():
 
     set_cases = []
     for i in sfr_range:
+        if i in (0x81, 0x82, 0x83, 0xD0, 0xE0, 0xF0):
+            # Disable writes to critical SFRs.
+            continue
         set_cases.append("\tcase 0x{0:02X}:\n\t\tSFR_{0:02X} = value;\n\t\tbreak;".format(i))
 
     mapping = {
