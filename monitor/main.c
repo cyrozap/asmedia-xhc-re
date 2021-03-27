@@ -379,7 +379,6 @@ static int parse_hex(uint32_t * value, const char * str) {
 	return 0;
 }
 
-#if 0
 static void print_dec(uint32_t value, size_t min_digits) {
 	size_t digits = 0;
 	for (uint32_t remaining = value; remaining != 0; remaining /= 10) {
@@ -400,7 +399,6 @@ static void print_dec(uint32_t value, size_t min_digits) {
 		putchar(chr);
 	}
 }
-#endif
 
 static void print_hex(uint32_t value, size_t min_digits) {
 	size_t digits = 0;
@@ -518,6 +516,92 @@ static int mrw_handler(size_t argc, const char * argv[]) {
 	return 0;
 }
 
+static int mw_common(const char * addr_str, const char * value_str, uint8_t size) {
+	int ret = 0;
+	uint32_t tmp;
+
+	uint32_t max_value = 0;
+	switch (size) {
+	case 1:
+		max_value = 0xFF;
+		break;
+	case 4:
+		break;
+	default:
+		print("Error: invalid size passed to mw_common: ");
+		print_dec(size, 1);
+		putchar('\n');
+		return -1;
+	}
+
+	uint8_t digits = size * 2;
+
+	uint32_t ptr = 0;
+	ret = parse_hex(&ptr, addr_str);
+	if (ret != 0) {
+		println("Error: parse_hex(addr_str) failed.");
+		return -1;
+	}
+	if (ptr > ADDR_MAX) {
+		println("Error: Address too large.");
+		return -1;
+	}
+	print_addr_with_region(ptr);
+	print(": ");
+	switch (size) {
+	case 1:
+		tmp = readb(ptr);
+		break;
+	case 4:
+		tmp = readl(ptr);
+		break;
+	default:
+		tmp = 0xdeaddeadUL;
+		break;
+	}
+	print_hex(tmp, digits);
+	putchar('\n');
+
+	uint32_t value = 0;
+	ret = parse_hex(&value, value_str);
+	if (ret != 0) {
+		println("Error: parse_hex(value_str) failed.");
+		return -1;
+	}
+	if (max_value != 0 && value > max_value) {
+		println("Error: Value too large.");
+		return -1;
+	}
+	switch (size) {
+	case 1:
+		writeb(ptr, value);
+		break;
+	case 4:
+		writel(ptr, value);
+		break;
+	default:
+		break;
+	}
+
+	print_addr_with_region(ptr);
+	print(": ");
+	switch (size) {
+	case 1:
+		tmp = readb(ptr);
+		break;
+	case 4:
+		tmp = readl(ptr);
+		break;
+	default:
+		tmp = 0xdeaddeadUL;
+		break;
+	}
+	print_hex(tmp, digits);
+	putchar('\n');
+
+	return ret;
+}
+
 static int mwb_handler(size_t argc, const char * argv[]) {
 	if (argc < 3) {
 		println("Error: Too few arguments.");
@@ -531,41 +615,7 @@ static int mwb_handler(size_t argc, const char * argv[]) {
 		return -1;
 	}
 
-	int ret = 0;
-
-	uint32_t ptr = 0;
-	ret = parse_hex(&ptr, argv[1]);
-	if (ret != 0) {
-		println("Error: parse_hex(argv[1]) failed.");
-		return -1;
-	}
-	if (ptr > ADDR_MAX) {
-		println("Error: Address too large.");
-		return -1;
-	}
-	print_addr_with_region(ptr);
-	print(": ");
-	print_hex(readb(ptr), 2);
-	putchar('\n');
-
-	uint32_t value = 0;
-	ret = parse_hex(&value, argv[2]);
-	if (ret != 0) {
-		println("Error: parse_hex(argv[2]) failed.");
-		return -1;
-	}
-	if (value > 0xFF) {
-		println("Error: Value too large.");
-		return -1;
-	}
-	writeb(ptr, value);
-
-	print_addr_with_region(ptr);
-	print(": ");
-	print_hex(readb(ptr), 2);
-	putchar('\n');
-
-	return ret;
+	return mw_common(argv[1], argv[2], 1);
 }
 
 static int mww_handler(size_t argc, const char * argv[]) {
@@ -581,37 +631,7 @@ static int mww_handler(size_t argc, const char * argv[]) {
 		return -1;
 	}
 
-	int ret = 0;
-
-	uint32_t ptr = 0;
-	ret = parse_hex(&ptr, argv[1]);
-	if (ret != 0) {
-		println("Error: parse_hex(argv[1]) failed.");
-		return -1;
-	}
-	if (ptr > ADDR_MAX) {
-		println("Error: Address too large.");
-		return -1;
-	}
-	print_addr_with_region(ptr);
-	print(": ");
-	print_hex(readl(ptr), 8);
-	putchar('\n');
-
-	uint32_t value = 0;
-	ret = parse_hex(&value, argv[2]);
-	if (ret != 0) {
-		println("Error: parse_hex(argv[2]) failed.");
-		return -1;
-	}
-	writel(ptr, value);
-
-	print_addr_with_region(ptr);
-	print(": ");
-	print_hex(readl(ptr), 8);
-	putchar('\n');
-
-	return ret;
+	return mw_common(argv[1], argv[2], 4);
 }
 
 static int reset_handler(size_t argc, const char * argv[]) {
