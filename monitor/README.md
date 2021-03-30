@@ -31,14 +31,16 @@ It's a simple command line with some useful commands.
 
 ```
 Hello from monitor!
-monitor version r38.g6b59fa0 (built on 20XX-01-01T00:00:00Z)
+monitor version r117.g628dc28 (built on 20XX-01-01T00:00:00Z)
 > help
 Commands available:
  - help
  - version
  - mrb
+ - mrh
  - mrw
  - mwb
+ - mwh
  - mww
  - reset
  - bmo
@@ -61,18 +63,38 @@ Print the monitor version, build date/time, and chip name.
 "Memory Read Byte": Read a single byte of memory.
 
 
+### mrh
+
+"Memory Read Half-word": Read a 2-byte little-endian half-word of
+memory.
+
+On an 8051, "words" are typically considered 16 bits (2 bytes), but I
+originally wrote this code for ARM and didn't feel like changing the
+names of the commands after porting it to the 8051.
+
+
 ### mrw
 
 "Memory Read Word": Read a 4-byte little-endian word of memory.
 
 On an 8051, "words" are typically considered 16 bits (2 bytes), but I
 originally wrote this code for ARM and didn't feel like changing the
-name of the command after porting it to the 8051.
+names of the commands after porting it to the 8051.
 
 
 ### mwb
 
 "Memory Write Byte": Write a single byte of memory.
+
+
+### mwh
+
+"Memory Write Half-word": Write a 2-byte little-endian half-word of
+memory.
+
+On an 8051, "words" are typically considered 16 bits (2 bytes), but I
+originally wrote this code for ARM and didn't feel like changing the
+names of the commands after porting it to the 8051.
 
 
 ### mww
@@ -81,7 +103,7 @@ name of the command after porting it to the 8051.
 
 On an 8051, "words" are typically considered 16 bits (2 bytes), but I
 originally wrote this code for ARM and didn't feel like changing the
-name of the command after porting it to the 8051.
+names of the commands after porting it to the 8051.
 
 
 ### reset
