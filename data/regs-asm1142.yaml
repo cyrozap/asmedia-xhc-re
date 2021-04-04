@@ -152,12 +152,14 @@ registers:
       start: 0x80
       end: 0x80
       bits:
-        - name: CONTROL
-          start: 0
+        - name: MODE
+          start: 3
           end: 3
           permissions: RW
           notes: >-
-            Some kind of control bits. They seem to always be set to zero.
+            Selects whether the data to copy should be copied from XRAM at
+            `HARD_COPY_SRC` or from `HARD_COPY_DATA`. Set to copy data from
+            `HARD_COPY_DATA`, clear to copy from `HARD_COPY_SRC`.
         - name: COPY_LEN_HI
           start: 4
           end: 7
@@ -204,6 +206,13 @@ registers:
       permissions: RW
       notes: >-
         The lower 8 bits ([7:0]) of the 12-bit copy length.
+    - name: HARD_COPY_DATA
+      start: 0xC0
+      end: 0xCF
+      permissions: RW
+      notes: >-
+        16 bytes of data that will be copied to XRAM at the address in
+        `HARD_COPY_DST` if `HARD_COPY_CTRL.MODE` is set.
 
   xdata:
     - name: PCI_CONFIG_C4
