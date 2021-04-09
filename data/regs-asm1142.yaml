@@ -240,6 +240,36 @@ registers:
       notes: >-
         The Subsystem Vendor ID and Subsystem ID register in PCI configuration
         space (offset 0x2C).
+    - name: INT_MASK_EX1
+      start: 0xF030
+      end: 0xF031
+      permissions: RW
+      notes: >-
+        Bit mask for `INT_FLAGS_EX1`. Each bit in this register masks the bit at
+        the same position in `INT_FLAGS_EX1`.
+    - name: INT_FLAGS_EX1
+      start: 0xF032
+      end: 0xF033
+      bits:
+        - name: MBOX_WRITE_START
+          start: 4
+          end: 4
+          permissions: RW1C
+          notes: >-
+            This flag is set when the host writes a 1 to bit 1 of PCI
+            configuration space register `MBOX_DOORBELL`
+            (`MBOX_DOORBELL.WRITE_START`).
+        - name: MBOX_READ_ACK
+          start: 5
+          end: 5
+          permissions: RW1C
+          notes: >-
+            This flag is set when the host writes a 1 to bit 0 of PCI
+            configuration space register `MBOX_DOORBELL`
+            (`MBOX_DOORBELL.READ_ACK`).
+      notes: >-
+        Flags that get set when their corresponding interrupt source is
+        triggered. These interrupt sources trigger External Interrupt 1.
     - name: PCIE_DMA_DEVICE_ADDR
       start: 0xF040
       end: 0xF041
