@@ -184,7 +184,7 @@ registers:
         - name: HARD_COPY_START
           start: 7
           end: 7
-          permissions: RW
+          permissions: RW1S
           notes: >-
             Writing a 1 to this bit will trigger a hardware copy operation.
             When the copy is finished, hardware sets this bit to 0.
@@ -621,7 +621,7 @@ registers:
         - name: RUN
           start: 0
           end: 0
-          permissions: RW
+          permissions: RW1S
           notes: >-
             Set to start the SPI transaction. This bit will remain set until the
             transaction has completed, at which point it will automatically
