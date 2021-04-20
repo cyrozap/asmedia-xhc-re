@@ -181,6 +181,35 @@ registers:
       start: 0x90
       end: 0x90
       bits:
+        - name: VEC_N_ADD_SUB
+          start: 0
+          end: 0
+          permissions: RW
+          notes: >-
+            Clear this bit to perform an add/subtract operation.
+        - name: VEC_STATUS
+          start: 4
+          end: 4
+          permissions: RO
+          notes: >-
+            After `VEC_START` is cleared by hardware, this bit indicates whether
+            the vector operation completed successfully. If the operation
+            completed successfully, this bit will be set to 1. If it failed,
+            this bit will be set to 0.
+        - name: VEC_SUB_N_ADD
+          start: 5
+          end: 5
+          permissions: RW
+          notes: >-
+            Set this bit to perform a subtraction, clear it to perform an
+            addition.
+        - name: VEC_START
+          start: 6
+          end: 6
+          permissions: RW1S
+          notes: >-
+            Writing a 1 to this bit will trigger a vector operation. When the
+            vector operation is finished, hardware sets this bit to 0.
         - name: HARD_COPY_START
           start: 7
           end: 7
@@ -206,6 +235,36 @@ registers:
       permissions: RW
       notes: >-
         The lower 8 bits ([7:0]) of the 12-bit copy length.
+    - name: VEC_CONST
+      start: 0xA2
+      end: 0xA3
+      permissions: RW
+      notes: >-
+        The constant to add to/subtract from each element in the array pointed
+        to by `VEC_ADDR`. When subtracting, the value of this constant must be
+        less than the value of every element in the array or the operation will
+        fail.
+    - name: VEC_LEN
+      start: 0xA4
+      end: 0xA5
+      permissions: RW
+      notes: >-
+        The length of the array/vector, in number of 16-bit elements. Must be
+        greater than zero.
+    - name: VEC_OFFSET
+      start: 0xA6
+      end: 0xA7
+      permissions: RW
+      notes: >-
+        The number of 16-bit elements to offset the array/vector address
+        `VEC_ADDR` by.
+    - name: VEC_ADDR
+      start: 0xB4
+      end: 0xB5
+      permissions: RW
+      notes: >-
+        The byte address of the array/vector to operate on. This address must be
+        aligned to 8 bytes--the lower 3 bits in this register are ignored.
     - name: HARD_COPY_DATA
       start: 0xC0
       end: 0xCF
