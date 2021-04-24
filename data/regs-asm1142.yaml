@@ -754,6 +754,13 @@ registers:
       notes: >-
         The Class Code and Revision ID register in PCI configuration space
         (offset 0x08).
+    - name: UART_LOG_RCFG
+      start: 0xF3FC
+      end: 0xF3FF
+      permissions: RW
+      notes: >-
+        Write `0x12345678` into this register to tell the CODE ROM to print
+        "external settings" from RCFG.
     - name: XHCI_HCIVERSION
       start: 0xF602
       end: 0xF603
