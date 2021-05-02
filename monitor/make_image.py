@@ -88,6 +88,13 @@ def gen_body(chip : str, data : bytes):
     crc = crc32(data)
     body += struct.pack('<BI', csum, crc)
 
+    if body_magic == b"2324A_FW":
+        # Append a null signature to enable the Kaitai Struct definition and
+        # firmware validation script to work on custom ASM3242 firmware
+        # images.
+        body += struct.pack('BBB', 0, 3 << 1, 0x00 >> 2)
+        body += bytes([0] * 0x20)
+
     return body
 
 def add_fw_meta(chip : str, data : bytes):
