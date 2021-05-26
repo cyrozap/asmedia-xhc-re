@@ -242,6 +242,56 @@ registers:
         UART clock divisor. The baudrate of the UART is equal to
         `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 156.25 MHz.
+    - name: PCI_CONFIG_READ_ACK
+      start: 0x18140
+      end: 0x18140
+      bits:
+        - name: READ_ACK
+          start: 0
+          end: 0
+          permissions: RW
+          notes: >-
+            Corresponds to PCI configuration space register 0xE0
+            (`MBOX_DOORBELL`), bit 0.
+    - name: PCI_CONFIG_WRITE_START
+      start: 0x18141
+      end: 0x18141
+      bits:
+        - name: WRITE_START
+          start: 0
+          end: 0
+          permissions: RW
+          notes: >-
+            Corresponds to PCI configuration space register 0xE0
+            (`MBOX_DOORBELL`), bit 1.
+    - name: PCI_CONFIG_D2H0
+      start: 0x18148
+      end: 0x1814B
+      permissions: RW
+      notes: >-
+        Corresponds to PCI configuration space register 0xF0 (`MBOX_D2H`).
+        Writable by the device, RO for the host.
+    - name: PCI_CONFIG_D2H1
+      start: 0x1814C
+      end: 0x1814F
+      permissions: RW
+      notes: >-
+        Corresponds to PCI configuration space register 0xF4 (`MBOX_D2H`).
+        Writable by the device, RO for the host.
+    - name: PCI_CONFIG_H2D0
+      start: 0x18150
+      end: 0x18153
+      permissions: RO
+      notes: >-
+        Corresponds to PCI configuration space register 0xF8 (`MBOX_H2D`).
+        Writable by the host, RO for the device.
+    - name: PCI_CONFIG_H2D1
+      start: 0x18154
+      end: 0x18157
+      permissions: RO
+      notes: >-
+        Corresponds to PCI configuration space register 0xFC (`MBOX_H2D`).
+        Writable by the host, RO for the device.
     - name: PCI_CONFIG_VID_DID
       start: 0x18550
       end: 0x18553
