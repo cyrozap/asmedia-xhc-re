@@ -1,0 +1,240 @@
+= ASM1142 USB Host Controller Programming Manual
+:doctype: book
+:reproducible:
+:sectnums:
+:stem:
+:toc: left
+:toclevels: 4
+
+
+== System Overview
+
+The ASM1142 is a USB host controller with an MCS-51-compatible CPU running at up to 156.25 MHz, 64 kB boot ROM, 64 kB of code RAM, 256 B internal data RAM, 48 kB of external data RAM, PCIe and USB controller peripherals, and supporting peripherals.
+
+Interesting features include:
+
+* One machine cycle per clock cycle (1T).
+* Code RAM writable from the device CPU.
+* Hardware-accelerated memcpy and memset.
+* Mailbox registers in PCI configuration space.
+* DMA over PCIe.
+
+
+== Memory Architecture and Access
+
+The ASM1142's MCS-51-compatible CPU can address several memory regions: program/code memory (CODE), external data (XDATA), direct/indirect internal data (IRAM), and special function registers (SFRs).
+XRAM is located at address zero in XDATA, and MMIO begins at XDATA address 0xE000.
+
+
+=== CPU Access
+
+Architecturally, CODE is read-only, and can be accessed using MOVC instructions.
+XDATA is read/write, and can be accessed using MOVX instructions.
+The lower 128 bytes of IRAM can be accessed either directly or indirectly, but the upper 128 bytes can only be accessed indirectly.
+SFRs are accessed using direct reads/writes to the upper 128 bytes of IRAM.
+
+While CODE is architecturally read-only, in the ASM1142 the CODE memory space can be mapped to either boot ROM or code RAM, and code RAM can be written to in several ways.
+One method, which is used by the boot ROM, is to direct the SPI flash controller to write the data it reads directly into code RAM.
+Unfortunately, it is not possible to do this while executing out of code RAM, so this capability is not particularly useful for custom firmware.
+
+The other method of writing to code RAM, which is usable by code running from code RAM, is to set bit 4 of the PCON SFR, then use a MOVX instruction to read or write data in code RAM the same way MOVX is normally used to access XDATA.
+After accessing code RAM, bit 4 of PCON should be cleared so that XDATA access will work again.
+
+
+=== Host Access
+
+The host can access certain memory regions through the PCI configuration space.
+This access can be organized into three major categories: firmware-assisted access, direct MMIO access, and direct code RAM write.
+
+
+==== Firmware-assisted Access
+
+Firmware-assisted access, as its name implies, is memory accessed by communicating with the currently-running firmware.
+As this is firmware-specific, and not a function of the hardware, it will not be discussed further, other than to say that any memory that can be accessed by the firmware can be accessed by the host by communicating with the running firmware.
+
+
+==== Direct MMIO Access
+
+Direct MMIO access can be performed as follows:
+
+. Write the address of the MMIO register to the `MMIO_ACCESS.ADDRESS` register in PCI configuration space.
+. Repeatedly read the `MMIO_ACCESS.ADDRESS` register until the address in the register matches the address of the MMIO register you want to access.
+. If you want to write data to the MMIO register, do so by writing the data to `MMIO_ACCESS.WRITE_DATA`.
+If you want to read data, you can do so by reading from `MMIO_ACCESS.READ_DATA`.
+
+Note that while writes to `MMIO_ACCESS.WRITE_DATA` take effect immediately, and can be performed repeatedly without writing the MMIO address another time, if you want to read updated data from the selected MMIO register, a second write to `MMIO_ACCESS.ADDRESS` is required to latch the new data into `MMIO_ACCESS.READ_DATA`.
+
+
+==== Code RAM Write Access
+
+Code RAM can be written to (but not read from) directly by the host, which enables the host to load firmware directly into the device without first writing it to flash.
+Data is written in 2-byte chunks and must be aligned on 2-byte boundaries, and the address auto-increments by two on every write.
+The address register can only be used to address 32 kB of memory (the high bit, bit 15, is permanently zero), so the highest bit of the address is set or cleared depending on which data register is written to (enabling access to the full 64 kB).
+
+The process to write data to code RAM is as follows:
+
+. Write the address to start writing at to `CODE_RAM_ADDR` in PCI configuration space.
+. For data at addresses less than 0x8000, write two bytes of data in a single writew operation to `CODE_RAM_DATA.LOWER_BANK_DATA` in PCI configuration space.
+For data at addresses greater than or equal to 0x8000, write the data to `CODE_RAM_DATA.UPPER_BANK_DATA` instead.
+. For each 2-byte chunk of data remaining, repeat step 2 (the address auto-increments so repeating step 1 is not necessary).
+
+
+== Clocking
+
+TODO
+
+
+== Boot Process
+
+After reset, the CPU begins executing from the boot ROM.
+The boot ROM's primary responsibility is to do some minor hardware initialization before loading and executing code from SPI flash.
+If the SPI flash is not present, or if the firmware image in flash is not valid, the boot ROM will continue to initialize hardware and wait in a loop until it is commanded to do something by the host.
+
+
+=== Flash Firmware Loading
+
+Normally, code is loaded from flash by the boot ROM.
+
+TODO: Explain how this process works in more detail.
+
+
+=== Direct Firmware Loading
+
+It is possible to load firmware directly into the code RAM of the ASM1142, without the host communicating with the boot ROM.
+This means that writing to the attached SPI flash is not necessary in order to run custom code on the ASM1142.
+It also means that firmware can be repeatedly loaded, as during development.
+
+To boot by directly loading firmware, perform the following steps:
+
+. Halt the device CPU and hold it in reset by using a direct MMIO access to write 0x02 to `CPU_EXEC_CTRL`.
+. Write the firmware to code RAM.
+. Configure the device CPU to boot from code RAM by using a direct MMIO access to set bit 0 in `CPU_MODE_NEXT`.
+. Release the device CPU from reset by using a direct MMIO access to write 0x00 to `CPU_EXEC_CTRL`.
+
+
+== Peripherals
+
+TODO
+
+
+=== Hardware Copy Controller
+
+The Hardware Copy Controller has two main modes of operation:
+
+. XRAM-to-XRAM copy ("memcpy" mode).
+. SFR region scratch registers-to-XRAM copy ("memset" mode).
+
+In the first mode, the controller is used to copy data between locations in XRAM.
+In other words, it's essentially an accelerated memcpy.
+
+In the second mode, data in SFRs 0xC0-0xCF can be copied in a loop into XRAM.
+This can be used to repeatedly write an arbitrary 16-byte pattern of data to a much larger region of XRAM (which can be used to accelerate memset operations).
+
+
+==== Initialization
+
+TODO
+
+
+==== Usage
+
+TODO
+
+
+=== Mailbox
+
+TODO
+
+
+==== Initialization
+
+TODO
+
+
+==== Usage
+
+TODO
+
+
+=== UART
+
+TODO
+
+
+==== Initialization
+
+The UART comes out of reset with parity enabled (mode 8O1), so if you want the mode to be 8N1 you need to explicitly configure that.
+
+TODO: Explain full initialization process.
+
+
+==== Usage
+
+TODO
+
+
+=== Timer
+
+Only works every other time, for some reason (on the odd times it hits the timeout instantly).
+Further investigation is required.
+
+TODO: Elaborate on capabilities.
+
+
+==== Initialization
+
+TODO
+
+
+==== Usage
+
+TODO
+
+
+=== SPI Flash Controller
+
+Packet format:
+
+* 1 command byte
+* 0-3 address bytes (transmitted)
+* 0-65535 data bytes (transmitted or received, depending on the value of FLASH_CON_MODE.WRITE_N_READ)
+
+Can read data into either XRAM or code RAM.
+
+Supports CRC calculation on data read from flash, standard CRC algo (Ethernet/zlib).
+
+TODO: Elaborate on capabilities.
+
+
+==== Initialization
+
+TODO
+
+
+==== Usage
+
+TODO: Explain SPI transactions and CRC calculation.
+
+
+== Interrupts
+
+The ASM1142 appears to only support two primary interrupt sources, the external interrupts EINT0 and EINT1.
+However, both primary interrupts can be triggered by multiple sources, and the interrupt service routines are responsible for determining which source triggered an interrupt.
+
+TODO: Explain interrupt masking.
+
+
+=== External Interrupt 0 (EINT0)
+
+TODO
+
+
+=== External Interrupt 1 (EINT1)
+
+EINT1 has several sources:
+
+* Timer
+* Mailbox read ACK/write start
+* Others TBD
+
+TODO: Include interrupt routing diagram.
