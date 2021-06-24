@@ -25,7 +25,7 @@
 4. Explore the firmware with [the Kaitai Web IDE][ide] and the
    [Kaitai Struct definition file][ksy], or run `./validate_fw.py` to
    check the integrity and version of the firmware.
-5. Run `make doc` to generate XHTML documentation in [doc][doc].
+5. Run `make doc` to generate XHTML documentation in [doc/out][doc].
 
 
 ## Reverse engineering notes
@@ -39,4 +39,4 @@ See [Notes.md](Notes.md).
 [urls]: firmware-urls.txt
 [ide]: https://ide.kaitai.io/
 [ksy]: asm_fw.ksy
-[doc]: doc
+[doc]: doc/out
