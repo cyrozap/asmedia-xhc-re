@@ -331,16 +331,29 @@ def gen_xhtml(filename, doc):
                     ET.SubElement(bit_table_lower_data, 'td', {'class': 'bitfield bitfield-unused'})
 
             actual_bits = register.get('bits', list())
-            for bit_range in actual_bits[::-1]:
-                start_bit = bit_range.get('start')
-                end_bit = bit_range.get('end')
-                if start_bit is None or end_bit is None:
-                    continue
-                bit = "Bit [{}]".format(start_bit)
-                if end_bit != start_bit:
-                    bit = "Bits [{}:{}]".format(end_bit, start_bit)
-                bit_notes = "{}, `{}`: {}".format(bit, bit_range.get('name', ""), bit_range.get('notes', ""))
-                markdown_lite(body, 'p', bit_notes)
+            if actual_bits:
+                ET.SubElement(body, 'p')
+                bit_info_table = ET.SubElement(body, 'table')
+
+                bit_info_table_header = ET.SubElement(bit_info_table, 'tr')
+                ET.SubElement(bit_info_table_header, 'th').text = "Bits"
+                ET.SubElement(bit_info_table_header, 'th').text = "Name"
+                ET.SubElement(bit_info_table_header, 'th').text = "Description"
+
+                for bit_range in actual_bits[::-1]:
+                    start_bit = bit_range.get('start')
+                    end_bit = bit_range.get('end')
+                    if start_bit is None or end_bit is None:
+                        continue
+
+                    bit = "[{}]".format(start_bit)
+                    if end_bit != start_bit:
+                        bit = "[{}:{}]".format(end_bit, start_bit)
+
+                    bit_info_table_row = ET.SubElement(bit_info_table, 'tr')
+                    ET.SubElement(bit_info_table_row, 'td').text = bit
+                    ET.SubElement(bit_info_table_row, 'td').text = bit_range.get('name', "")
+                    markdown_lite(bit_info_table_row, 'td', bit_range.get('notes', ""))
 
     ET.SubElement(body, 'hr')
     try:
