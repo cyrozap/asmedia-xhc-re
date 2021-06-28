@@ -10,6 +10,7 @@
   * [Kaitai Struct Compiler][ksc]
   * [Kaitai Struct Python Runtime][kspr]
 * Documentation generator:
+  * [Python-Markdown][python-markdown]
   * [PyYAML][pyyaml]
 
 ### Procedure
@@ -35,6 +36,7 @@ See [Notes.md](Notes.md).
 
 [ksc]: https://github.com/kaitai-io/kaitai_struct_compiler
 [kspr]: https://github.com/kaitai-io/kaitai_struct_python_runtime
+[python-markdown]: https://python-markdown.github.io/
 [pyyaml]: https://pyyaml.org/
 [urls]: firmware-urls.txt
 [ide]: https://ide.kaitai.io/

@@ -6,6 +6,7 @@ import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
+import markdown
 import yaml
 
 
@@ -84,14 +85,15 @@ def gen_css():
     '''
     return style
 
-def markdown_lite(parent, tag, md):
-    parts = md.split('`')
-    for i, part in enumerate(parts):
-        if i % 2 == 1:
-            code = ET.Element('code')
-            code.text = part
-            parts[i] = ET.tostring(code, encoding='utf-8', xml_declaration=False).decode('utf-8')
-    parent.append(ET.fromstring("<{}>{}</{}>".format(tag, "".join(parts), tag)))
+def markdown_subelement(parent, tag, md):
+    xhtml = markdown.markdown(md, output_format='xhtml')
+    if not xhtml:
+        ET.SubElement(parent, tag)
+        return
+
+    element = ET.fromstring(xhtml)
+    element.tag = tag
+    parent.append(element)
 
 def gen_xhtml(filename, doc):
     html = ET.Element('html', {
@@ -140,7 +142,7 @@ def gen_xhtml(filename, doc):
         ET.SubElement(tr, 'td').text = size_text
         ET.SubElement(tr, 'td').text = region.get('name', "")
         ET.SubElement(tr, 'td').text = region.get('permissions', "")
-        markdown_lite(tr, 'td', region.get('notes', ""))
+        markdown_subelement(tr, 'td', region.get('notes', ""))
 
     ET.SubElement(body, 'h2').text = "Register Map"
     register_regions = doc.get('registers', dict())
@@ -164,7 +166,7 @@ def gen_xhtml(filename, doc):
                 size = end + 1 - start
             max_bits = size * 8
             ET.SubElement(body, 'p').text = "Size: {} byte{}".format(size, "s" if size > 1 else "")
-            markdown_lite(body, 'p', register.get('notes', ""))
+            markdown_subelement(body, 'p', register.get('notes', ""))
             if max_bits > 64:
                 continue
             bit_table = ET.SubElement(body, 'table')
@@ -353,7 +355,7 @@ def gen_xhtml(filename, doc):
                     bit_info_table_row = ET.SubElement(bit_info_table, 'tr')
                     ET.SubElement(bit_info_table_row, 'td').text = bit
                     ET.SubElement(bit_info_table_row, 'td').text = bit_range.get('name', "")
-                    markdown_lite(bit_info_table_row, 'td', bit_range.get('notes', ""))
+                    markdown_subelement(bit_info_table_row, 'td', bit_range.get('notes', ""))
 
     ET.SubElement(body, 'hr')
     try:
