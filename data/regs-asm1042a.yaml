@@ -11,7 +11,7 @@ registers:
           start: 0
           end: 0
           permissions: RW1C
-          notes: >-
+          notes: |
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or cleared by the host. Corresponds to
             `PCI_CONFIG_READ_ACK` in XDATA.
@@ -19,7 +19,7 @@ registers:
           start: 1
           end: 1
           permissions: RW1S
-          notes: >-
+          notes: |
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
             in XDATA.
@@ -27,7 +27,7 @@ registers:
       start: 0xE2
       end: 0xE3
       permissions: RW
-      notes: >-
+      notes: |
         The next address in CODE RAM to be written to. Aligned on 2-byte
         boudaries (bit zero is permanently set to zero). Highest bit is always
         zero--the 32 kB bank to write to is selected by writing the data to
@@ -41,15 +41,15 @@ registers:
           start: 0
           end: 15
           permissions: WO
-          notes: >-
+          notes: |
             The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x0000`.
         - name: UPPER_BANK_DATA
           start: 16
           end: 31
           permissions: WO
-          notes: >-
+          notes: |
             The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x8000`.
-      notes: >-
+      notes: |
         Bit 15 in the CODE RAM write address is cleared when writing to
         `LOWER_BANK_DATA` and set when writing to `UPPER_BANK_DATA`. After
         writing to either `LOWER_BANK_DATA` or `UPPER_BANK_DATA`,
@@ -62,13 +62,13 @@ registers:
           start: 0
           end: 15
           permissions: RO
-          notes: >-
+          notes: |
             The current 8051 program counter.
         - name: MODE
           start: 16
           end: 23
           permissions: RO
-          notes: >-
+          notes: |
             The current value of `CPU_MODE_CURRENT`. See `CPU_MODE_CURRENT` for
             more information.
     - name: MMIO_ACCESS
@@ -79,21 +79,21 @@ registers:
           start: 0
           end: 15
           permissions: RW
-          notes: >-
+          notes: |
             The address of the MMIO byte that you want to access.
         - name: WRITE_DATA
           start: 16
           end: 23
           permissions: RW
-          notes: >-
+          notes: |
             The data you want to write to `ADDRESS`.
         - name: READ_DATA
           start: 24
           end: 31
           permissions: RO
-          notes: >-
+          notes: |
             The byte read from `ADDRESS`.
-      notes: >-
+      notes: |
         This register grants access to MMIO registers entirely in hardware,
         without involving the 8051 core. To read or write a register, first
         write the address to `ADDRESS`, then either write your data to
@@ -111,19 +111,19 @@ registers:
           start: 31
           end: 31
           permissions: RW
-          notes: >-
+          notes: |
             Set to hold the 8051 and xHC in reset, clear to release from reset.
     - name: MBOX_D2H
       start: 0xF0
       end: 0xF7
       permissions: RO
-      notes: >-
+      notes: |
         A mailbox register, from which data sent by the device can be read.
     - name: MBOX_H2D
       start: 0xF8
       end: 0xFF
       permissions: RW
-      notes: >-
+      notes: |
         A mailbox register, to which data from the host can be written.
 
   xdata:
@@ -135,7 +135,7 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: >-
+          notes: |
             Corresponds to PCI configuration space register 0xE0
             (`MBOX_DOORBELL`), bit 0.
     - name: PCI_CONFIG_WRITE_START
@@ -146,54 +146,54 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: >-
+          notes: |
             Corresponds to PCI configuration space register 0xE0
             (`MBOX_DOORBELL`), bit 1.
     - name: PCI_CONFIG_D2H0
       start: 0xF0D8
       end: 0xF0DB
       permissions: RW
-      notes: >-
+      notes: |
         Corresponds to PCI configuration space register 0xF0 (`MBOX_D2H`).
         Writable by the device, RO for the host.
     - name: PCI_CONFIG_D2H1
       start: 0xF0DC
       end: 0xF0DF
       permissions: RW
-      notes: >-
+      notes: |
         Corresponds to PCI configuration space register 0xF4 (`MBOX_D2H`).
         Writable by the device, RO for the host.
     - name: PCI_CONFIG_H2D0
       start: 0xF0E0
       end: 0xF0E3
       permissions: RO
-      notes: >-
+      notes: |
         Corresponds to PCI configuration space register 0xF8 (`MBOX_H2D`).
         Writable by the host, RO for the device.
     - name: PCI_CONFIG_H2D1
       start: 0xF0E4
       end: 0xF0E7
       permissions: RO
-      notes: >-
+      notes: |
         Corresponds to PCI configuration space register 0xFC (`MBOX_H2D`).
         Writable by the host, RO for the device.
     - name: UART_RBR
       start: 0xF100
       end: 0xF100
       permissions: RO
-      notes: >-
+      notes: |
         UART Receive Buffer Register.
     - name: UART_THR
       start: 0xF101
       end: 0xF101
       permissions: RW
-      notes: >-
+      notes: |
         UART Transmit Hold Register.
     - name: UART_RFBR
       start: 0xF105
       end: 0xF105
       permissions: RO
-      notes: >-
+      notes: |
         UART RX FIFO Bytes Received. Indicates the number of bytes in the RX
         FIFO available for reading, and decreases by 1 each time `UART_RBR` is
         read.
@@ -201,7 +201,7 @@ registers:
       start: 0xF106
       end: 0xF106
       permissions: RO
-      notes: >-
+      notes: |
         UART TX FIFO Bytes Free. Indicates the amount of space available in
         the TX FIFO. Increases by 1 each time `UART_THR` is written to, and
         decreases by 1 for each byte that gets transmitted.
@@ -213,14 +213,14 @@ registers:
           start: 0
           end: 1
           permissions: RW
-          notes: >-
+          notes: |
             The number of data bits per character. 0: 5 bits, 1: 6 bits, 2: 7
             bits, 3: 8 bits.
         - name: STOP_BITS
           start: 2
           end: 2
           permissions: RW
-          notes: >-
+          notes: |
             The number of stop bits per character. 0: 1 stop bit, 1: 2 stop
             bits. Unlike 8250-compatible UARTs, when this bit is set, 5-bit
             characters will have two stop bits, not 1.5.
@@ -228,17 +228,17 @@ registers:
           start: 3
           end: 5
           permissions: RW
-          notes: >-
+          notes: |
             The parity bit setting. 0bXX0: None, 0b001: Odd, 0b011: Even, 0b101:
             Mark, 0b111: Space.
-      notes: >-
+      notes: |
         UART Line Control Register. The reset value is 0x0B (mode 8O1), so if
         you want to use mode 8N1, you need to set this to 0x03.
     - name: UART_DIV
       start: 0xF109
       end: 0xF10A
       permissions: RW
-      notes: >-
+      notes: |
         UART clock divisor. The baudrate of the UART is equal to
         `125 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 125 MHz.
@@ -250,20 +250,20 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: >-
+          notes: |
             Set this bit to boot from CODE RAM, clear to boot from CODE ROM.
         - name: CLOCK_DIV
           start: 1
           end: 1
           permissions: RW
-          notes: >-
+          notes: |
             Set this bit to divide the CPU clock frequency by two. This affects
             both the CPU and the timer peripheral, as the timer clock is derived
             from the CPU clock. Set this bit to set the CPU clock to 62.5 MHz
             and the timer clock to approximately ??? kHz. Clear this bit to
             use the undivided CPU clock speed of 125 MHz and timer clock
             speed of approximately ??? kHz.
-      notes: >-
+      notes: |
         The settings in this register will take effect and be latched into
         `CPU_MODE_CURRENT` at the next reset.
     - name: CPU_MODE_CURRENT
@@ -274,7 +274,7 @@ registers:
           start: 0
           end: 0
           permissions: RO
-          notes: >-
+          notes: |
             This bit is set if the current code is executing from CODE RAM,
             and it's clear if executing from CODE ROM. This bit will always be
             set when our code is running, since our code is always loaded from
@@ -283,11 +283,11 @@ registers:
           start: 1
           end: 1
           permissions: RO
-          notes: >-
+          notes: |
             If set, this bit indicates that the CPU clock is being divided by
             two. If it's clear, the CPU clock is not being divided by two. See
             `CPU_MODE_NEXT.CLOCK_DIV` for more information.
-      notes: >-
+      notes: |
         The value of this register is latched from `CPU_MODE_NEXT` on reset,
         and indicates the settings for the currently-executing code.
     - name: CPU_EXEC_CTRL
@@ -298,13 +298,13 @@ registers:
           start: 0
           end: 0
           permissions: RW
-          notes: >-
+          notes: |
             Set this bit to reset the CPU.
         - name: HALT
           start: 1
           end: 1
           permissions: RW
-          notes: >-
+          notes: |
             Set this bit to halt the CPU and hold it in reset. Since the CPU
             can't un-halt itself, the only way to recover from this state is to
             use the `MMIO_ACCESS` register in PCI config space to clear this
@@ -313,6 +313,6 @@ registers:
       start: 0xF38C
       end: 0xF38C
       permissions: RO
-      notes: >-
+      notes: |
         Some hardware version number that is set during the manufacturing
         process. Presumably, this represents the silicon die revision.
