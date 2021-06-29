@@ -87,12 +87,7 @@ def gen_css():
 
 def markdown_subelement(parent, tag, md):
     xhtml = markdown.markdown(md, output_format='xhtml')
-    if not xhtml:
-        ET.SubElement(parent, tag)
-        return
-
-    element = ET.fromstring(xhtml)
-    element.tag = tag
+    element = ET.fromstring("<{}>{}</{}>".format(tag, xhtml, tag))
     parent.append(element)
 
 def gen_xhtml(filename, doc):
@@ -166,7 +161,7 @@ def gen_xhtml(filename, doc):
                 size = end + 1 - start
             max_bits = size * 8
             ET.SubElement(body, 'p').text = "Size: {} byte{}".format(size, "s" if size > 1 else "")
-            markdown_subelement(body, 'p', register.get('notes', ""))
+            markdown_subelement(body, 'div', register.get('notes', ""))
             if max_bits > 64:
                 continue
             bit_table = ET.SubElement(body, 'table')

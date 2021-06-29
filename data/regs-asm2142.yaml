@@ -214,23 +214,36 @@ registers:
           end: 1
           permissions: RW
           notes: |
-            The number of data bits per character. 0: 5 bits, 1: 6 bits, 2: 7
-            bits, 3: 8 bits.
+            The number of data bits per character.
+
+            * 0: 5 bits
+            * 1: 6 bits
+            * 2: 7 bits
+            * 3: 8 bits
         - name: STOP_BITS
           start: 2
           end: 2
           permissions: RW
           notes: |
-            The number of stop bits per character. 0: 1 stop bit, 1: 2 stop
-            bits. Unlike 8250-compatible UARTs, when this bit is set, 5-bit
+            The number of stop bits per character.
+
+            * 0: 1 stop bit
+            * 1: 2 stop bits
+
+            Unlike 8250-compatible UARTs, when this bit is set, 5-bit
             characters will have two stop bits, not 1.5.
         - name: PARITY
           start: 3
           end: 5
           permissions: RW
           notes: |
-            The parity bit setting. 0bXX0: None, 0b001: Odd, 0b011: Even, 0b101:
-            Mark, 0b111: Space.
+            The parity bit setting.
+
+            * 0bXX0: None
+            * 0b001: Odd
+            * 0b011: Even
+            * 0b101: Mark
+            * 0b111: Space
       notes: |
         UART Line Control Register. The reset value is 0x0B (mode 8O1), so if
         you want to use mode 8N1, you need to set this to 0x03.
