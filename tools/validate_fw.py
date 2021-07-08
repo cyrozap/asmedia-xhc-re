@@ -7,7 +7,7 @@ from zlib import crc32
 try:
     import asm_fw
 except ModuleNotFoundError:
-    print("Error: Failed to import \"asm_fw.py\". Please run \"make\" in this directory to generate that file, then try running this script again.", file=sys.stderr)
+    print("Error: Failed to import \"asm_fw.py\". Please run \"make\" in the root directory of this repository to generate that file, then try running this script again.", file=sys.stderr)
     sys.exit(1)
 
 
