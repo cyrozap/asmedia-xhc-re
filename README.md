@@ -33,7 +33,7 @@
 
 ## Reverse engineering notes
 
-See [Notes.md](doc/Notes.md).
+See [doc/Notes.md](doc/Notes.md).
 
 
 [ksc]: https://github.com/kaitai-io/kaitai_struct_compiler
