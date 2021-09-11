@@ -329,3 +329,60 @@ registers:
       notes: |
         Some hardware version number that is set during the manufacturing
         process. Presumably, this represents the silicon die revision.
+    - name: PCI_CONFIG_SVID_SSID
+      start: 0xF390
+      end: 0xF393
+      bits:
+        - name: SUBSYSTEM_VID
+          start: 0
+          end: 15
+          permissions: RW
+          notes: |
+            PCI Subsystem Vendor ID.
+        - name: SUBSYSTEM_ID
+          start: 16
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Subsystem ID.
+      notes: |
+        The Subsystem Vendor ID and Subsystem ID register in PCI configuration
+        space (offset 0x2C).
+    - name: PCI_CONFIG_VID_DID
+      start: 0xF3E0
+      end: 0xF3E3
+      bits:
+        - name: VENDOR_ID
+          start: 0
+          end: 15
+          permissions: RW
+          notes: |
+            PCI Vendor ID.
+        - name: DEVICE_ID
+          start: 16
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Device ID.
+      notes: |
+        The Vendor ID and Device ID register in PCI configuration space
+        (offset 0x00).
+    - name: PCI_CONFIG_CLASS_REV
+      start: 0xF3E4
+      end: 0xF3E7
+      bits:
+        - name: REVISION_ID
+          start: 0
+          end: 7
+          permissions: RW
+          notes: |
+            PCI Revision ID.
+        - name: CLASS_CODE
+          start: 8
+          end: 31
+          permissions: RW
+          notes: |
+            PCI Class Code.
+      notes: |
+        The Class Code and Revision ID register in PCI configuration space
+        (offset 0x08).
