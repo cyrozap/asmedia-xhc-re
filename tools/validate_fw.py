@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import pathlib
 import sys
 from zlib import crc32
 
@@ -31,7 +32,11 @@ def validate_crc32(name, data, expected):
     print("{} CRC32 OK!".format(name.capitalize()))
 
 def main():
+    project_dir = pathlib.Path(__file__).resolve().parents[1]
+    default_data_dir = str(project_dir/"data")
+
     parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--data-dir", type=str, default=default_data_dir, help="The YAML data directory. Default is \"{}\"".format(default_data_dir))
     parser.add_argument("firmware", type=str, help="The ASM1142/ASM2142/ASM3142 firmware binary.")
     args = parser.parse_args()
 
@@ -61,6 +66,63 @@ def main():
 
     version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
     print("Firmware version: {}".format(version_string))
+
+    reg_names = []
+    chip_data_yaml = {
+        "U2104_RCFG": "regs-asm1042.yaml",
+        "2104B_RCFG": "regs-asm1042a.yaml",
+        "2114A_RCFG": "regs-asm1142.yaml",
+        "2214A_RCFG": "regs-asm2142.yaml",
+        "2324A_RCFG": "regs-asm3242.yaml",
+    }.get(fw.header.magic, None)
+    if chip_data_yaml:
+        try:
+            yaml_path = pathlib.Path(args.data_dir) / chip_data_yaml
+
+            import yaml
+            doc = yaml.safe_load(open(yaml_path, 'r'))
+            xdata = doc.get('registers', dict()).get('xdata', [])
+            for reg in xdata:
+                start = reg['start']
+                end = reg['end']
+                name = reg['name']
+                reg_names.append((start, end, name))
+        except FileNotFoundError:
+            pass
+        except ModuleNotFoundError:
+            pass
+
+    mmio_offset = {
+        "U2104_RCFG": 0,
+        "2104B_RCFG": 0,
+        "2114A_RCFG": 0,
+        "2214A_RCFG": 0x10000,
+        "2324A_RCFG": 0x10000,
+    }.get(fw.header.magic, 0x10000)
+    header_printed = False
+    for config_word in fw.header.data.config_words:
+        if isinstance(config_word.info, asm_fw.AsmFw.Header.ConfigWord.WriteData):
+            if not header_printed:
+                print("Header MMIO writes:")
+                header_printed = True
+
+            info = config_word.info
+            addr = info.addr + mmio_offset
+            addr_format = "0x{:04x}"
+            if mmio_offset >= 0x10000:
+                addr_format = "0x{:05x}"
+            formatted_addr = addr_format.format(addr)
+            value_format = {
+                1: '0x{:02x}',
+                2: '0x{:04x}',
+                4: '0x{:08x}',
+            }.get(info.size)
+            formatted_value = value_format.format(info.value)
+
+            for start, end, name in reg_names:
+                if addr in range(start, end + 1):
+                    formatted_addr = "{}[{}] ({})".format(name, addr-start, formatted_addr)
+            print("  {} <= {}".format(formatted_addr, formatted_value))
 
 
 if __name__ == "__main__":
