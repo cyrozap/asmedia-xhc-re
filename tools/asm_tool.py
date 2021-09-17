@@ -133,10 +133,7 @@ class AsmDev:
         for i in range(width):
             byte_addr = (addr + i) & 0xffff
             self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr)
-            while True:
-                byte_addr_readback = self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2)
-                if byte_addr_readback == byte_addr:
-                    break
+            while self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2) != byte_addr:
                 time.sleep(0.001)
             byte_value = self.pci.config_reg_read(self.MMIO_ACCESS_READ_DATA, 1)
 
@@ -160,10 +157,7 @@ class AsmDev:
         for i in range(width):
             byte_addr = (addr + i) & 0xffff
             self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr)
-            while True:
-                byte_addr_readback = self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2)
-                if byte_addr_readback == byte_addr:
-                    break
+            while self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2) != byte_addr:
                 time.sleep(0.001)
             byte_value = (value >> (8 * i)) & 0xff
             self.pci.config_reg_write(self.MMIO_ACCESS_WRITE_DATA, 1, byte_value)
