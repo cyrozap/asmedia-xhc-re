@@ -53,7 +53,7 @@ class PciDev:
 
         return value
 
-    def config_reg_write(self, reg: int, width: int, value: int):
+    def config_reg_write(self, reg: int, width: int, value: int, confirm: bool = False):
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
 
@@ -63,6 +63,11 @@ class PciDev:
         self._config.seek(reg)
         self._config.write(struct.pack(self.struct_map[width], value))
         #self._config.flush()
+
+        # If "confirm" is set, repeatedly read the register until its contents match the value written.
+        if confirm:
+            while self.config_reg_read(reg, width) != value:
+                continue
 
 class AsmDev:
     width_map = {
@@ -158,9 +163,7 @@ class AsmDev:
                 reg = self.CODE_RAM_DATA_UPPER_BANK_DATA
 
             masked_addr = offset_addr & 0x7ffe
-            self.pci.config_reg_write(self.CODE_RAM_ADDR, 2, masked_addr)
-            while self.pci.config_reg_read(self.CODE_RAM_ADDR, 2) != masked_addr:
-                time.sleep(0.001)
+            self.pci.config_reg_write(self.CODE_RAM_ADDR, 2, masked_addr, confirm=True)
 
             self.pci.config_reg_write(reg, 2, word)
 
@@ -203,9 +206,7 @@ class AsmDev:
         value = 0
         for i in range(width):
             byte_addr = (addr + i) & 0xffff
-            self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr)
-            while self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2) != byte_addr:
-                time.sleep(0.001)
+            self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr, confirm=True)
             byte_value = self.pci.config_reg_read(self.MMIO_ACCESS_READ_DATA, 1)
 
             value |= byte_value << (8 * i)
@@ -227,9 +228,7 @@ class AsmDev:
 
         for i in range(width):
             byte_addr = (addr + i) & 0xffff
-            self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr)
-            while self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2) != byte_addr:
-                time.sleep(0.001)
+            self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr, confirm=True)
             byte_value = (value >> (8 * i)) & 0xff
             self.pci.config_reg_write(self.MMIO_ACCESS_WRITE_DATA, 1, byte_value)
 
