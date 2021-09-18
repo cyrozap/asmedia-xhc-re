@@ -106,10 +106,10 @@ It also means that firmware can be repeatedly loaded, as during development.
 
 To boot by directly loading firmware, perform the following steps:
 
-. Halt the device CPU and hold it in reset by using a direct MMIO access to write 0x02 to `CPU_EXEC_CTRL`.
-. Write the firmware to code RAM.
-. Configure the device CPU to boot from code RAM by using a direct MMIO access to set bit 0 in `CPU_MODE_NEXT`.
-. Release the device CPU from reset by using a direct MMIO access to write 0x00 to `CPU_EXEC_CTRL`.
+. Halt the device CPU and hold it in reset by using <<Direct MMIO Access>> to write 0x02 to `CPU_EXEC_CTRL`.
+. Write the firmware to code RAM using <<Code RAM Write Access>>.
+. Configure the device CPU to boot from code RAM by using <<Direct MMIO Access>> to set bit 0 in `CPU_MODE_NEXT`.
+. Release the device CPU from reset by using <<Direct MMIO Access>> to write 0x00 to `CPU_EXEC_CTRL`.
 
 
 == Peripherals
