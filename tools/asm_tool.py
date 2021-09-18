@@ -235,19 +235,8 @@ class AsmDev:
 
         # If "confirm" is set, repeatedly read the register until its contents match the value written.
         if confirm:
-            while True:
-                actual_value = 0
-                for i in range(width):
-                    byte_addr = (addr + i) & 0xffff
-                    self.pci.config_reg_write(self.MMIO_ACCESS_ADDR, 2, byte_addr)
-                    while self.pci.config_reg_read(self.MMIO_ACCESS_ADDR, 2) != byte_addr:
-                        time.sleep(0.001)
-                    byte_actual_value = self.pci.config_reg_read(self.MMIO_ACCESS_READ_DATA, 1)
-
-                    actual_value |= byte_actual_value << (8 * i)
-
-                if actual_value == value:
-                    break
+            while self.hw_mmio_reg_read(addr, width) != value:
+                continue
 
 
 def main():
