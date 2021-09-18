@@ -188,7 +188,7 @@ class AsmDev:
         self.hw_code_write(0x0000, code)
 
         # Configure CPU to boot from CODE RAM.
-        self.hw_mmio_reg_write(self.CPU_MODE_NEXT_64K, 1, (1 << 1) | (1 if half_speed else 0))
+        self.hw_mmio_reg_write(self.CPU_MODE_NEXT_64K, 1, ((1 if half_speed else 0) << 1) | 1)
 
         # Release the CPU from reset.
         self.hw_mmio_reg_write(self.CPU_EXEC_CTRL_64K, 1, 0)
