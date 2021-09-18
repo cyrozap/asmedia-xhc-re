@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -154,7 +155,12 @@ def gen_xhtml(filename, doc):
             addr_string = ""
             if start is not None:
                 addr_string = addr_format.format(start)
-            ET.SubElement(body, 'h4').text = "{}: {}".format(addr_string, reg_name)
+            reg_heading = ET.SubElement(body, 'h4')
+            reg_heading_text = "{}: {}".format(addr_string, reg_name)
+            reg_heading.attrib['id'] = "_" + re.sub(r'[^a-z0-9]', "_", reg_heading_text.lower())
+            reg_heading_link = ET.SubElement(reg_heading, 'a')
+            reg_heading_link.attrib['href'] = "#" + reg_heading.attrib['id']
+            reg_heading_link.text = reg_heading_text
             end = register.get('end')
             size = 0
             if start is not None and end is not None:
