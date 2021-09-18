@@ -619,6 +619,17 @@ registers:
             can't un-halt itself, the only way to recover from this state is to
             use the `MMIO_ACCESS` register in PCI config space to clear this
             bit.
+    - name: CPU_MISC
+      start: 0xF343
+      end: 0xF343
+      bits:
+        - name: CODE_RAM_WRITE_ENABLE
+          start: 1
+          end: 1
+          permissions: RW
+          notes: |
+            Set this bit to enable the host to write to CODE RAM using the
+            `CODE_RAM_ADDR` and `CODE_RAM_DATA` PCI config space registers.
     - name: FLASH_CON_DIV
       start: 0xF360
       end: 0xF360

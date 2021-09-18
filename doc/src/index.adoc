@@ -73,10 +73,11 @@ The address register can only be used to address 32 kB of memory (the high bit, 
 
 The process to write data to code RAM is as follows:
 
+. Enable writing to code RAM by using <<Direct MMIO Access>> to set bit 1 in `CPU_MISC`.
 . Write the address to start writing at to `CODE_RAM_ADDR` in PCI configuration space.
 . For data at addresses less than 0x8000, write two bytes of data in a single writew operation to `CODE_RAM_DATA.LOWER_BANK_DATA` in PCI configuration space.
 For data at addresses greater than or equal to 0x8000, write the data to `CODE_RAM_DATA.UPPER_BANK_DATA` instead.
-. For each 2-byte chunk of data remaining, repeat step 2 (the address auto-increments so repeating step 1 is not necessary).
+. For each 2-byte chunk of data remaining, repeat step 3 (the address auto-increments so repeating step 2 is not necessary).
 
 
 == Clocking
