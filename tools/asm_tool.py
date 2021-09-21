@@ -62,7 +62,7 @@ class PciDev:
 
         self._config.seek(reg)
         self._config.write(struct.pack(self.struct_map[width], value))
-        #self._config.flush()
+        self._config.flush()
 
         # If "confirm" is set, repeatedly read the register until its contents match the value written.
         if confirm:
