@@ -240,7 +240,7 @@ class AsmDev:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("dbsf", type=str, help="The ASM1042A/ASM1142/ASM2142/ASM3142/ASM3242 \"<domain>:<bus>:<slot>.<func>\".")
+    parser.add_argument("dbsf", type=str, help="The \"<domain>:<bus>:<slot>.<func>\" for the ASMedia USB 3 host controller.")
     args = parser.parse_args()
 
     dev = AsmDev(args.dbsf)
