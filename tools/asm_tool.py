@@ -80,6 +80,7 @@ class AsmDev:
         1: 'B',
         2: '<H',
         4: '<I',
+        8: '<Q',
     }
 
     # TODO: Populate structs with register info from YAML files.
