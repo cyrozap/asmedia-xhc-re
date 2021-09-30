@@ -482,6 +482,24 @@ registers:
       notes: |
         UART Interrupt Identification Register. These flags trigger External
         Interrupt 0.
+    - name: UART_FCR
+      start: 0xF104
+      end: 0xF104
+      bits:
+        - name: CLEAR_RX_FIFO
+          start: 0
+          end: 0
+          permissions: WO
+          notes: |
+            Write a 1 to this bit to clear the RX FIFO. Always reads as zero.
+        - name: CLEAR_TX_FIFO
+          start: 1
+          end: 1
+          permissions: WO
+          notes: |
+            Write a 1 to this bit to clear the TX FIFO. Always reads as zero.
+      notes: |
+        UART FIFO Control Register.
     - name: UART_RFBR
       start: 0xF105
       end: 0xF105
