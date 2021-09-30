@@ -447,20 +447,22 @@ registers:
       start: 0xF103
       end: 0xF103
       bits:
-        - name: DATA_READY
+        - name: RFBR
           start: 0
           end: 0
           permissions: RO
           notes: |
-            Set by hardware when there's data available to be read from
-            `UART_RBR`. Cleared by hardware when the RX FIFO is empty
-            (`UART_RFBR` is zero).
-        - name: THR_EMPTY
+            Set by hardware when `UART_RFBR` meets or exceeds the threshold set
+            in `UART_FCR.RFBR_ITT`. Cleared by hardware when `UART_RFBR` is
+            below that threshold.
+        - name: TFBF
           start: 1
           end: 1
           permissions: RO
           notes: |
-            Set by hardware when `UART_THR` is empty.
+            Set by hardware when `UART_TFBF` meets or exceeds the threshold set
+            in `UART_FCR.TFBF_ITT`. Cleared by hardware when `UART_TFBF` is
+            below that threshold.
         - name: UART_LSR_BIT_1
           start: 2
           end: 2
@@ -498,6 +500,28 @@ registers:
           permissions: WO
           notes: |
             Write a 1 to this bit to clear the TX FIFO. Always reads as zero.
+        - name: RFBR_ITT
+          start: 4
+          end: 5
+          permissions: RW
+          notes: |
+            RX FIFO Bytes Received Interrupt Trigger Threshold.
+
+            * 0: 1 byte
+            * 1: 4 bytes
+            * 2: 8 bytes
+            * 3: 14 bytes
+        - name: TFBF_ITT
+          start: 6
+          end: 7
+          permissions: RW
+          notes: |
+            TX FIFO Bytes Free Interrupt Trigger Threshold.
+
+            * 0: 1 byte
+            * 1: 4 bytes
+            * 2: 8 bytes
+            * 3: 14 bytes
       notes: |
         UART FIFO Control Register.
     - name: UART_RFBR
