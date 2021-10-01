@@ -227,7 +227,12 @@ TODO: Explain interrupt masking.
 
 === External Interrupt 0 (EINT0)
 
-TODO
+EINT0 has several sources:
+
+* UART
+* Others TBD
+
+TODO: Include interrupt routing diagram.
 
 
 === External Interrupt 1 (EINT1)
