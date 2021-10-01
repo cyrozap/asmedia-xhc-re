@@ -613,6 +613,18 @@ registers:
         UART clock divisor. The baudrate of the UART is equal to
         `156.25 MHz / UART_DIV`. The UART clock is not affected by the CPU clock
         divider--the base frequency is always 156.25 MHz.
+
+        The minimum and maximum baudrates that can be set using the equation
+        `UART_DIV = 156.25 MHz / baudrate` are 2400 baud and 78.125 Mbaud,
+        respectively. However, the baudrate can also be set to 1200 baud by
+        setting this register to 0 or 1.
+
+        Practically speaking, the maximum baudrate the receiver can decode under
+        optimal conditions is 15.625 Mbaud (tested by setting
+        `UART_LCR.LOOPBACK_ENABLE` to enable the internal loopback), and
+        real-world use of the UART will probably only work at slower speeds than
+        that. That said, speeds up to 4 Mbaud have been tested with a real UART,
+        so the maximum practical baudrate is at least that high.
     - name: TIMER_DIV
       start: 0xF300
       end: 0xF300
