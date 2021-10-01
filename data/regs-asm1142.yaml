@@ -579,6 +579,15 @@ registers:
             * 0b011: Even
             * 0b101: Mark
             * 0b111: Space
+        - name: LOOPBACK_ENABLE
+          start: 7
+          end: 7
+          permissions: RW
+          notes: |
+            Setting this bit enables loopback mode. When enabled, the internal
+            TX line of the UART is connected to the internal RX line, and the
+            internal TX and RX lines are disconnected from their respective
+            external TX and RX lines.
       notes: |
         UART Line Control Register. The reset value is 0x0B (mode 8O1), so if
         you want to use mode 8N1, you need to set this to 0x03.
