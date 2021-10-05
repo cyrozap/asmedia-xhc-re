@@ -10,8 +10,8 @@ all: $(TOOL_TARGETS)
 tools/%.py: tools/%.ksy
 	kaitai-struct-compiler --target=python --outdir=$(@D) $<
 
-doc/out/%.xhtml: data/%.yaml generate_docs.py
-	python3 generate_docs.py -o $@ $<
+doc/out/%.xhtml: data/%.yaml tools/generate_docs.py
+	python3 tools/generate_docs.py -o $@ $<
 
 doc/out/pm/index.html: doc/src/index.adoc $(wildcard doc/src/*.adoc)
 	asciidoctor --out-file $@ $<
