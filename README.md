@@ -41,7 +41,7 @@ See [doc/Notes.md](doc/Notes.md).
 [asciidoctor]: https://asciidoctor.org/
 [python-markdown]: https://python-markdown.github.io/
 [pyyaml]: https://pyyaml.org/
-[urls]: firmware-urls.txt
+[urls]: doc/firmware-urls.txt
 [ide]: https://ide.kaitai.io/
 [ksy]: tools/asm_fw.ksy
 [doc]: doc/out
