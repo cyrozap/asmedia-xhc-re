@@ -372,7 +372,10 @@ registers:
           end: 0
           permissions: RW1C
           notes: |
-            Indicates the completion of a DMA transfer. Write 1 to clear.
+            Indicates the completion of a DMA operation. Write 1 to clear.
+
+            Note that "complete" here simply means that the operation has
+            finished, not that the host has sent a completion TLP.
     - name: PCIE_DMA_RESULT
       start: 0xF04C
       end: 0xF04C
