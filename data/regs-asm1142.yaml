@@ -363,7 +363,31 @@ registers:
         * 1: Write to Device Context entry.
         * 3: Write an Event TRB.
         * 6: DMA read.
-    - name: PCIE_DMA_CSR
+    - name: PCIE_DMA_PARAM0
+      start: 0xF047
+      end: 0xF047
+      permissions: RW
+      notes: |
+        First parameter for the DMA operation.
+    - name: PCIE_DMA_PARAM1
+      start: 0xF048
+      end: 0xF048
+      permissions: RW
+      notes: |
+        Second parameter for the DMA operation. The maximum value that can be
+        written to this register is 63 (0x3F).
+    - name: PCIE_DMA_CSR0
+      start: 0xF049
+      end: 0xF049
+      bits:
+        - name: START
+          start: 0
+          end: 0
+          permissions: RW1S
+          notes: |
+            Start the DMA operation. Hardware clears this bit when the operation
+            is finished.
+    - name: PCIE_DMA_CSR2
       start: 0xF04B
       end: 0xF04B
       bits:
@@ -376,7 +400,7 @@ registers:
 
             Note that "complete" here simply means that the operation has
             finished, not that the host has sent a completion TLP.
-    - name: PCIE_DMA_RESULT
+    - name: PCIE_DMA_CSR3
       start: 0xF04C
       end: 0xF04C
       bits:
@@ -385,7 +409,7 @@ registers:
           end: 0
           permissions: RW1C
           notes: |
-            Indicates the status of the completed DMA transfer. Write 1 to
+            Indicates the status of the completed DMA operation. Write 1 to
             clear.
     - name: PCIE_DMA_HOST_ADDR
       start: 0xF050
