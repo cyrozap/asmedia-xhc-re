@@ -340,7 +340,19 @@ registers:
       end: 0xF045
       permissions: RW
       notes: |
-        The length of the PCIe DMA transfer, in bytes.
+        The length, in bytes, of the data to read or write during the PCIe DMA
+        operation,. The maximum is 65536 (0x10000), which can be set by clearing
+        this register.
+
+        While this register can be set to any value, the hardware can only read
+        or write data in multiples of 8 bytes. So for example, if a length of 7
+        is specified, 8 bytes will be either read or written. If the length is
+        9, 16 bytes will be read or written. If the length is greater than 16,
+        multiple TLPs will be used to perform the operation, with the data
+        lengths of each TLP set to multiples of 8 bytes. For example, if the
+        length is set to 17, 24 bytes will be read or written, with the first
+        TLP containing 16 bytes of data and the second containing 8 bytes of
+        data.
     - name: PCIE_DMA_OP
       start: 0xF046
       end: 0xF046
