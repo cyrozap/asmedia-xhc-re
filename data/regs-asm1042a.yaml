@@ -290,8 +290,8 @@ registers:
           notes: |
             This bit is set if the current code is executing from CODE RAM,
             and it's clear if executing from CODE ROM. This bit will always be
-            set when our code is running, since our code is always loaded from
-            flash into CODE RAM by the CODE ROM.
+            set when our code is running, since our code can only ever be
+            written to CODE RAM as CODE ROM is read-only.
         - name: CLOCK_DIV
           start: 1
           end: 1
