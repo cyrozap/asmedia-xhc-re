@@ -406,11 +406,11 @@ registers:
       bits:
         - name: RESULT
           start: 0
-          end: 0
-          permissions: RW1C
+          end: 3
+          permissions: RWNC
           notes: |
-            Indicates the status of the completed DMA operation. Write 1 to
-            clear.
+            Indicates the status code of the completed DMA operation. Write any
+            non-zero value to clear.
     - name: PCIE_DMA_HOST_ADDR
       start: 0xF050
       end: 0xF057
