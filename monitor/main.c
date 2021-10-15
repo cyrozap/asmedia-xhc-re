@@ -14,6 +14,7 @@ static char const __code __at (0x0087) fw_magic[8];
 static uint32_t UART_BASE;
 #define UART_RBR (UART_BASE + 0)
 #define UART_THR (UART_BASE + 1)
+#define UART_FCR (UART_BASE + 4)
 #define UART_RFBR (UART_BASE + 5)
 #define UART_TFBF (UART_BASE + 6)
 #define UART_LCR (UART_BASE + 7)
@@ -311,6 +312,7 @@ static void init(void) {
 
 	/* Serial port setup */
 	writeb(UART_LCR, 3);  /* 8N1 */
+	writeb(UART_FCR, readb(UART_FCR) | 0x3);  /* Clear FIFOs */
 }
 
 #if 0
