@@ -334,7 +334,7 @@ registers:
       end: 0xF041
       permissions: RW
       notes: |
-        The XDATA address for the PCIe DMA.
+        The XRAM address for the PCIe DMA.
     - name: PCIE_DMA_LEN
       start: 0xF044
       end: 0xF045
