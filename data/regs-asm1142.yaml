@@ -951,6 +951,12 @@ registers:
       notes: |
         Write `0x12345678` into this register to tell the CODE ROM to print
         "external settings" from RCFG.
+    - name: XHCI_CAPLENGTH
+      start: 0xF600
+      end: 0xF600
+      permissions: RW
+      notes: |
+        Capability Registers Length. See the xHCI specification for details.
     - name: XHCI_HCIVERSION
       start: 0xF602
       end: 0xF603
