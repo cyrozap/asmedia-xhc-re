@@ -1096,3 +1096,99 @@ registers:
       notes: |
         The second of two xHCI Supported Protocol Capability regions. See the
         xHCI specification for details.
+    - name: XHCI_DBC_DCID
+      start: 0xFE00
+      end: 0xFE03
+      permissions: RW
+      notes: |
+        Debug Capability ID Register. See the xHCI specification for details.
+    - name: XHCI_DBC_DCDB
+      start: 0xFE04
+      end: 0xFE07
+      permissions: RO
+      notes: |
+        Debug Capability Doorbell Register. See the xHCI specification for
+        details.
+    - name: XHCI_DBC_DCERSTSZ
+      start: 0xFE08
+      end: 0xFE0B
+      permissions: RO
+      notes: |
+        Debug Capability Event Ring Segment Table Size Register. See the xHCI
+        specification for details.
+    - name: XHCI_DBC_DCERSTBA
+      start: 0xFE10
+      end: 0xFE17
+      permissions: RO
+      notes: |
+        Debug Capability Event Ring Segment Table Base Address Register. See the
+        xHCI specification for details.
+    - name: XHCI_DBC_DCERDP
+      start: 0xFE18
+      end: 0xFE1F
+      permissions: RO
+      notes: |
+        Debug Capability Event Ring Dequeue Pointer Register. See the xHCI
+        specification for details.
+    - name: XHCI_DBC_DCCTRL
+      start: 0xFE20
+      end: 0xFE23
+      permissions: RW
+      notes: |
+        Debug Capability Control Register. See the xHCI specification for
+        details.
+    - name: XHCI_DBC_DCST
+      start: 0xFE24
+      end: 0xFE27
+      permissions: RW
+      notes: |
+        Debug Capability Status Register. See the xHCI specification for
+        details.
+    - name: XHCI_DBC_DCPORTSC
+      start: 0xFE28
+      end: 0xFE2B
+      permissions: RO
+      notes: |
+        Debug Capability Port Status and Control Register. See the xHCI
+        specification for details.
+    - name: XHCI_DBC_DCCP
+      start: 0xFE30
+      end: 0xFE37
+      permissions: RO
+      notes: |
+        Debug Capability Context Pointer Register. See the xHCI specification
+        for details.
+    - name: XHCI_DBC_DCDDI1
+      start: 0xFE38
+      end: 0xFE3B
+      permissions: RO
+      notes: |
+        Debug Capability Device Descriptor Info Register 1. See the xHCI
+        specification for details.
+    - name: XHCI_DBC_DCDDI2
+      start: 0xFE3C
+      end: 0xFE3F
+      permissions: RO
+      notes: |
+        Debug Capability Device Descriptor Info Register 2. See the xHCI
+        specification for details.
+    - name: XHCI_DBC_DCIC
+      start: 0xFE40
+      end: 0xFE7F
+      permissions: RW
+      notes: |
+        Debug Capability Info Context. See the xHCI specification for details.
+    - name: XHCI_DBC_IN_EP_CTX
+      start: 0xFE80
+      end: 0xFEBF
+      permissions: RW
+      notes: |
+        Debug Capability IN Endpoint Context. See the xHCI specification for
+        details.
+    - name: XHCI_DBC_OUT_EP_CTX
+      start: 0xFEC0
+      end: 0xFEFF
+      permissions: RW
+      notes: |
+        Debug Capability OUT Endpoint Context. See the xHCI specification for
+        details.
