@@ -1011,6 +1011,58 @@ registers:
       notes: |
         Host Controller Capability Parameters 2. See the xHCI specification
         for details.
+    - name: XHCI_USBCMD
+      start: 0xF620
+      end: 0xF623
+      permissions: RO
+      notes: |
+        USB Command Register. See the xHCI specification for details.
+
+        All bits are RO with the exception of bit 12 which is RW, but per the
+        xHCI specification bit 12 is reserved.
+    - name: XHCI_USBSTS
+      start: 0xF624
+      end: 0xF627
+      bits:
+        - name: HCH
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            HCHalted. See the xHCI specification for details.
+        - name: HSE
+          start: 2
+          end: 2
+          permissions: RW
+          notes: |
+            Host System Error. See the xHCI specification for details.
+        - name: SRE
+          start: 10
+          end: 10
+          permissions: RW
+          notes: |
+            Save/Restore Error. See the xHCI specification for details.
+        - name: HCE
+          start: 12
+          end: 12
+          permissions: RW
+          notes: |
+            Host Controller Error. See the xHCI specification for details.
+      notes: |
+        USB Status Register. See the xHCI specification for details.
+    - name: XHCI_PAGESIZE
+      start: 0xF628
+      end: 0xF62B
+      permissions: RO
+      notes: |
+        Page Size Register. See the xHCI specification for details.
+    - name: XHCI_DNCTRL
+      start: 0xF634
+      end: 0xF637
+      permissions: RO
+      notes: |
+        Device Notification Control Register. See the xHCI specification for
+        details.
     - name: XHCI_CRCR
       start: 0xF638
       end: 0xF63F
@@ -1024,6 +1076,12 @@ registers:
       notes: |
         Device Context Base Address Array Pointer Register. See the xHCI
         specification for details.
+    - name: XHCI_CONFIG
+      start: 0xF658
+      end: 0xF65B
+      permissions: RO
+      notes: |
+        Configure Register. See the xHCI specification for details.
     - name: XHCI_SPCAP0
       start: 0xF6A0
       end: 0xF6BF
