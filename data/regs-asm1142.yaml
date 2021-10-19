@@ -310,6 +310,13 @@ registers:
       start: 0xF032
       end: 0xF033
       bits:
+        - name: USBCMD
+          start: 3
+          end: 3
+          permissions: RW1C
+          notes: |
+            This flag is set when the host writes a command to the xHCI USB
+            Command Register (USBCMD).
         - name: MBOX_WRITE_START
           start: 4
           end: 4
