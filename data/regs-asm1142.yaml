@@ -310,6 +310,20 @@ registers:
       start: 0xF032
       end: 0xF033
       bits:
+        - name: USBCMD_CSS
+          start: 0
+          end: 0
+          permissions: RW1C
+          notes: |
+            This flag is set when the host sets the Controller Save State (CSS)
+            bit in the xHCI USB Command Register (USBCMD).
+        - name: USBCMD_CRS
+          start: 1
+          end: 1
+          permissions: RW1C
+          notes: |
+            This flag is set when the host sets the Controller Restore State
+            (CRS) bit in the xHCI USB Command Register (USBCMD).
         - name: USBCMD_RS
           start: 3
           end: 3
