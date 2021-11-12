@@ -4,6 +4,7 @@
 :sectnums:
 :sectlinks:
 :stem:
+:icons: font
 :toc: left
 :toclevels: 4
 
@@ -177,20 +178,116 @@ TODO
 
 === Timer
 
-Only works every other time, for some reason (on the odd times it hits the timeout instantly).
-Further investigation is required.
+The timer peripheral is used for setting precise delays and timeouts, and can optionally be used to trigger <<External Interrupt 1 (EINT1)>>.
+It is comprised of a counter, a clock divider/prescaler, a threshold value register, and an interrupt output.
+The counter is the core of the timer, and increments by one on every tick of the timer clock.
+The clock divider/prescaler can be used to control the speed of the timer clock.
+The threshold value register contains the threshold value, which is the value at which the counter will stop and the `TIMER_CSR.THRESHOLD_MET` bit will be set.
+The interrupt output is used to trigger <<External Interrupt 1 (EINT1)>> when the the `TIMER_CSR.THRESHOLD_MET` bit is set.
 
-TODO: Elaborate on capabilities.
+The timer is only capable of being used in a one-shot mode.
+Once it's started, on every tick of the timer clock the value in the counter is increased by one.
+When the value in the counter meets (TODO: determine if it's "meets" or "exceeds") the value in the threshold register `TIMER_THRESHOLD`, the counter will stop, the `TIMER_CSR.THRESHOLD_MET` bit will be set, and the `TIMER_CSR.RUN` bit will be cleared.
+If the `TIMER_IE.EX1` bit is set, <<External Interrupt 1 (EINT1)>> will be triggered when the `TIMER_CSR.THRESHOLD_MET` bit is set.
+
+The timer can be stopped at any time before the threshold is met.
+To do so, simply clear the `TIMER_CSR.RUN` bit.
+Doing so will/will not (TODO: determine if the timer be "paused" and "resumed") reset the counter back to zero.
+
+WARNING: The timer has an error in its implementation that can cause the counter to stop and the `TIMER_CSR.THRESHOLD_MET` bit to be set immediately as soon as the timer is started.
+To avoid triggering the bug, please follow the timer programming instructions in the <<timer-usage,Usage>> section exactly.
+For more details on this issue, please see the timer's <<timer-errata,Errata>>.
 
 
-==== Initialization
-
-TODO
-
-
+[#timer-usage]
 ==== Usage
 
-TODO
+CAUTION: Please follow these directions exactly.
+Failing to do so may cause the timer to function improperly.
+
+To start the timer:
+
+. Calculate the values for `TIMER_DIV` and `TIMER_THRESHOLD` as specified in <<timer-config,Configuration>>.
+. Reset the timer by first writing 0x00 to `TIMER_CSR`, and then writing 0x02.
+. Set `TIMER_DIV` to one.
+. Set `TIMER_THRESHOLD` to zero.
+. Trigger the hardware bug (see <<timer-errata,Errata>>) by writing 0x01 to `TIMER_CSR`.
+. Wait for the timer to stop by waiting for the `TIMER_CSR.RUN` bit to be cleared by hardware.
+. Reset the timer by writing 0x02 to `TIMER_CSR`.
+. Set the desired `TIMER_DIV` and `TIMER_THRESHOLD` values.
+. Optionally, set `TIMER_IE.EX1` to enable triggering an interrupt.
+. Start the timer by writing 0x01 to `TIMER_CSR`.
+
+To check the status of the timer:
+
+. Read the `TIMER_CSR` register and check the state of the `TIMER_CSR.THRESHOLD_MET` bit.
+
+To stop the timer early:
+
+. Write 0x00 to the `TIMER_CSR` register.
+
+
+[#timer-config]
+==== Configuration
+
+The timer's clock frequency is derived from the current CPU clock frequency, and can be calculated with the following formula:
+
+[latexmath]
+++++
+f_{timer} = \frac {f_{cpu}} {8192 \times TIMER\_DIV}
+++++
+
+Where latexmath:[f_{timer}] is the timer clock frequency in Hz, latexmath:[f_{cpu}] is the current CPU clock frequency in Hz (see <<Clocking>>), and latexmath:[TIMER\_DIV] is the current value of the `TIMER_DIV` register.
+
+The time it will take for the `TIMER_CSR.THRESHOLD_MET` to be set after the timer is started can be calculated with the following formula:
+
+[latexmath]
+++++
+t = \frac {TIMER\_THRESHOLD} {f_{timer}}
+++++
+
+Where latexmath:[t] is the time it will take, in seconds, for the counter to reach the threshold value, latexmath:[TIMER\_THRESHOLD] is the current value of the `TIMER_THRESHOLD` register, and latexmath:[f_{timer}] is the timer clock frequency in Hz.
+
+Substituting in the formula for latexmath:[f_{timer}], we get:
+
+[latexmath]
+++++
+t = \frac {8192 \times TIMER\_DIV \times TIMER\_THRESHOLD} {f_{cpu}}
+++++
+
+Rearranging to make latexmath:[t] an independent variable, we get:
+
+[latexmath]
+++++
+TIMER\_DIV \times TIMER\_THRESHOLD = \frac {t \times f_{cpu}} {8192}
+++++
+
+Since `TIMER_DIV` is only 8 bits and `TIMER_THRESHOLD` is 16 bits, the best way to determine the optimal values of those registers for an arbitrary latexmath:[t] is to do the following:
+
+. Assume `TIMER_DIV` is 1.
+. Solve for `TIMER_THRESHOLD`.
+. If the solved-for `TIMER_THRESHOLD` is greater than 65535, increase `TIMER_DIV` until the value of `TIMER_THRESHOLD` is less than or equal to 65535.
+. If the value of `TIMER_DIV` is greater than 255, then the timer can not be programmed for that timeout value.
+
+
+[#timer-errata]
+==== Errata
+
+The timer has an error in its implementation that can cause the counter to stop and the `TIMER_CSR.THRESHOLD_MET` bit to be set immediately as soon as the timer is started.
+This bug will be triggered if any of the following conditions are met:
+
+* The previous run of the timer was not stopped before the counter met the threshold value.
+* The timer was run with the threshold value set to zero.
+
+After the bug is triggered, the timer will behave normally on the immediately following run.
+
+The erroneous behavior can be detected by reading the `TIMER_CSR` immediately after setting the `TIMER_CSR.RUN` bit.
+If the value of the register is 0x03, then the bug was definitely triggered.
+If the value of the register is 0x02, then the bug was most likely triggered, but the read from `TIMER_CSR` took more than a few instructions.
+
+To work around this issue, the bug must be deliberately triggered before each use of the timer.
+To do so, simply set the threshold value `TIMER_THRESHOLD` to zero and then run the timer.
+This will trigger the bug, meaning the next time the timer runs it will work properly.
 
 
 === SPI Flash Controller
