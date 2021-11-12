@@ -2,6 +2,7 @@
 :doctype: book
 :reproducible:
 :sectnums:
+:sectlinks:
 :stem:
 :toc: left
 :toclevels: 4
