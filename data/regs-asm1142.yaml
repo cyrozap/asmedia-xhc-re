@@ -274,7 +274,7 @@ registers:
         `HARD_COPY_DST` if `HARD_COPY_CTRL.MODE` is set.
 
   xdata:
-    - name: PCI_CONFIG_MISC
+    - name: PCI_CONFIG_MISC0
       start: 0xE240
       end: 0xE243
       bits:
@@ -314,6 +314,167 @@ registers:
       permissions: RW
       notes: |
         Corresponds to PCI configuration space register 0xC4.
+    - name: PCI_CONFIG_MISC1
+      start: 0xE24C
+      end: 0xE24F
+      bits:
+        - name: EXT_TAG_SUPPORT
+          start: 1
+          end: 1
+          permissions: RW
+          notes: |
+            Bit 5 ("Extended Tag Field Supported") in the PCI Device
+            Capabilities Register.
+        - name: ASPM_SUPPORT
+          start: 2
+          end: 3
+          permissions: RW
+          notes: |
+            Bits 11:10 ("Active State Power Management (ASPM) Support") in the
+            PCI Link Capabilities Register.
+        - name: SSID_SVID_CAP
+          start: 19
+          end: 19
+          permissions: RW
+          notes: |
+            Set this bit to add the PCI Subsystem ID and Subsystem Vendor ID
+            Capability List Item to the PCI capabilities list. Clear this bit to
+            remove it. The SVID and SSID are defined using `PCI_CONFIG_C4`.
+      notes: |
+        Miscellaneous settings reported in the PCI configuration space
+        registers.
+    - name: PCI_CONFIG_MISC2
+      start: 0xE250
+      end: 0xE253
+      bits:
+        - name: NO_SOFT_RESET
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Bit 3 ("No_Soft_Reset") in the PCI Power Management Control/Status
+            Register.
+        - name: PM_CAP_DIS
+          start: 1
+          end: 1
+          permissions: RW
+          notes: |
+            Set this bit to remove the PCI Power Management Capability Structure
+            from the PCI capabilities list. Clear this bit to add it.
+        - name: AUX_CURRENT
+          start: 2
+          end: 4
+          permissions: RW
+          notes: |
+            Bits 24:22 ("Aux_Current") in the PCI Power Management Capabilities
+            Register.
+        - name: D1_SUPPORT
+          start: 5
+          end: 5
+          permissions: RW
+          notes: |
+            Bit 25 ("D1_Support") in the PCI Power Management Capabilities
+            Register.
+        - name: D2_SUPPORT
+          start: 6
+          end: 6
+          permissions: RW
+          notes: |
+            Bit 26 ("D2_Support") in the PCI Power Management Capabilities
+            Register.
+        - name: PME_SUPPORT
+          start: 8
+          end: 12
+          permissions: RW
+          notes: |
+            Bits 31:27 ("PME_Support") in the PCI Power Management Capabilities
+            Register.
+        - name: SURPRISE
+          start: 14
+          end: 14
+          permissions: RW
+          notes: |
+            Bit 19 ("Surprise Down Error Reporting Capable") in the PCI Link
+            Capabilities Register.
+        - name: MAX_PAYLOAD
+          start: 16
+          end: 18
+          permissions: RW
+          notes: |
+            Bits 7:5 ("Max_Payload_Size") in the PCI Device Control Register.
+        - name: LL_ACT_REP
+          start: 19
+          end: 19
+          permissions: RW
+          notes: |
+            Bit 20 ("Data Link Layer Link Active Reporting Capable") in the PCI
+            Link Capabilities Register.
+      notes: |
+        Miscellaneous settings reported in the PCI configuration space
+        registers.
+    - name: PCI_CONFIG_MISC3
+      start: 0xE25C
+      end: 0xE25F
+      bits:
+        - name: L0S_LATENCY
+          start: 0
+          end: 2
+          permissions: RW
+          notes: |
+            Bits 8:6 ("Endpoint L0s Acceptable Latency") in the PCI Device
+            Capabilities Register.
+        - name: PME_CLOCK
+          start: 3
+          end: 3
+          permissions: RW
+          notes: |
+            Bit 19 ("PME Clock") in the PCI Power Management Capabilities
+            Register.
+        - name: L1_LATENCY
+          start: 4
+          end: 6
+          permissions: RW
+          notes: |
+            Bits 11:9 ("Endpoint L1 Acceptable Latency") in the PCI Device
+            Capabilities Register.
+        - name: DSI
+          start: 7
+          end: 7
+          permissions: RW
+          notes: |
+            Bit 21 ("Device Specific Initialization") in the PCI Power
+            Management Capabilities Register.
+        - name: INTX_ENABLE
+          start: 11
+          end: 11
+          permissions: RW
+          notes: |
+            Set this bit to enable legacy INTx emulation. Clear this bit to
+            disable it.
+        - name: MSI_CAP
+          start: 13
+          end: 13
+          permissions: RW
+          notes: |
+            Set this bit to add the PCI MSI Capability Structure to the PCI
+            capabilities list. Clear this bit to remove it.
+        - name: MSI_X_CAP
+          start: 14
+          end: 14
+          permissions: RW
+          notes: |
+            Set this bit to add the PCI MSI-X Capability Structure to the PCI
+            capabilities list. Clear this bit to remove it.
+        - name: CLOCK_PM
+          start: 15
+          end: 15
+          permissions: RW
+          notes: |
+            Bit 18 ("Clock Power Management") in the PCI Link Capabilities
+            Register.
+      notes: |
+        Miscellaneous settings reported in the PCI configuration space
+        registers.
     - name: PCI_CONFIG_SVID_SSID
       start: 0xE260
       end: 0xE263
