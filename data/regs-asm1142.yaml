@@ -333,6 +333,18 @@ registers:
       notes: |
         The Subsystem Vendor ID and Subsystem ID register in PCI configuration
         space (offset 0x2C).
+    - name: PCI_CONFIG_CLASS_REV_MIRROR
+      start: 0xE264
+      end: 0xE267
+      permissions: RO
+      notes: |
+        This is a read-only mirror of `PCI_CONFIG_CLASS_REV`.
+    - name: PCI_CONFIG_VID_DID_MIRROR
+      start: 0xE268
+      end: 0xE26B
+      permissions: RO
+      notes: |
+        This is a read-only mirror of `PCI_CONFIG_VID_DID`.
     - name: INT_MASK_EX1
       start: 0xF030
       end: 0xF031
