@@ -274,6 +274,40 @@ registers:
         `HARD_COPY_DST` if `HARD_COPY_CTRL.MODE` is set.
 
   xdata:
+    - name: PCI_CONFIG_MISC
+      start: 0xE240
+      end: 0xE243
+      bits:
+        - name: LINK_CFG
+          start: 11
+          end: 12
+          permissions: RW
+          notes: |
+            * 0b00: 2.5GT/s
+            * 0b01: 5GT/s, LTR e-cap
+            * 0b10: 8GT/s
+            * 0b11: 8GT/s, Secondary PCI Express e-cap, LTR e-cap
+        - name: EP_TYPE
+          start: 22
+          end: 22
+          permissions: RW
+          notes: |
+            PCIe Device/Port Type.
+
+            * 0: PCI Express Endpoint
+            * 1: Legacy PCI Express Endpoint
+        - name: PM_RBE
+          start: 31
+          end: 31
+          permissions: RW
+          notes: |
+            * 0: Power Management Capabilitiy Version is 2. Role-Based Error
+              Reporting is 0.
+            * 1: Power Management Capabilitiy Version is 3. Role-Based Error
+              Reporting is 1.
+      notes: |
+        Miscellaneous settings reported in the PCI configuration space
+        registers.
     - name: PCI_CONFIG_C4
       start: 0xE244
       end: 0xE247
