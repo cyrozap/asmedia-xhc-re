@@ -37,7 +37,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data-dir", type=str, default=default_data_dir, help="The YAML data directory. Default is \"{}\"".format(default_data_dir))
-    parser.add_argument("firmware", type=str, help="The ASM1142/ASM2142/ASM3142 firmware binary.")
+    parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller firmware image.")
     args = parser.parse_args()
 
     fw_bytes = open(args.firmware, 'rb').read()
