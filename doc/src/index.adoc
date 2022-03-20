@@ -296,7 +296,7 @@ Packet format:
 
 * 1 command byte
 * 0-3 address bytes (transmitted)
-* 0-65535 data bytes (transmitted or received, depending on the value of FLASH_CON_MODE.WRITE_N_READ)
+* 0-65535 data bytes (transmitted or received, depending on the value of `FLASH_CON_MODE.WRITE_N_READ`)
 
 Can read data into either XRAM or code RAM.
 
