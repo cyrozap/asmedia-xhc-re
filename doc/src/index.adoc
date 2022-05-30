@@ -209,6 +209,7 @@ To start the timer:
 
 . Calculate the values for `TIMER_DIV` and `TIMER_THRESHOLD` as specified in <<timer-config,Configuration>>.
 . Reset the timer by first writing 0x00 to `TIMER_CSR`, and then writing 0x02.
+. Set `TIMER_IE.EX1` to zero to avoid triggering an interrupt.
 . Set `TIMER_DIV` to one.
 . Set `TIMER_THRESHOLD` to zero.
 . Trigger the hardware bug (see <<timer-errata,Errata>>) by writing 0x01 to `TIMER_CSR`.
