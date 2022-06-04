@@ -1,5 +1,6 @@
 meta:
   chip: ASM1042A
+  license: CC-BY-SA-4.0
 
 registers:
   pci:

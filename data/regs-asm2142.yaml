@@ -1,5 +1,6 @@
 meta:
   chip: ASM2142/ASM3142
+  license: CC-BY-SA-4.0
 
 xdata:
   - name: XRAM
