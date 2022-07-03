@@ -115,4 +115,25 @@
      - Connected to ASM3242 pin 44 by resistor R360.
 
 
+### IOCrest IO-PCE3242-1C (ASM3242)
+
+ - Voltage rails
+   - 3V3 (I/O)
+   - 2V5 (Analog?)
+   - 1V05 suspend (SRAM?)
+   - 1V05 (Core?)
+ - Components
+   - ICs:
+     - U6: [TD6817][td6817] 1.5MHz 2A Synchronous Step-Down Regulator Dropout
+   - Capacitors:
+     - C69: 10 pF, 10% (measured value: 11 pF)
+     - C72: 100 nF, 20% (measured value: 123 nF)
+   - Inductors:
+     - L2: ??? H, 0.2 Ω
+   - Resistors:
+     - R44: 100 kΩ
+     - R47: 75 kΩ (measured value: 74.4 kΩ)
+
+
 [stc]: https://web.archive.org/web/20200305112930/http://stcmicro.com/datasheet/STC15F2K60S2-en.pdf
+[td6817]: https://web.archive.org/web/20220401041252if_/http://techcodesemi.com/datasheet/TD6817.pdf
