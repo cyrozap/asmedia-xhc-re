@@ -15,12 +15,23 @@
     - ASM1042, ASM1042A: 125 MHz/62.5 MHz
     - ASM1142, ASM2142/ASM3142, ASM3242: 156.25 MHz/78.125 MHz
   - IRAM size: 256 bytes
-  - PMEM size:
+  - PMEM/CODE size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
-    - ASM2142/ASM3142, ASM3242: 128 kB
-  - XDATA size:
+    - ASM2142/ASM3142, ASM3242: 112 kB (48 kB common bank + 4 × 16 kB banks)
+  - XDATA (XRAM + MMIO) size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
-    - ASM2142/ASM3142, ASM3242: 128 kB
+    - ASM2142/ASM3142, ASM3242: 128 kB (2 × 64 kB banks)
+  - Bank-switching (ASM2142/ASM3142 and ASM3242 only):
+    - `DPX` (SFR 0x93) is used as an extra data pointer byte for instructions
+      that address memory with `DPTR` (`MOVC`, `MOVX`). Practically, however,
+      because it's only a 17-bit address space only the lowest bit of `DPX` is
+      used.
+    - The lowest two bits of `PSBANK`/`FMAP` (SFR 0x96) are used to switch
+      between code banks. The common bank is 48 kB in size and is accessible
+      from 0x0000 to 0xBFFF regardless of the current value of
+      `PSBANK`/`FMAP`. Banks 0-3 are each 16 kB in size and are located in
+      physical code RAM at `0xC000 + 0x4000 * BANK`, where `BANK` is the index
+      of the bank. All four banks are mapped at 0xC000 in PMEM/CODE space.
 - UART
   - 3V3
   - 921600 8N1
