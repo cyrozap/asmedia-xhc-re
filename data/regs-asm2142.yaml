@@ -203,9 +203,9 @@ registers:
       end: 0x15106
       permissions: RO
       notes: |
-        UART TX FIFO Bytes Free. Indicates the amount of space available in
-        the TX FIFO. Increases by 1 each time `UART_THR` is written to, and
-        decreases by 1 for each byte that gets transmitted.
+        UART TX FIFO Bytes Free. Indicates the number of bytes available in
+        the TX FIFO. Decreases by 1 each time `UART_THR` is written to, and
+        increases by 1 for each byte that gets transmitted.
     - name: UART_LCR
       start: 0x15107
       end: 0x15107
