@@ -59,7 +59,7 @@ class PciDev:
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
-            print("Reading {} bytes from {:#x}...".format(width, reg))
+            print("PciDev.config_reg_read: Reading {} bytes from {:#x}...".format(width, reg))
 
         self._config.seek(reg)
         raw = self._config.read(width)
@@ -67,7 +67,7 @@ class PciDev:
         value = struct.unpack(self.struct_map[width], raw)[0]
 
         if self.debug:
-            print("Read: {:#x}".format(value))
+            print("PciDev.config_reg_read: Read: {:#x}".format(value))
 
         return value
 
@@ -76,7 +76,7 @@ class PciDev:
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
-            print("Writing {} bytes of {:#x} to {:#x}...".format(width, value, reg))
+            print("PciDev.config_reg_write: Writing {} bytes of {:#x} to {:#x}...".format(width, value, reg))
 
         self._config.seek(reg)
         self._config.write(struct.pack(self.struct_map[width], value))
@@ -220,7 +220,7 @@ class AsmDev:
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
-            print("Reading {} bytes from {:#x}...".format(width, addr))
+            print("AsmDev.hw_mmio_reg_read: Reading {} bytes from {:#x}...".format(width, addr))
 
         value = 0
         for i in range(width):
@@ -233,7 +233,7 @@ class AsmDev:
             value |= byte_value << (8 * i)
 
         if self.debug:
-            print("Read: {:#x}".format(value))
+            print("AsmDev.hw_mmio_reg_read: Read: {:#x}".format(value))
 
         return value
 
@@ -245,7 +245,7 @@ class AsmDev:
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
-            print("Writing {} bytes of {:#x} to {:#x}...".format(width, value, addr))
+            print("AsmDev.hw_mmio_reg_write: Writing {} bytes of {:#x} to {:#x}...".format(width, value, addr))
 
         for i in range(width):
             byte_addr = (addr + i) & 0xffff
