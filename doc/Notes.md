@@ -17,15 +17,15 @@
   - IRAM size: 256 bytes
   - PMEM/CODE size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
-    - ASM2142/ASM3142, ASM3242: 112 kB (48 kB common bank + 4 × 16 kB banks)
+    - ASM2142/ASM3142: 96 kB (48 kB common bank + 3 × 16 kB banks)
+    - ASM3242: 112 kB (48 kB common bank + 4 × 16 kB banks)
   - XDATA (XRAM + MMIO) size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
     - ASM2142/ASM3142, ASM3242: 128 kB (2 × 64 kB banks)
   - Bank-switching (ASM2142/ASM3142 and ASM3242 only):
-    - `DPX` (SFR 0x93) is used as an extra data pointer byte for instructions
-      that address memory with `DPTR` (`MOVC`, `MOVX`). Practically, however,
-      because it's only a 17-bit address space only the lowest bit of `DPX` is
-      used.
+    - `DPX` (SFR 0x93) is used as an extra data pointer byte for the `MOVX`
+      instruction. Practically, however, because XDATA addresses are only 17
+      bits wide only the lowest bit of `DPX` is used.
     - The lowest two bits of `PSBANK`/`FMAP` (SFR 0x96) are used to switch
       between code banks. The common bank is 48 kB in size and is accessible
       from 0x0000 to 0xBFFF regardless of the current value of
