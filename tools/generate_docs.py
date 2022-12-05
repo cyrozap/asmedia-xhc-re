@@ -32,6 +32,7 @@ import yaml
 
 REGION_NAMES = {
     "pci": "PCI Configuration",
+    "bar0": "PCI BAR0",
     "sfr": "SFR",
     "xdata": "XDATA",
 }

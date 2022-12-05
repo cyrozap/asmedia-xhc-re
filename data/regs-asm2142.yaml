@@ -45,27 +45,59 @@ registers:
             A flag that can be read, set, or cleared by the 8051, but can only
             be read or set by the host. Corresponds to `PCI_CONFIG_WRITE_START`
             in XDATA.
-    - name: CPU_STATUS
-      start: 0xE4
-      end: 0xE7
-      bits:
-        - name: MODE
-          start: 16
-          end: 23
-          permissions: RO
-          notes: |
-            The current value of `CPU_MODE_CURRENT`. See `CPU_MODE_CURRENT` for
-            more information.
-    - name: CPU_CONTROL
-      start: 0xEC
+    - name: CODE_RAM_ADDR
+      start: 0xE2
+      end: 0xE3
+      permissions: RW
+      notes: |
+        The next address in CODE RAM to be written to or read from. Aligned on
+        2-byte boudaries (bit zero is permanently set to zero).
+
+        When writing, the 32 kB bank to write to is selected by writing the data
+        to either `CODE_RAM_WRITE_DATA.LOWER_BANK_DATA` or
+        `CODE_RAM_WRITE_DATA.UPPER_BANK_DATA`, so bit 15 in this register
+        actually maps to bit 16 in the actual address. i.e., the real address is
+        `((CODE_RAM_ADDR & 0x8000) << 1) | (0x8000 if CODE_RAM_WRITE_DATA.UPPER_BANK_DATA else 0x0000) | (CODE_RAM_ADDR & 0x7FFE)`.
+        The address increments by two on every write to `CODE_RAM_WRITE_DATA`.
+
+        When reading, the 16 kB bank to read from is selected by reading the
+        data from one (or all) of the `BANK0_DATA..BANK3_DATA` registers in
+        `CODE_RAM_READ_DATA`. Bit 15 in this register maps to bit 16 in the
+        actual address, so the final address is
+        `(((CODE_RAM_ADDR & 0x8000) << 1) | (CODE_RAM_ADDR & 0x7FFE)) + ((the bank index) << 14)`.
+    - name: CPU_MODE
+      start: 0xE6
+      end: 0xE6
+      permissions: RO
+      notes: |
+        The current value of `CPU_MODE_CURRENT`. See `CPU_MODE_CURRENT` for more
+        information.
+    - name: CODE_ACCESS
+      start: 0xEF
       end: 0xEF
       bits:
-        - name: RESET
-          start: 31
-          end: 31
+        - name: READ_N_WRITE
+          start: 6
+          end: 6
           permissions: RW
           notes: |
-            Set to hold the 8051 and xHC in reset, clear to release from reset.
+            When the `ENABLE_CODE_ACCESS` bit is set:
+
+            - Clear this bit to enable writing to CODE RAM through the
+              `CODE_RAM_WRITE_DATA` register and disable reading from CODE RAM
+              through the `CODE_RAM_READ_DATA` register.
+            - Set this bit to disable writing to CODE RAM through the
+              `CODE_RAM_WRITE_DATA` register and enable reading from CODE RAM
+              through the `CODE_RAM_READ_DATA` register.
+        - name: ENABLE_CODE_ACCESS
+          start: 7
+          end: 7
+          permissions: RW
+          notes: |
+            Set to enable access to CODE RAM and hold the 8051 and xHC in reset.
+            Clear to disable access to CODE RAM and release the 8051 and xHC
+            from reset. The type of access granted depends on the state of the
+            `READ_N_WRITE` bit.
     - name: MBOX_D2H
       start: 0xF0
       end: 0xF7
@@ -78,6 +110,88 @@ registers:
       permissions: RW
       notes: |
         A mailbox register, to which data from the host can be written.
+
+  bar0:
+    - name: MMIO_ACCESS_ADDRESS
+      start: 0x3000
+      end: 0x3001
+      permissions: RW
+      notes: |
+        The lowest 16 bits of the address of the MMIO byte that you want to
+        access.
+    - name: MMIO_ACCESS_WRITE_DATA
+      start: 0x3004
+      end: 0x3004
+      permissions: RW
+      notes: |
+        The data you want to write to `MMIO_ACCESS_ADDRESS`.
+    - name: MMIO_ACCESS_READ_DATA
+      start: 0x3008
+      end: 0x3008
+      permissions: RO
+      notes: |
+        The byte read from `MMIO_ACCESS_ADDRESS`.
+    - name: CPU_PC
+      start: 0x300A
+      end: 0x300B
+      permissions: RO
+      notes: |
+        The current 8051 program counter.
+    - name: CODE_RAM_WRITE_DATA
+      start: 0x3010
+      end: 0x3013
+      bits:
+        - name: LOWER_BANK_DATA
+          start: 0
+          end: 15
+          permissions: WO
+          notes: |
+            The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x0000`.
+        - name: UPPER_BANK_DATA
+          start: 16
+          end: 31
+          permissions: WO
+          notes: |
+            The 16-bit little-endian data to write to `CODE_RAM_ADDR + 0x8000`.
+      notes: |
+        Bit 15 in the CODE RAM write address is cleared when writing to
+        `LOWER_BANK_DATA` and set when writing to `UPPER_BANK_DATA`. After
+        writing to either `LOWER_BANK_DATA` or `UPPER_BANK_DATA`,
+        `CODE_RAM_ADDR` is increased by two.
+    - name: CODE_RAM_READ_DATA
+      start: 0x3018
+      end: 0x301F
+      bits:
+        - name: BANK0_DATA
+          start: 0
+          end: 15
+          permissions: RO
+          notes: |
+            The 16-bit little-endian data to read from `CODE_RAM_ADDR + 0x0000`.
+        - name: BANK2_DATA
+          start: 16
+          end: 31
+          permissions: RO
+          notes: |
+            The 16-bit little-endian data to read from `CODE_RAM_ADDR + 0x8000`.
+        - name: BANK1_DATA
+          start: 32
+          end: 47
+          permissions: RO
+          notes: |
+            The 16-bit little-endian data to read from `CODE_RAM_ADDR + 0x4000`.
+        - name: BANK3_DATA
+          start: 48
+          end: 63
+          permissions: RO
+          notes: |
+            The 16-bit little-endian data to read from `CODE_RAM_ADDR + 0xC000`.
+      notes: |
+        Bits 14 and 15 in the CODE RAM read address are set or cleared depending
+        which bank data register is being accessed. Reading from `BANK0_DATA`
+        sets both of those bits to 0, reading from `BANK1_DATA` sets bit 14 to 1
+        and 15 to 0, reading from `BANK2_DATA` sets bit 14 to 0 and 15 to 1, and
+        reading from `BANK3_DATA` sets both bits 14 and 15 to 1.
 
   xdata:
     - name: PCI_CONFIG_C4
@@ -105,6 +219,18 @@ registers:
       notes: |
         The Subsystem Vendor ID and Subsystem ID register in PCI configuration
         space (offset 0x2C).
+    - name: CPU_MISC
+      start: 0x1500E
+      end: 0x1500E
+      bits:
+        - name: CODE_RAM_WRITE_ENABLE
+          start: 0
+          end: 0
+          permissions: RW
+          notes: |
+            Set this bit to enable the host to write to CODE RAM using the
+            `CODE_RAM_ADDR` PCI config space register and the
+            `CODE_RAM_WRITE_DATA` PCI BAR0 register.
     - name: CPU_MODE_NEXT
       start: 0x15040
       end: 0x15040
