@@ -37,7 +37,7 @@ CHIP_INFO = {
 def checksum(data : bytes):
     return sum(data) & 0xff
 
-def gen_header(chip : str):
+def gen_header(chip : str, sig_bypass : bool = False):
     header_magic = CHIP_INFO[chip][0]
 
     data = bytes()
@@ -45,7 +45,7 @@ def gen_header(chip : str):
         # Config words start at 0x20 on ASM2142 and later.
         data += bytes([0] * 16)
 
-    if chip == "ASM3242":
+    if chip == "ASM3242" and sig_bypass:
         # Bypass the signature check via ROM config MMIO writes.
         xram_addr = 0x000000  # Always zero.
         data_len = 0x008000  # Limited by the flash read speed.
@@ -132,6 +132,7 @@ def main():
     parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
     parser.add_argument("-o", "--output", type=str, default="monitor.img", help="Output image.")
     parser.add_argument("-c", "--chip", type=str, choices=CHIP_INFO.keys(), default="ASM1142", help="Chip to target.")
+    parser.add_argument("-s", "--sig-bypass", type=bool, default=False, help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
     args = parser.parse_args()
 
     binary = open(args.input, 'rb').read()
@@ -139,7 +140,7 @@ def main():
     if args.type == "bin":
         image = add_fw_meta(args.chip, binary)
     elif args.type == "image":
-        header = gen_header(args.chip)
+        header = gen_header(args.chip, args.sig_bypass)
         body = gen_body(args.chip, binary)
         image = header + body
     else:
