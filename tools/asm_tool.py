@@ -58,6 +58,20 @@ class PciDev:
 
         self._mmap = None
 
+    def _mmap_init(self):
+        # Try to unbind the kernel driver if it's attached.
+        self.driver_unbind()
+
+        fd = os.open('/sys/bus/pci/devices/{}/resource0'.format(self.dbsf), os.O_RDWR)
+        self._mmap = mmap.mmap(fd, 0)
+
+    def driver_unbind(self):
+        try:
+            open("/sys/bus/pci/devices/{}/driver/unbind".format(self.dbsf), "wb").write(self.dbsf.encode('utf-8'))
+        except FileNotFoundError:
+            # If the file doesn't exist, then the driver isn't attached.
+            pass
+
     def config_reg_read(self, reg: int, width: int):
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
@@ -100,8 +114,7 @@ class PciDev:
             print("PciDev.bar0_reg_read: Reading {} bytes from {:#x}...".format(width, reg))
 
         if self._mmap == None:
-            fd = os.open('/sys/bus/pci/devices/{}/resource0'.format(self.dbsf), os.O_RDWR)
-            self._mmap = mmap.mmap(fd, 0)
+            self._mmap_init()
 
         # Reads need to be performed in one transaction, but
         # struct.unpack_from performs one read for every byte. Work around
@@ -122,8 +135,7 @@ class PciDev:
             print("PciDev.bar0_reg_write: Writing {} bytes of {:#x} to {:#x}...".format(width, value, reg))
 
         if self._mmap == None:
-            fd = os.open('/sys/bus/pci/devices/{}/resource0'.format(self.dbsf), os.O_RDWR)
-            self._mmap = mmap.mmap(fd, 0)
+            self._mmap_init()
 
         # Writes need to be performed in one transaction, but struct.pack_into
         # performs one write for every byte. Work around this limitation by
