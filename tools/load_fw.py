@@ -34,9 +34,14 @@ def main():
     dev = AsmDev(args.dbsf)
     print("Chip: {}".format(dev.name))
 
+    print("Unbinding the kernel driver if it's attached...")
+    dev.pci.driver_unbind()
+
     binary = open(args.firmware,'rb').read()
     if len(binary) % 2:
         binary += b'\0'
+
+    print("Loading \"{}\"...".format(args.firmware))
     start = time.perf_counter_ns()
     dev.hw_code_load_exec(binary)
     stop = time.perf_counter_ns()
