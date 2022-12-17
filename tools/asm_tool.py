@@ -28,6 +28,9 @@ import time
 class BusError(Exception):
     pass
 
+class MmapError(Exception):
+    pass
+
 class PciDev:
     '''Lightweight abstraction over the PCI userspace API'''
 
@@ -65,7 +68,14 @@ class PciDev:
             self.driver_unbind()
 
         fd = os.open('/sys/bus/pci/devices/{}/resource0'.format(self.dbsf), os.O_RDWR)
-        self._mmap = mmap.mmap(fd, 0)
+
+        try:
+            self._mmap = mmap.mmap(fd, 0)
+        except OSError as error:
+            if error.errno != 22:
+                raise error
+
+            raise MmapError("Failed to mmap BAR0--you may need to unbind the kernel driver for this device.")
 
     def driver_unbind(self):
         try:
