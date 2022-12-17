@@ -43,10 +43,11 @@ class PciDev:
         4: '<I',
     }
 
-    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False):
+    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False, auto_unbind: bool = False):
         self.dbsf = dbsf
         self.debug = debug
         self.verbose = debug or verbose
+        self.auto_unbind = auto_unbind
         self._config = open("/sys/bus/pci/devices/{}/config".format(self.dbsf), "r+b", buffering=0)
 
         # Check bus status.
@@ -59,8 +60,9 @@ class PciDev:
         self._mmap = None
 
     def _mmap_init(self):
-        # Try to unbind the kernel driver if it's attached.
-        self.driver_unbind()
+        if self.auto_unbind:
+            # Try to unbind the kernel driver if it's attached.
+            self.driver_unbind()
 
         fd = os.open('/sys/bus/pci/devices/{}/resource0'.format(self.dbsf), os.O_RDWR)
         self._mmap = mmap.mmap(fd, 0)
@@ -442,6 +444,7 @@ def main():
     args = parser.parse_args()
 
     dev = AsmDev(args.dbsf)
+    dev.pci.auto_unbind = True
     print("Chip: {}".format(dev.name))
 
 
