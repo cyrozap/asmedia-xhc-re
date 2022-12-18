@@ -3,7 +3,7 @@
 
 # load_fw.py - A tool to directly load firmware into an ASMedia USB host
 # controller.
-# Copyright (C) 2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2021-2022  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
