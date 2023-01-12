@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # make_image.py - Script to generate a firmware image from a raw binary.
-# Copyright (C) 2020-2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2023  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -132,7 +132,7 @@ def main():
     parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
     parser.add_argument("-o", "--output", type=str, default="monitor.img", help="Output image.")
     parser.add_argument("-c", "--chip", type=str, choices=CHIP_INFO.keys(), default="ASM1142", help="Chip to target.")
-    parser.add_argument("-s", "--sig-bypass", type=bool, default=False, help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
+    parser.add_argument("-s", "--sig-bypass", default=False, action="store_true", help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
     args = parser.parse_args()
 
     binary = open(args.input, 'rb').read()
