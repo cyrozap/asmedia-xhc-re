@@ -378,6 +378,28 @@ def gen_xhtml(filename, doc):
                     ET.SubElement(bit_info_table_row, 'td').text = bit_range.get('name', "")
                     markdown_subelement(bit_info_table_row, 'td', bit_range.get('notes', ""))
 
+    for code_element in body.findall(".//code"):
+        reg_name = code_element.text.split(".")[0]
+        for h4 in body.xpath(".//h4[contains(text(), ': {}')]".format(reg_name)):
+            # Do a precise match to make sure this is the right heading.
+            if not h4[0].tail.endswith(": {}".format(reg_name)):
+                continue
+
+            # Create link element
+            link = ET.Element('a')
+            link.attrib['href'] = "#" + h4.attrib['id']
+            link.text = "\u21A9"
+
+            # Move the tail to the new element.
+            link.tail = code_element.tail
+            code_element.tail = ""
+
+            # Insert the link element.
+            parent = code_element.getparent()
+            parent.insert(parent.index(code_element) + 1, link)
+
+            break
+
     ET.SubElement(body, 'hr')
     try:
         git_rev = "r{}.g{}".format(
