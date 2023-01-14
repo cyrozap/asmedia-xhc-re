@@ -3,7 +3,7 @@
 
 # generate_docs.py - A tool to generate XHTML documentation from a YAML file
 # containing register definitions.
-# Copyright (C) 2020-2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2023  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -180,7 +180,8 @@ def gen_xhtml(filename, doc):
             reg_heading.attrib['id'] = "_" + re.sub(r'[^a-z0-9]', "_", reg_heading_text.lower())
             reg_heading_link = ET.SubElement(reg_heading, 'a')
             reg_heading_link.attrib['href'] = "#" + reg_heading.attrib['id']
-            reg_heading_link.text = reg_heading_text
+            reg_heading_link.text = "#"
+            reg_heading_link.tail = "\u00A0" + reg_heading_text
             end = register.get('end')
             size = 0
             if start is not None and end is not None:
