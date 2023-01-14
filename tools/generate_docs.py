@@ -23,11 +23,11 @@ import argparse
 import re
 import subprocess
 import sys
-import xml.etree.ElementTree as ET
 from datetime import datetime
 
 import markdown
 import yaml
+from lxml import etree as ET
 
 
 REGION_NAMES = {
@@ -113,11 +113,10 @@ def markdown_subelement(parent, tag, md):
 
 def gen_xhtml(filename, doc):
     html = ET.Element('html', {
-        'xmlns': "http://www.w3.org/1999/xhtml",
-        'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
-        'xsi:schemaLocation': "http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd",
-        'xml:lang': "en",
-    })
+        ET.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"): "http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd",
+        ET.QName("http://www.w3.org/XML/1998/namespace", "lang"): "en",
+    }, nsmap={None: "http://www.w3.org/1999/xhtml"})
+
     head = ET.SubElement(html, 'head')
     body = ET.SubElement(html, 'body')
 
@@ -391,7 +390,12 @@ def gen_xhtml(filename, doc):
     footer = ET.SubElement(body, 'p')
     ET.SubElement(footer, 'i').text = "Generated from {} version {} on {}.".format(filename, git_rev, date_string)
 
-    return ET.tostring(html, encoding='utf-8', xml_declaration=False)
+    return ET.tostring(
+            html,
+            encoding='utf-8',
+            xml_declaration=True,
+            doctype="<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"
+        )
 
 def main():
     parser = argparse.ArgumentParser()
@@ -408,8 +412,6 @@ def main():
 
     xhtml = gen_xhtml(args.input, doc)
     output = open(args.output, 'wb')
-    output.write(b"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
-    output.write(b"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n")
     output.write(xhtml)
 
     return 0

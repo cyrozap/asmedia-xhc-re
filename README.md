@@ -11,6 +11,7 @@
   * [Kaitai Struct Python Runtime][kspr]
 * Documentation generator:
   * [Asciidoctor][asciidoctor]
+  * [lxml][lxml]
   * [Python-Markdown][python-markdown]
   * [PyYAML][pyyaml]
 
@@ -53,6 +54,7 @@ Except where otherwise noted:
 [ksc]: https://github.com/kaitai-io/kaitai_struct_compiler
 [kspr]: https://github.com/kaitai-io/kaitai_struct_python_runtime
 [asciidoctor]: https://asciidoctor.org/
+[lxml]: https://lxml.de/
 [python-markdown]: https://python-markdown.github.io/
 [pyyaml]: https://pyyaml.org/
 [urls]: doc/firmware-urls.txt
