@@ -53,8 +53,9 @@ registers:
         The next address in CODE RAM to be written to. Aligned on 2-byte
         boudaries (bit zero is permanently set to zero). Highest bit is always
         zero--the 32 kB bank to write to is selected by writing the data to
-        either `LOWER_BANK_DATA` or `UPPER_BANK_DATA`. Increments by two on
-        every write to `LOWER_BANK_DATA` or `UPPER_BANK_DATA`.
+        either `CODE_RAM_DATA.LOWER_BANK_DATA` or
+        `CODE_RAM_DATA.UPPER_BANK_DATA`. Increments by two on every write to
+        `CODE_RAM_DATA.LOWER_BANK_DATA` or `CODE_RAM_DATA.UPPER_BANK_DATA`.
     - name: CODE_RAM_DATA
       start: 0xE4
       end: 0xE7
