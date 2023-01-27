@@ -37,6 +37,15 @@ REGION_NAMES = {
     "xdata": "XDATA",
 }
 
+PERMISSIONS = {
+    "RO": "Read-Only",
+    "RW": "Read and Write",
+    "RW1C": "Read and Write 1 to Clear",
+    "RW1S": "Read and Write 1 to Set",
+    "RWNC": "Read and Write Non-zero to Clear",
+    "WO": "Write-Only",
+}
+
 def validate(doc):
     unknown_keys = set(doc.keys()).difference(set(['meta', 'xdata', 'registers']))
     if unknown_keys:
@@ -158,6 +167,17 @@ def gen_xhtml(filename, doc):
         ET.SubElement(tr, 'td').text = region.get('name', "")
         ET.SubElement(tr, 'td').text = region.get('permissions', "")
         markdown_subelement(tr, 'td', region.get('notes', ""))
+
+    ET.SubElement(body, 'h2').text = "Register Permissions"
+    permissions = ET.SubElement(body, 'table')
+    permissions_header = ET.SubElement(permissions, 'tr')
+    for header in ("Abbreviation", "Description"):
+        ET.SubElement(permissions_header, 'th').text = header
+
+    for abbr, desc in PERMISSIONS.items():
+        tr = ET.SubElement(permissions, 'tr')
+        ET.SubElement(tr, 'td').text = abbr
+        ET.SubElement(tr, 'td').text = desc
 
     ET.SubElement(body, 'h2').text = "Register Map"
     register_regions = doc.get('registers', dict())
