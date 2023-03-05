@@ -11,6 +11,7 @@
   - Emulate a binary on the host PC, but forward SFR and MMIO accesses to a monitor program running on real hardware
   - Helps with mapping SFR/MMIO accesses
   - Virtual peripherals can be built based on the behavior of their real counterparts
+- Enable rapid iteration in new firmware development
 
 
 ## Miscellaneous thoughts
