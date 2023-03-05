@@ -138,6 +138,37 @@
     - Handles CODE ROM/RAM switching at reset
       - Implemented as part of the `CPU_MODE_NEXT`/`CPU_MODE_CURRENT`/`CPU_EXEC_CTRL` MMIO registers?
     - Handles all "non-core" peripherals (in SFR and MMIO space)
+- Loading memory
+  - Load into any memory space (CODE, IRAM, SFRs, XDATA)
+    - Writes to all memory spaces are treated as writes to the reset values of those memory cells
+      - Each memory space has a shadow space
+        - The main space contains the current values of the cells in that space
+        - The shadow space contains the reset values of the cells in that space
+        - The shadow space is copied to the main space when the core is reset
+          - For SFRs and XDATA MMIOs, a "reset with value" method for the SFR/MMIO is called with
+            the shadow space data at the corresponding address passed as an argument
+          - This works for SFRs and XDATA MMIOs where the SFR/MMIO has a reset value
+            - Works for SP, DPTR, SBUF, etc.
+            - Doesn't work for values that are updated dynamically, like I/O port SFRs
+  - Load from multiple files into arbitrary memory regions
+    - Loaded in the order they were passed on the command line
+    - Later writes overwrite previous writes to the same addresses
+  - Both raw binary files and .ihx images should be supported
+    - Both raw binary images and .ihx images support being loaded at an offset
+    - The offset is zero if left unspecified
+    - An error is thrown if the load ends up writing out of bounds
+      - This can happen when a 64kB raw binary is loaded at a non-zero offset,
+        or when the memory address in a .ihx file plus the offset is out of bounds
+  - Options to fill memory
+    - Fill with byte
+    - Fill with zeros (default, shortcut for "fill with byte: 0")
+    - Fill with 0xFF (shortcut for "fill with byte: 0xFF")
+    - Fill with seeded random data
+      - Random seed if not specified
+      - Seed is printed when the emulator is run with this option
+  - More advanced memory loading can be implemented with memory-like peripherals
+  - Maybe all memory should be implemented with bus-based memory peripherals?
+    - How should "bus conflicts" be handled?
 
 
 ## Serial monitor
