@@ -169,6 +169,15 @@
   - More advanced memory loading can be implemented with memory-like peripherals
   - Maybe all memory should be implemented with bus-based memory peripherals?
     - How should "bus conflicts" be handled?
+- Memory aliasing
+  - Some 8051 implementations have parts of XDATA mapped into CODE space to enable executing from XRAM.
+  - Many 8051 implementations have parts of their memory maps "mirrored" due to simplified address decoding.
+  - Maybe the emulator should be structured like real hardware, with buses connecting the memories to the CPU?
+- Weird features seen in real 8051 implementations
+  - Dual DPTRs
+    - Auto-switching between DPTRs for, e.g., memcpy implementations.
+  - DPTR auto-increment
+  - Using I/O Port 2 and R0/R1 for paged access to XDATA.
 
 
 ## Serial monitor
