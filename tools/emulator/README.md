@@ -178,6 +178,11 @@
     - Auto-switching between DPTRs for, e.g., memcpy implementations.
   - DPTR auto-increment
   - Using I/O Port 2 and R0/R1 for paged access to XDATA.
+- Written in Rust, with Python bindings
+  - Rust for correctness and speed
+  - Python for ease of scripting
+    - Should be able to do all setup/initialization of the emulator (e.g., loading binaries into memory, setting register values and PC, etc.)
+    - Should be able to define new core variants in Python, as well as emulated peripherals and new instructions
 
 
 ## Serial monitor
