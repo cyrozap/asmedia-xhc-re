@@ -178,6 +178,9 @@
     - Auto-switching between DPTRs for, e.g., memcpy implementations.
   - DPTR auto-increment
   - Using I/O Port 2 and R0/R1 for paged access to XDATA.
+  - Custom instructions
+    - `0xA5` is undefined
+    - Some implementations use `0xA5` as just one instruction, others use it as a prefix for multiple custom instructions.
 - Written in Rust, with Python bindings
   - Rust for correctness and speed
   - Python for ease of scripting
