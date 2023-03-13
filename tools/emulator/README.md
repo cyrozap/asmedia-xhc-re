@@ -181,6 +181,7 @@
   - Custom instructions
     - `0xA5` is undefined
     - Some implementations use `0xA5` as just one instruction, others use it as a prefix for multiple custom instructions.
+  - SFR bank switching
 - Written in Rust, with Python bindings
   - Rust for correctness and speed
   - Python for ease of scripting
