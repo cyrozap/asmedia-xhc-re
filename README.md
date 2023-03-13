@@ -3,6 +3,7 @@
 
 ## Quick start
 
+
 ### Software dependencies
 
 * Python 3
@@ -14,6 +15,7 @@
   * [lxml][lxml]
   * [Python-Markdown][python-markdown]
   * [PyYAML][pyyaml]
+
 
 ### Procedure
 
