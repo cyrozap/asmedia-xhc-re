@@ -141,6 +141,14 @@
    - Resistors:
      - R44: 100 kΩ
      - R47: 75 kΩ (measured value: 74.4 kΩ)
+ - Connectors
+   - J1 (pin 1 is the one closest to the ASM3242 IC)
+     - 1: 3V3
+     - 2: GND
+     - 3: TX
+       - Connected to ASM3242 pin 16.
+     - 4: RX
+       - Connected to ASM3242 pin 15.
 
 
 [stc]: https://web.archive.org/web/20200305112930/http://stcmicro.com/datasheet/STC15F2K60S2-en.pdf
