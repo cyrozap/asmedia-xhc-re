@@ -180,6 +180,11 @@ def gen_xhtml(filename, doc):
         ET.SubElement(tr, 'td').text = desc
 
     ET.SubElement(body, 'h2').text = "Register Map"
+    ET.SubElement(body, 'p').text = " ".join([
+            "NOTE: Except where specified otherwise, all register addresses are byte offsets, and all multi-byte register values are little-endian.",
+            "In other words, for a 32-bit register at address 0x0000, bit 0 is the least-significant bit of the byte located at address 0x0000, and bit 31 is the most-significant bit of the byte located at address 0x0003.",
+            "This applies to all memory spaces ({}).".format(", ".join(map(lambda x: x[1], REGION_NAMES.items()))),
+            ])
     register_regions = doc.get('registers', dict())
     for region_name, region_registers in register_regions.items():
         ET.SubElement(body, 'hr')
