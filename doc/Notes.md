@@ -61,12 +61,12 @@
 
 | IC | PCI VID:DID | USB 3 Ports × Generation × Lanes | PCIe Version × Lanes | IC Package |
 | --- | --- | --- | --- | --- |
-| ASM1042 | 1b21:1042 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
-| ASM1042A | 1b21:1142 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
-| ASM1142 | 1b21:1242 | 2× Gen 2×1 | PCIe 2.x ×2 / PCIe 3.x ×1 | QFN-64 |
-| ASM2142 | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
-| ASM3142 | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
-| ASM3242 | 1b21:3242 | 1× Gen 2×2 | PCIe 3.x ×4 | QFN-88 |
+| [ASM1042][ASM1042] | 1b21:1042 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
+| [ASM1042A][ASM1042A] | 1b21:1142 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
+| [ASM1142][ASM1142] | 1b21:1242 | 2× Gen 2×1 | PCIe 2.x ×2 / PCIe 3.x ×1 | QFN-64 |
+| [ASM2142][ASM2142] | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
+| [ASM3142][ASM3142] | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
+| [ASM3242][ASM3242] | 1b21:3242 | 1× Gen 2×2 | PCIe 3.x ×4 | QFN-88 |
 
 
 ## Hardware
@@ -152,4 +152,10 @@
 
 
 [stc]: https://web.archive.org/web/20200305112930/http://stcmicro.com/datasheet/STC15F2K60S2-en.pdf
+[ASM1042]: https://web.archive.org/web/20100830082618/http://www.asmedia.com.tw/eng/e_show_products.php?item=100&cate_index=98
+[ASM1042A]: https://web.archive.org/web/20131216093704/http://www.asmedia.com.tw/eng/e_show_products.php?cate_index=98&item=143
+[ASM1142]: https://web.archive.org/web/20150210162040/http://www.asmedia.com.tw/eng/e_show_products.php?item=155&cate_index=154
+[ASM2142]: https://web.archive.org/web/20180131031242/http://www.asmedia.com.tw/eng/e_show_products.php?cate_index=175&item=178
+[ASM3142]: https://web.archive.org/web/20180131031247/http://www.asmedia.com.tw/eng/e_show_products.php?cate_index=175&item=179
+[ASM3242]: https://web.archive.org/web/20210227053040/https://www.asmedia.com.tw/product/E0CYQ4fSpaQxdjzA/f32YQ14SmApn1wNA
 [td6817]: https://web.archive.org/web/20220401041252if_/http://techcodesemi.com/datasheet/TD6817.pdf
