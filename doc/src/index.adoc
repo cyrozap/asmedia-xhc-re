@@ -39,8 +39,8 @@ While CODE is architecturally read-only, in the ASM1142 the CODE memory space ca
 One method, which is used by the boot ROM, is to direct the SPI flash controller to write the data it reads directly into code RAM.
 Unfortunately, it is not possible to do this while executing out of code RAM, so this capability is not particularly useful for custom firmware.
 
-The other method of writing to code RAM, which is usable by code running from code RAM, is to set bit 4 of the PCON SFR, then use a MOVX instruction to read or write data in code RAM the same way MOVX is normally used to access XDATA.
-After accessing code RAM, bit 4 of PCON should be cleared so that XDATA access will work again.
+The other method of writing to code RAM, which is usable by code running from code RAM, is to set bit 4 of the `PCON` SFR (`PCON.MEMSEL`), then use a MOVX instruction to read or write data in code RAM the same way MOVX is normally used to access XDATA.
+After accessing code RAM, `PCON.MEMSEL` must be cleared to make XDATA access work again.
 
 
 === Host Access
