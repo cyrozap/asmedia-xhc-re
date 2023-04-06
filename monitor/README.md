@@ -132,7 +132,7 @@ exit it and return to a prompt.
 
 If you don't already have a pin header soldered to the UART pins on the
 chip (the specific pins and other UART information are listed in
-[Notes.md][notes] in the parent directory), you'll need to do that
+[Notes.md][notes] in the [../doc][doc] directory), you'll need to do that
 before you can use this. Please note that if you want to replace the SPI
 flash chip with a SOIC socket, you'll probably want to do that _before_
 adding the UART header, since it's easiest to remove the IC with a hot
@@ -284,4 +284,5 @@ connect to the UART of the USB host controller.
 
 
 [sdcc]: http://sdcc.sourceforge.net/
-[notes]: ../Notes.md
+[notes]: ../doc/Notes.md
+[doc]: ../doc
