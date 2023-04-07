@@ -339,9 +339,9 @@ registers:
           end: 19
           permissions: RW
           notes: |
-            Set this bit to add the PCI Subsystem ID and Subsystem Vendor ID
-            Capability List Item to the PCI capabilities list. Clear this bit to
-            remove it. The SVID and SSID are defined using `PCI_CONFIG_C4`.
+            Set this bit to add the PCI Bridge Subsystem ID and Subsystem Vendor
+            ID Capability List Item to the PCI capabilities list. Clear this bit
+            to remove it. The SVID and SSID are defined using `PCI_CONFIG_C4`.
       notes: |
         Miscellaneous settings reported in the PCI configuration space
         registers.
