@@ -24,7 +24,6 @@ use std::io::SeekFrom;
 use std::process::exit;
 use std::time::Instant;
 
-use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use clap::Parser;
 
 struct PciConfig {
@@ -47,20 +46,16 @@ impl PciConfig {
         }
     }
 
-    fn readl(&mut self, reg: u64) -> Result<u32, std::io::Error> {
-        match self.reg.seek(SeekFrom::Start(reg)) {
-            Ok(_) => (),
-            Err(err) => return Err(err),
-        }
-        self.reg.read_u32::<LittleEndian>()
+    fn readl(&mut self, reg: u16) -> Result<u32, std::io::Error> {
+        self.reg.seek(SeekFrom::Start(reg.into()))?;
+        let mut buf: [u8; 4] = [0; 4];
+        self.reg.read_exact(&mut buf)?;
+        Ok(u32::from_le_bytes(buf))
     }
 
-    fn writel(&mut self, reg: u64, value: u32) -> Result<(), std::io::Error> {
-        match self.reg.seek(SeekFrom::Start(reg)) {
-            Ok(_) => (),
-            Err(err) => return Err(err),
-        }
-        self.reg.write_u32::<LittleEndian>(value)
+    fn writel(&mut self, reg: u16, value: u32) -> Result<(), std::io::Error> {
+        self.reg.seek(SeekFrom::Start(reg.into()))?;
+        self.reg.write_all(&value.to_le_bytes())
     }
 }
 
