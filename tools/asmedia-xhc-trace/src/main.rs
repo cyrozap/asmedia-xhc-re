@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 
 /*
- * Copyright (C) 2020  Forest Crossman <cyrozap@gmail.com>
+ * Copyright (C) 2020, 2023  Forest Crossman <cyrozap@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,11 +22,10 @@ use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::io::SeekFrom;
 use std::process::exit;
-use std::str::FromStr;
 use std::time::Instant;
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use clap::{App, Arg};
+use clap::Parser;
 
 struct PciConfig {
     //device_address: String,
@@ -65,49 +64,33 @@ impl PciConfig {
     }
 }
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Trigger a device reset before tracing
+    #[arg(short, long, default_value_t = false)]
+    reset: bool,
+
+    /// The number of samples to take
+    #[arg(short = 'c', long, default_value_t = 1_000_000)]
+    samples: usize,
+
+    /// The "<domain>:<bus>:<slot>.<func>" for the ASMedia USB 3 host controller
+    dbsf: String,
+}
+
 fn main() {
-    let matches = App::new("asmedia-xhc-trace")
-        .arg(
-            Arg::with_name("device_address")
-                .help("The address of the PCI device to use.")
-                .required(true)
-                .index(1),
-        )
-        .arg(
-            Arg::with_name("reset")
-                .short("r")
-                .long("reset")
-                .help("Trigger a device reset before tracing."),
-        )
-        .arg(
-            Arg::with_name("sample_count")
-                .short("c")
-                .long("samples")
-                .takes_value(true)
-                .help("The number of samples to take. Default is 1,000,000."),
-        )
-        .get_matches();
-    let device_address = matches.value_of("device_address").unwrap();
-    let reset_device = matches.is_present("reset");
-    let sample_count: usize = match matches.value_of("sample_count") {
-        Some(s) => match usize::from_str(s) {
-            Ok(c) => c,
-            Err(err) => {
-                eprintln!("Error: Failed to parse sample_count: {:?}", err);
-                exit(1);
-            }
-        },
-        None => 1_000_000,
-    };
-    let mut config = match PciConfig::new(&device_address) {
+    let args = Args::parse();
+
+    let mut config = match PciConfig::new(&args.dbsf) {
         Ok(c) => c,
         Err(err) => {
             eprintln!("Error: Failed to initialize PciConfig: {:?}", err);
             exit(1);
         }
     };
-    let mut statuses: Vec<u32> = Vec::with_capacity(sample_count);
-    if reset_device {
+    let mut statuses: Vec<u32> = Vec::with_capacity(args.samples);
+    if args.reset {
         println!("Resetting device...");
         match config.writel(0xec, 1 << 31) {
             Ok(_) => (),
