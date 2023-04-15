@@ -27,35 +27,28 @@ use std::time::Instant;
 use clap::Parser;
 
 struct PciConfig {
-    //device_address: String,
-    reg: File,
+    regs: File,
 }
 
 impl PciConfig {
-    fn new(device_address: &str) -> Result<PciConfig, std::io::Error> {
-        match OpenOptions::new()
+    fn new(device_address: &str) -> Result<Self, std::io::Error> {
+        let regs = OpenOptions::new()
             .read(true)
             .write(true)
-            .open(format!("/sys/bus/pci/devices/{}/config", &device_address))
-        {
-            Ok(config) => Ok(PciConfig {
-                //device_address: String::from(device_address),
-                reg: config,
-            }),
-            Err(err) => Err(err),
-        }
+            .open(format!("/sys/bus/pci/devices/{}/config", &device_address))?;
+        Ok(Self { regs })
     }
 
     fn readl(&mut self, reg: u16) -> Result<u32, std::io::Error> {
-        self.reg.seek(SeekFrom::Start(reg.into()))?;
+        self.regs.seek(SeekFrom::Start(reg.into()))?;
         let mut buf: [u8; 4] = [0; 4];
-        self.reg.read_exact(&mut buf)?;
+        self.regs.read_exact(&mut buf)?;
         Ok(u32::from_le_bytes(buf))
     }
 
     fn writel(&mut self, reg: u16, value: u32) -> Result<(), std::io::Error> {
-        self.reg.seek(SeekFrom::Start(reg.into()))?;
-        self.reg.write_all(&value.to_le_bytes())
+        self.regs.seek(SeekFrom::Start(reg.into()))?;
+        self.regs.write_all(&value.to_le_bytes())
     }
 }
 
