@@ -67,8 +67,47 @@ struct Args {
     dbsf: String,
 }
 
+fn get_u16_from_file(path: &str) -> Result<u16, std::io::Error> {
+    let mut value: u16 = 0;
+    let mut file = File::open(path)?;
+    file.seek(SeekFrom::Start(2))?;
+    let mut buf: [u8; 4] = [0; 4];
+    file.read_exact(&mut buf)?;
+    for b in buf.iter() {
+        let v: u8 = if (b'0'..=b'9').contains(b) {
+            b - b'0'
+        } else if (b'A'..=b'F').contains(b) {
+            b - b'A' + 0xa
+        } else if (b'a'..=b'f').contains(b) {
+            b - b'a' + 0xa
+        } else {
+            panic!("Invalid hex char: {:#04x}", b);
+        };
+        value <<= 4;
+        value |= <u8 as Into<u16>>::into(v);
+    }
+    Ok(value)
+}
+
 fn main() {
     let args = Args::parse();
+
+    let vid = match get_u16_from_file(&format!("/sys/bus/pci/devices/{}/vendor", args.dbsf)) {
+        Ok(id) => id,
+        Err(err) => {
+            eprintln!("Error: Failed to read PCI VID: {:?}", err);
+            exit(1);
+        }
+    };
+    let did = match get_u16_from_file(&format!("/sys/bus/pci/devices/{}/device", args.dbsf)) {
+        Ok(id) => id,
+        Err(err) => {
+            eprintln!("Error: Failed to read PCI DID: {:?}", err);
+            exit(1);
+        }
+    };
+
+    println!("Device: {:04x}:{:04x}", vid, did);
 
     let mut config = match PciConfig::new(&args.dbsf) {
         Ok(c) => c,
