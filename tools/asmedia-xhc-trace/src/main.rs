@@ -17,6 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
@@ -25,6 +26,23 @@ use std::process::exit;
 use std::time::Instant;
 
 use clap::Parser;
+
+#[derive(Clone)]
+struct DeviceInfo {
+    name: String,
+    has_config: bool,
+    has_mmio: bool,
+}
+
+impl DeviceInfo {
+    fn new(name: &str, has_config: bool, has_mmio: bool) -> Self {
+        Self {
+            name: name.to_string(),
+            has_config,
+            has_mmio,
+        }
+    }
+}
 
 struct PciConfig {
     regs: File,
@@ -92,6 +110,17 @@ fn get_u16_from_file(path: &str) -> Result<u16, std::io::Error> {
 fn main() {
     let args = Args::parse();
 
+    let device_info_map = HashMap::from([
+        ((0x1b21, 0x1042), DeviceInfo::new("ASM1042", false, false)),
+        ((0x1b21, 0x1142), DeviceInfo::new("ASM1042A", true, true)),
+        ((0x1b21, 0x1242), DeviceInfo::new("ASM1142", true, true)),
+        (
+            (0x1b21, 0x2142),
+            DeviceInfo::new("ASM2142/ASM3142", false, true),
+        ),
+        ((0x1b21, 0x3242), DeviceInfo::new("ASM3242", false, false)),
+    ]);
+
     let vid = match get_u16_from_file(&format!("/sys/bus/pci/devices/{}/vendor", args.dbsf)) {
         Ok(id) => id,
         Err(err) => {
@@ -107,7 +136,17 @@ fn main() {
         }
     };
 
-    println!("Device: {:04x}:{:04x}", vid, did);
+    let device_info = match device_info_map.get(&(vid, did)) {
+        Some(info) => info.clone(),
+        None => DeviceInfo::new("Unknown", false, false),
+    };
+
+    println!("Device: {} ({:04x}:{:04x})", device_info.name, vid, did);
+
+    if !(device_info.has_config || device_info.has_mmio) {
+        eprintln!("Error: Device is not supported.");
+        exit(1);
+    }
 
     let mut config = match PciConfig::new(&args.dbsf) {
         Ok(c) => c,
