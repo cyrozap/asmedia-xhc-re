@@ -142,7 +142,7 @@ fn main() {
             (0x1b21, 0x2142),
             DeviceInfo::new("ASM2142/ASM3142", false, true),
         ),
-        ((0x1b21, 0x3242), DeviceInfo::new("ASM3242", false, false)),
+        ((0x1b21, 0x3242), DeviceInfo::new("ASM3242", false, true)),
     ]);
 
     let vid = match get_u16_from_file(&format!("/sys/bus/pci/devices/{}/vendor", args.dbsf)) {
