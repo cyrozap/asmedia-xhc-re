@@ -26,6 +26,7 @@ use std::process::exit;
 use std::time::Instant;
 
 use clap::Parser;
+use memmap::{MmapMut, MmapOptions};
 
 #[derive(Clone)]
 struct DeviceInfo {
@@ -70,6 +71,25 @@ impl PciConfig {
     }
 }
 
+struct PciBar0 {
+    regs: MmapMut,
+}
+
+impl PciBar0 {
+    fn new(dbsf: &str) -> Result<Self, std::io::Error> {
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .open(format!("/sys/bus/pci/devices/{}/resource0", &dbsf))?;
+        let regs = unsafe { MmapOptions::new().map_mut(&file)? };
+        Ok(Self { regs })
+    }
+
+    fn readw(&mut self, reg: usize) -> u16 {
+        u16::from_le_bytes(self.regs[reg..reg + 2].try_into().unwrap())
+    }
+}
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -80,6 +100,10 @@ struct Args {
     /// The number of samples to take
     #[arg(short = 'c', long, default_value_t = 1_000_000)]
     samples: usize,
+
+    /// Unbind the device driver, if bound
+    #[arg(short, long, default_value_t = false)]
+    unbind: bool,
 
     /// The "<domain>:<bus>:<slot>.<func>" for the ASMedia USB 3 host controller
     dbsf: String,
@@ -148,43 +172,91 @@ fn main() {
         exit(1);
     }
 
-    let mut config = match PciConfig::new(&args.dbsf) {
-        Ok(c) => c,
+    let driver_is_bound: bool = match OpenOptions::new()
+        .write(true)
+        .open(format!("/sys/bus/pci/devices/{}/driver/unbind", args.dbsf))
+    {
+        Ok(mut file) => {
+            if args.unbind {
+                match file.write_all(args.dbsf.as_bytes()) {
+                    Ok(_) => false,
+                    Err(err) => {
+                        eprintln!("Error: Failed to unbind driver: {}", err);
+                        exit(1);
+                    }
+                }
+            } else {
+                true
+            }
+        }
         Err(err) => {
-            eprintln!("Error: Failed to initialize PciConfig: {:?}", err);
-            exit(1);
+            if err.kind() == std::io::ErrorKind::NotFound {
+                false
+            } else {
+                eprintln!("Error: Failed to unbind driver: {}", err);
+                exit(1);
+            }
         }
     };
+
+    if driver_is_bound && !device_info.has_config {
+        eprintln!("Error: Can't read PC from device: A driver is bound to the device and the device doesn't support falling back to PCI config access.");
+        exit(1);
+    }
+
     let mut statuses: Vec<u32> = Vec::with_capacity(args.samples);
-    if args.reset {
-        println!("Resetting device...");
-        match config.writel(0xec, 1 << 31) {
-            Ok(_) => (),
+    let elapsed = if driver_is_bound || !device_info.has_mmio {
+        let mut config = match PciConfig::new(&args.dbsf) {
+            Ok(c) => c,
             Err(err) => {
-                eprintln!("Error: Failed to set reset flag: {:?}", err);
+                eprintln!("Error: Failed to initialize PciConfig: {:?}", err);
                 exit(1);
             }
+        };
+        if args.reset {
+            println!("Resetting device...");
+            match config.writel(0xec, 1 << 31) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("Error: Failed to set reset flag: {:?}", err);
+                    exit(1);
+                }
+            }
+            match config.writel(0xec, 0) {
+                Ok(_) => (),
+                Err(err) => {
+                    eprintln!("Error: Failed to clear reset flag: {:?}", err);
+                    exit(1);
+                }
+            }
+            println!("Reset complete!");
         }
-        match config.writel(0xec, 0) {
-            Ok(_) => (),
-            Err(err) => {
-                eprintln!("Error: Failed to clear reset flag: {:?}", err);
-                exit(1);
+        let now = Instant::now();
+        for _ in 0..statuses.capacity() {
+            match config.readl(0xe4) {
+                Ok(val) => statuses.push(val),
+                Err(err) => {
+                    eprintln!("Error: Failed to read status: {:?}", err);
+                    exit(1);
+                }
             }
         }
-        println!("Reset complete!");
-    }
-    let now = Instant::now();
-    for _ in 0..statuses.capacity() {
-        match config.readl(0xe4) {
-            Ok(val) => statuses.push(val),
+        now.elapsed().as_micros()
+    } else {
+        let mut bar0 = match PciBar0::new(&args.dbsf) {
+            Ok(c) => c,
             Err(err) => {
-                eprintln!("Error: Failed to read status: {:?}", err);
+                eprintln!("Error: Failed to initialize PciBar0: {:?}", err);
                 exit(1);
             }
+        };
+        let now = Instant::now();
+        for _ in 0..statuses.capacity() {
+            statuses.push(bar0.readw(0x300a).into());
         }
-    }
-    let elapsed = now.elapsed().as_micros();
+        now.elapsed().as_micros()
+    };
+
     println!(
         "Logged {} statuses in {}.{:06} seconds ({} statuses per second)",
         statuses.len(),
