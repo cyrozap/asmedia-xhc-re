@@ -294,9 +294,10 @@ registers:
           end: 1
           permissions: RW
           notes: |
-            Set this bit to halt the CPU. Doing this is not advised, since
-            there is no way to recover from this halted state except by
-            removing and re-applying power.
+            Set this bit to halt the CPU and hold it in reset. Since the CPU
+            can't un-halt itself, the only way to recover from this state is to
+            use the `MMIO_ACCESS_ADDRESS`/`MMIO_ACCESS_WRITE_DATA` registers in
+            PCI BAR0 space to clear this bit.
     - name: CHIP_VERSION
       start: 0x150B2
       end: 0x150B2
