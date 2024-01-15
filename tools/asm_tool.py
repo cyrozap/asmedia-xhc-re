@@ -197,6 +197,12 @@ class AsmDev:
             'name': "ASM3242",
             # Not sure if HW MMIO access is missing or just locked-out.
         },
+
+        # ASMedia-based AMD chipset USB controllers
+        (0x1022, 0x43f7): {
+            'name': "AMD Promontory 21",
+            'hw_code_and_mmio': 2,
+        },
     }
 
     CODE_RAM_ADDR = 0xE2
