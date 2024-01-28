@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # asm_tool.py - A library for interacting with ASMedia USB host controllers.
-# Copyright (C) 2021-2022  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2021-2022, 2024  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
