@@ -298,6 +298,19 @@ registers:
             can't un-halt itself, the only way to recover from this state is to
             use the `MMIO_ACCESS_ADDRESS`/`MMIO_ACCESS_WRITE_DATA` registers in
             PCI BAR0 space to clear this bit.
+    - name: HARDWARE_ACCESS
+      start: 0x15087
+      end: 0x15087
+      bits:
+        - name: MMIO_ACCESS_ENABLE
+          start: 4
+          end: 4
+          permissions: RW
+          notes: |
+            Set this bit to enable access to MMIO in XDATA via the
+            `MMIO_ACCESS_ADDRESS` / `MMIO_ACCESS_WRITE_DATA` /
+            `MMIO_ACCESS_READ_DATA` registers in BAR0. Clear this bit to disable
+            this access.
     - name: CHIP_VERSION
       start: 0x150B2
       end: 0x150B2
