@@ -19,6 +19,8 @@
 
 
 import argparse
+import csv
+import io
 import struct
 import sys
 from zlib import crc32
@@ -42,6 +44,7 @@ def validate_crc32(data, expected):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--csv", default=False, action="store_true", help="Output in CSV format.")
     parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller boot ROM binary.")
     args = parser.parse_args()
 
@@ -57,8 +60,14 @@ def main():
 
             version_bytes = fw_bytes[0x80:0x80+6]
             version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version_bytes)
-            print("BROM CRC-32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes, BROM CRC-32: 0x{:08X}".format(
-                chip_name, version_string, size, expected))
+            if args.csv:
+                with io.StringIO(newline="") as csvfile:
+                    csvwriter = csv.writer(csvfile)
+                    csvwriter.writerow([chip_name, version_string, size, "0x{:08X}".format(expected)])
+                    print(csvfile.getvalue().rstrip())
+            else:
+                print("BROM CRC-32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes, BROM CRC-32: 0x{:08X}".format(
+                    chip_name, version_string, size, expected))
 
             return 0
         except ValueError:
