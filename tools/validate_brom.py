@@ -38,7 +38,7 @@ def validate_crc32(data, expected):
     calc_crc32 = crc32(data)
     exp_crc32 = expected
     if calc_crc32 != exp_crc32:
-        raise ValueError("Invalid CRC32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32))
+        raise ValueError("Invalid CRC-32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32))
 
 def main():
     parser = argparse.ArgumentParser()
@@ -57,13 +57,13 @@ def main():
 
             version_bytes = fw_bytes[0x80:0x80+6]
             version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version_bytes)
-            print("BROM CRC32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes".format(chip_name, version_string, size))
+            print("BROM CRC-32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes".format(chip_name, version_string, size))
 
             return 0
         except ValueError:
             pass
 
-    print("Error: Failed to validate BROM CRC32.", file=sys.stderr)
+    print("Error: Failed to validate BROM CRC-32.", file=sys.stderr)
 
     return 1
 
