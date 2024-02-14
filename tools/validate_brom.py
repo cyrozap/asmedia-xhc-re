@@ -57,7 +57,8 @@ def main():
 
             version_bytes = fw_bytes[0x80:0x80+6]
             version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version_bytes)
-            print("BROM CRC-32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes".format(chip_name, version_string, size))
+            print("BROM CRC-32 OK! Chip name: {}, BROM version: {}, BROM size: {} bytes, BROM CRC-32: 0x{:08X}".format(
+                chip_name, version_string, size, expected))
 
             return 0
         except ValueError:
