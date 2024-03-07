@@ -48,12 +48,12 @@
   - Not much gets printed here, and the text that does isn't
     particularly useful.
 - Debugging
-  - ASM1042A, ASM1142, ASM2142/ASM3142
+  - ASM1042A, ASM1142, ASM2142/ASM3142, ASM3242
     - The 8051 program counter can be read by the host over PCIe.
     - The 8051 MMIO registers (in XDATA) can be read from or written to by the
       host over PCIe.
     - The 8051 code RAM can be written to by the host over PCIe.
-  - ASM2142/ASM3142
+  - ASM2142/ASM3142, ASM3242
     - The 8051 code RAM can be read from by the host over PCIe.
 
 
