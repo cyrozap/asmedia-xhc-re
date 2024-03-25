@@ -36,7 +36,7 @@
   - 3V3
   - 921600 8N1
   - Pins:
-    - ASM1042/ASM1042A
+    - ASM1042/ASM1042A (QFN-64)
       - RX: IC pin 14
       - TX: IC pin 15
     - ASM1142/ASM2142/ASM3142
@@ -62,7 +62,7 @@
 | IC | PCI VID:DID | USB 3 Ports × Generation × Lanes | PCIe Version × Lanes | IC Package |
 | --- | --- | --- | --- | --- |
 | [ASM1042][ASM1042] | 1b21:1042 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
-| [ASM1042A][ASM1042A] | 1b21:1142 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 |
+| [ASM1042A][ASM1042A] | 1b21:1142 | 2× Gen 1×1 | PCIe 2.x ×1 | QFN-64 / QFN-48 |
 | [ASM1142][ASM1142] | 1b21:1242 | 2× Gen 2×1 | PCIe 2.x ×2 / PCIe 3.x ×1 | QFN-64 |
 | [ASM2142][ASM2142] | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
 | [ASM3142][ASM3142] | 1b21:2142 | 2× Gen 2×1 | PCIe 3.x ×2 | QFN-64 |
