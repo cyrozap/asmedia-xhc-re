@@ -39,7 +39,7 @@
     - ASM1042/ASM1042A (QFN-64)
       - RX: IC pin 14
       - TX: IC pin 15
-    - ASM1042AE/ASM1142/ASM2142/ASM3142
+    - ASM1042AE/ASM1142/ASM2142/ASM3142 ASM3042
       - RX: IC pin 10
       - TX: IC pin 11
     - ASM3242
