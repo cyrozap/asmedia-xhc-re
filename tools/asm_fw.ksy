@@ -88,6 +88,7 @@ types:
       - id: signature
         type: signature
         if: _parent.header.magic == "2324A_RCFG"
+        doc: "An encrypted SHA-256 hash of body.firmware."
     types:
       firmware:
         seq:

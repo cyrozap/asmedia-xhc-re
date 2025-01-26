@@ -102,11 +102,11 @@ def main():
     validate_checksum("header", header_bytes, fw.header.checksum)
     validate_crc32("header", header_bytes, fw.header.crc32)
 
-    validate_checksum("body", fw.body.firmware.code, fw.body.checksum)
-    validate_crc32("body", fw.body.firmware.code, fw.body.crc32)
+    validate_checksum("code", fw.body.firmware.code, fw.body.checksum)
+    validate_crc32("code", fw.body.firmware.code, fw.body.crc32)
 
     try:
-        print("Body signature: {}".format(fw.body.signature.data.hex()))
+        print("Code signature: {}".format(fw.body.signature.data.hex()))
     except AttributeError:
         pass
 
