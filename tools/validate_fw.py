@@ -39,7 +39,7 @@ def validate_checksum(name, data, expected):
     if calc_csum != exp_csum:
         print("Error: Invalid {} checksum: expected {:#04x}, got: {:#04x}".format(name, exp_csum, calc_csum), file=sys.stderr)
         sys.exit(1)
-    print("{} checksum OK!".format(name.capitalize()))
+    print("{} checksum OK! 0x{:02x}".format(name.capitalize(), exp_csum))
 
 def validate_crc32(name, data, expected):
     calc_crc32 = crc32(data)
@@ -47,7 +47,7 @@ def validate_crc32(name, data, expected):
     if calc_crc32 != exp_crc32:
         print("Error: Invalid {} crc32: expected {:#010x}, got: {:#010x}".format(name, exp_crc32, calc_crc32), file=sys.stderr)
         sys.exit(1)
-    print("{} CRC32 OK!".format(name.capitalize()))
+    print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), exp_crc32))
 
 def main():
     project_dir = pathlib.Path(__file__).resolve().parents[1]
