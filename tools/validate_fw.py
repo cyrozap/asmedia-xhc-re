@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # validate_fw.py - A tool to validate a firmware image.
-# Copyright (C) 2020-2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2021, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--data-dir", type=str, default=default_data_dir, help="The YAML data directory. Default is \"{}\"".format(default_data_dir))
+    parser.add_argument("-e", "--extract", action="store_true", default=False, help="Extract the code from the firmware image.")
     parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller firmware image.")
     args = parser.parse_args()
 
@@ -141,6 +142,9 @@ def main():
                 if addr in range(start, end + 1):
                     formatted_addr = "{}[{}] ({})".format(name, addr-start, formatted_addr)
             print("  {} <= {}".format(formatted_addr, formatted_value))
+
+    if args.extract:
+        open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
 
 
 if __name__ == "__main__":
