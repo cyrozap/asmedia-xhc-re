@@ -80,6 +80,12 @@ and execute it without having to first write the code to flash.
 Currently only the ASM1042A, ASM1142, and ASM2142/ASM3142 are supported.
 
 
+## [prom\_fw.ksy](prom_fw.ksy)
+
+A [Kaitai Struct][kaitai] definition for the Promontory chipset firmware image
+format.
+
+
 ## [validate\_brom.py](validate_brom.py)
 
 Validates a BROM (boot ROM/mask ROM) dump by verifying the CRC-32 checksum

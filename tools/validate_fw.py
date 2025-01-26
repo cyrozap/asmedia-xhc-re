@@ -29,12 +29,21 @@ except ModuleNotFoundError:
     print("Error: Failed to import \"asm_fw.py\". Please run \"make\" in the root directory of this repository to generate that file, then try running this script again.", file=sys.stderr)
     sys.exit(1)
 
+try:
+    import prom_fw
+except ModuleNotFoundError:
+    print("Error: Failed to import \"prom_fw.py\". Please run \"make\" in the root directory of this repository to generate that file, then try running this script again.", file=sys.stderr)
+    sys.exit(1)
+
 
 def checksum(data : bytes):
     return sum(data) & 0xff
 
-def validate_checksum(name, data, expected):
-    calc_csum = checksum(data)
+def promontory_checksum(data : bytes):
+    return sum(data) & 0xffffffff
+
+def validate_checksum(name, data, expected, function=checksum):
+    calc_csum = function(data)
     exp_csum = expected
     if calc_csum != exp_csum:
         print("Error: Invalid {} checksum: expected {:#04x}, got: {:#04x}".format(name, exp_csum, calc_csum), file=sys.stderr)
@@ -49,6 +58,30 @@ def validate_crc32(name, data, expected):
         sys.exit(1)
     print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), exp_crc32))
 
+def promontory(args, fw_bytes):
+    fw = prom_fw.PromFw.from_bytes(fw_bytes)
+
+    validate_checksum("code", fw.body.firmware.code, fw.header.checksum, promontory_checksum)
+
+    try:
+        print("Code signature: {}".format(fw.body.signature.data.hex()))
+    except AttributeError:
+        pass
+
+    chip_name = {
+        "3306A_FW": "ASM3063/Prom",
+        "3306B_FW": "ASM3063A/PromLP",
+        "3308A_FW": "ASM3083/Prom19",
+        "3328A_FW": "ASM3283/Prom21",
+    }.get(fw.body.firmware.magic, "UNKNOWN (\"{}\")".format(fw.body.firmware.magic))
+    print("Chip: {}".format(chip_name))
+
+    version_string = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
+    print("Firmware version: {}".format(version_string))
+
+    if args.extract:
+        open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
+
 def main():
     project_dir = pathlib.Path(__file__).resolve().parents[1]
     default_data_dir = str(project_dir/"data")
@@ -60,6 +93,9 @@ def main():
     args = parser.parse_args()
 
     fw_bytes = open(args.firmware, 'rb').read()
+    if fw_bytes.startswith(b"_PT_"):
+        return promontory(args, fw_bytes)
+
     fw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
     header_bytes = fw_bytes[:fw.header.len]

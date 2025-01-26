@@ -22,7 +22,7 @@ DOC_SOURCES := $(wildcard data/regs-*.yaml)
 DOC_TARGETS := $(DOC_SOURCES:data/%.yaml=doc/out/%.xhtml)
 DOC_TARGETS += doc/out/pm/index.html
 
-TOOL_TARGETS := tools/asm_fw.py
+TOOL_TARGETS := tools/asm_fw.py tools/prom_fw.py
 
 
 all: $(TOOL_TARGETS)
