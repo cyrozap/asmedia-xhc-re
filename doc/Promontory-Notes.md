@@ -21,9 +21,9 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
   - Also called:
     - "PT"
   - Marketing names:
-    - A320
-    - B350
-    - X370
+    - A320 (["PROM1"][prom1])
+    - B350 (["PROM2"][prom2])
+    - X370 (["PROM4"][prom4])
   - ASMedia identifiers:
     - Chip / Silicon Version: `0x40`
     - Firmware ID: `3306A`
@@ -33,8 +33,8 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - "LP Promontory"
     - "LPPT"
   - Marketing names:
-    - B450
-    - X470
+    - B450 ("PROM26.A" according to HWiNFO)
+    - X470 ("PROM28.A" according to HWiNFO)
   - ASMedia identifiers:
     - Chip / Silicon Version: `0x60`
     - Firmware ID: `3306B`
@@ -75,4 +75,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
 
 [bixby]: https://web.archive.org/web/20200715182721/https://thinkstation-specs.com/thinkstation/p620/#:~:text=AMD%202019%20Premium%20Chipset
 [x570]: https://web.archive.org/web/20211005022310/https://twitter.com/IanCutress/status/1138443875154944000
+[prom1]: https://web.archive.org/web/20250128060224/https://community.amd.com/sdtpp67534/attachments/sdtpp67534/processors-discussions/29559/1/A320AM4-M3_M3D_manual.pdf
+[prom2]: https://web.archive.org/web/20250128061134/https://www.computerbase.de/forum/threads/aldi-pc-mit-amd-b350-prom2-lf-und-rgb-moeglich.1983544/#:~:text=Mainboard%3A%20AMD-,B350%20PROM2,-LF
+[prom4]: https://web.archive.org/web/20250128054923/https://www.dell.com/community/en/conversations/monitors/se2717h-amd-onboard-gpu-input-timing-is-not-supported/647f79cdf4ccf8a8de7f41e1#:~:text=Promontory%20X370%20PROM4%20chipset
 [55nm]: https://web.archive.org/web/20170807124916/http://www.anandtech.com/print/10705/amd-7th-gen-bristol-ridge-and-am4-analysis-a12-9800-b350-a320-chipset#:~:text=We%20were%20informed%20that%20the%20chipsets%20are%20manufactured%20at%20TSMC%20using%20a%2055nm%20process
