@@ -25,7 +25,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - B350
     - X370
   - ASMedia identifiers:
-    - Chip / Silicon ID: `0x40`
+    - Chip / Silicon Version: `0x40`
     - Firmware ID: `3306A`
 - Promontory-LP
   - Also called:
@@ -36,7 +36,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - B450
     - X470
   - ASMedia identifiers:
-    - Chip / Silicon ID: `0x60`
+    - Chip / Silicon Version: `0x60`
     - Firmware ID: `3306B`
 - Promontory-19:
   - Also called:
@@ -47,7 +47,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - A520
     - B550
   - ASMedia identifiers:
-    - Chip / Silicon ID: `0x90`
+    - Chip / Silicon Version: `0x90`
     - Firmware ID: `3308A`
 - Promontory-21:
   - Also called:
@@ -61,7 +61,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - B850
     - X870(E)
   - ASMedia identifiers:
-    - Chip / Silicon ID: `0xA0`
+    - Chip / Silicon Version: `0xA0`
     - Firmware ID: `3328A`
 
 
