@@ -41,6 +41,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
 - Promontory-19:
   - Also called:
     - "Promontory Plus"
+    - "Promontory 2019"
     - "PT19"
     - "PROM19"
   - Marketing names:
@@ -51,6 +52,7 @@ Bixby is [based on the AMD Matisse IO die on a 14nm process][x570], so it has a 
     - Firmware ID: `3308A`
 - Promontory-21:
   - Also called:
+    - "Promontory 2021"
     - "PT21"
     - "PROM21"
   - Marketing names:
