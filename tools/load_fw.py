@@ -3,7 +3,7 @@
 
 # load_fw.py - A tool to directly load firmware into an ASMedia USB host
 # controller.
-# Copyright (C) 2021-2022  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2021-2022, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ import time
 from asm_tool import AsmDev
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("dbsf", type=str, help="The \"<domain>:<bus>:<slot>.<func>\" for the ASMedia USB 3 host controller.")
     parser.add_argument("firmware", type=str, help="The raw firmware binary to load.")

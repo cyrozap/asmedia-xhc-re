@@ -40,13 +40,13 @@ CHIPS = {
 }
 
 
-def validate_crc32(data, expected):
+def validate_crc32(data, expected) -> None:
     calc_crc32 = crc32(data)
     exp_crc32 = expected
     if calc_crc32 != exp_crc32:
         raise ValueError("Invalid CRC-32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32))
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--csv", default=False, action="store_true", help="Output in CSV format.")
     parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller boot ROM binary.")
@@ -54,7 +54,7 @@ def main():
 
     fw_bytes = open(args.firmware, 'rb').read()
     chip_magic = fw_bytes[0x87:0x87+8]
-    chip_name = CHIPS.get(chip_magic, "Unknown magic: {}".format(chip_magic))
+    chip_name = CHIPS.get(chip_magic, "Unknown magic: {!r}".format(chip_magic))
 
     for size in (0x8000, 0x10000):
         expected = struct.unpack_from('<I', fw_bytes, size-4)[0]

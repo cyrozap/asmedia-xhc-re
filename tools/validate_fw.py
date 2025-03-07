@@ -36,13 +36,13 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 
-def checksum(data : bytes):
+def checksum(data : bytes) -> int:
     return sum(data) & 0xff
 
-def promontory_checksum(data : bytes):
+def promontory_checksum(data : bytes) -> int:
     return sum(data) & 0xffffffff
 
-def validate_checksum(name, data, expected, function=checksum):
+def validate_checksum(name, data, expected, function=checksum) -> None:
     calc_csum = function(data)
     exp_csum = expected
     if calc_csum != exp_csum:
@@ -50,7 +50,7 @@ def validate_checksum(name, data, expected, function=checksum):
         sys.exit(1)
     print("{} checksum OK! 0x{:02x}".format(name.capitalize(), exp_csum))
 
-def validate_crc32(name, data, expected):
+def validate_crc32(name, data, expected) -> None:
     calc_crc32 = crc32(data)
     exp_crc32 = expected
     if calc_crc32 != exp_crc32:
@@ -58,7 +58,7 @@ def validate_crc32(name, data, expected):
         sys.exit(1)
     print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), exp_crc32))
 
-def promontory(args, fw_bytes):
+def promontory(args, fw_bytes) -> None:
     fw = prom_fw.PromFw.from_bytes(fw_bytes)
 
     validate_checksum("code", fw.body.firmware.code, fw.header.checksum, promontory_checksum)
@@ -82,7 +82,7 @@ def promontory(args, fw_bytes):
     if args.extract:
         open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
 
-def main():
+def main() -> None:
     project_dir = pathlib.Path(__file__).resolve().parents[1]
     default_data_dir = str(project_dir/"data")
 
@@ -134,7 +134,7 @@ def main():
         try:
             yaml_path = pathlib.Path(args.data_dir) / chip_data_yaml
 
-            import yaml
+            import yaml  # type: ignore[import-untyped]
             doc = yaml.safe_load(open(yaml_path, 'r'))
             xdata = doc.get('registers', dict()).get('xdata', [])
             for reg in xdata:
@@ -172,6 +172,8 @@ def main():
                 2: '0x{:04x}',
                 4: '0x{:08x}',
             }.get(info.size)
+            if value_format is None:
+                raise ValueError("Invalid config word value size: {}".format(info.size))
             formatted_value = value_format.format(info.value)
 
             for start, end, name in reg_names:

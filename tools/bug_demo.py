@@ -3,7 +3,7 @@
 
 # bug_demo.py - A tool to demonstrate hardware bugs in ASMedia USB host
 # controllers.
-# Copyright (C) 2022  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2022, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,12 +21,11 @@
 
 import argparse
 import sys
-import time
 
 from asm_tool import AsmDev
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("dbsf", type=str, help="The \"<domain>:<bus>:<slot>.<func>\" for the ASMedia USB 3 host controller.")
     args = parser.parse_args()
@@ -56,12 +55,12 @@ def main():
 
     # Calculate base addresses.
     operational_base = dev.pci.bar0_reg_read(0x0000, 1)
-    runtime_base = dev.pci.bar0_reg_read(0x0018, 1)
+    _runtime_base = dev.pci.bar0_reg_read(0x0018, 1)
 
-    def read_qword_internal(addr_internal):
+    def read_qword_internal(addr_internal) -> int:
         return (dev.hw_mmio_reg_read(addr_internal + 4, 4) << 32) | dev.hw_mmio_reg_read(addr_internal, 4)
 
-    def write_qword_bar0(bar0_addr, value):
+    def write_qword_bar0(bar0_addr, value) -> None:
         dev.pci.bar0_reg_write(bar0_addr, 4, value & 0xffffffff)
         dev.pci.bar0_reg_write(bar0_addr + 4, 4, value >> 32)
 

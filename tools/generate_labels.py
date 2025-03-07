@@ -3,7 +3,7 @@
 
 # generate_labels.py - A tool to generate a list of labels for Ghidra from a
 # YAML file containing register definitions.
-# Copyright (C) 2022  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2022, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 import argparse
 import sys
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 
 ADDR_FORMATS = {
@@ -31,7 +31,7 @@ ADDR_FORMATS = {
 }
 
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output", type=str, help="The output file. Defaults to stdout if not specified.")
     parser.add_argument("input", type=str, help="The input YAML register definition file.")

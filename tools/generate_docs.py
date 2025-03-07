@@ -3,7 +3,7 @@
 
 # generate_docs.py - A tool to generate XHTML documentation from a YAML file
 # containing register definitions.
-# Copyright (C) 2020-2023  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2023, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ import subprocess
 import sys
 from datetime import datetime
 
-import markdown
-import yaml
-from lxml import etree as ET
+import markdown  # type: ignore[import-untyped]
+import yaml  # type: ignore[import-untyped]
+from lxml import etree as ET  # type: ignore[import-untyped]
 
 
 REGION_NAMES = {
@@ -46,7 +46,7 @@ PERMISSIONS = {
     "WO": "Write-Only",
 }
 
-def validate(doc):
+def validate(doc) -> bool:
     unknown_keys = set(doc.keys()).difference(set(['meta', 'xdata', 'registers']))
     if unknown_keys:
         print("Error: Invalid keys in document: {}".format(unknown_keys))
@@ -93,7 +93,7 @@ def validate(doc):
 
     return True
 
-def gen_css():
+def gen_css() -> str:
     style = '''
     code {
         background-color: #dedede;
@@ -115,12 +115,12 @@ def gen_css():
     '''
     return style
 
-def markdown_subelement(parent, tag, md):
+def markdown_subelement(parent, tag, md) -> None:
     xhtml = markdown.markdown(md, output_format='xhtml')
     element = ET.fromstring("<{}>{}</{}>".format(tag, xhtml, tag))
     parent.append(element)
 
-def gen_xhtml(filename, doc):
+def gen_xhtml(filename, doc) -> bytes:
     html = ET.Element('html', {
         ET.QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"): "http://www.w3.org/MarkUp/SCHEMA/xhtml11.xsd",
         ET.QName("http://www.w3.org/XML/1998/namespace", "lang"): "en",
@@ -394,12 +394,12 @@ def gen_xhtml(filename, doc):
                     if start_bit is None or end_bit is None:
                         continue
 
-                    bit = "[{}]".format(start_bit)
+                    bits_str: str = "[{}]".format(start_bit)
                     if end_bit != start_bit:
-                        bit = "[{}:{}]".format(end_bit, start_bit)
+                        bits_str = "[{}:{}]".format(end_bit, start_bit)
 
                     bit_info_table_row = ET.SubElement(bit_info_table, 'tr')
-                    ET.SubElement(bit_info_table_row, 'td').text = bit
+                    ET.SubElement(bit_info_table_row, 'td').text = bits_str
                     ET.SubElement(bit_info_table_row, 'td').text = bit_range.get('name', "")
                     markdown_subelement(bit_info_table_row, 'td', bit_range.get('notes', ""))
 
@@ -444,7 +444,7 @@ def gen_xhtml(filename, doc):
             doctype="<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"
         )
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--output", type=str, default="regs.xhtml", help="The output file.")
     parser.add_argument("input", type=str, help="The input YAML register definition file.")
