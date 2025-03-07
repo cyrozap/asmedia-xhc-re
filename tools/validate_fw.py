@@ -36,10 +36,10 @@ except ModuleNotFoundError:
     sys.exit(1)
 
 
-def checksum(data : bytes) -> int:
+def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
-def promontory_checksum(data : bytes) -> int:
+def promontory_checksum(data: bytes) -> int:
     return sum(data) & 0xffffffff
 
 def validate_checksum(name, data, expected, function=checksum) -> None:

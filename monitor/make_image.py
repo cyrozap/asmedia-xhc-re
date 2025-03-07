@@ -34,10 +34,10 @@ CHIP_INFO = {
 }
 
 
-def checksum(data : bytes) -> int:
+def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
-def gen_header(chip : str, sig_bypass : bool = False) -> bytes:
+def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     header_magic = CHIP_INFO[chip][0]
 
     data = bytes()
@@ -93,7 +93,7 @@ def gen_header(chip : str, sig_bypass : bool = False) -> bytes:
 
     return header
 
-def gen_body(chip : str, data : bytes) -> bytes:
+def gen_body(chip: str, data: bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
     body_magic = chip_info[1].encode('ASCII')
     body_len_type = chip_info[2]
@@ -115,7 +115,7 @@ def gen_body(chip : str, data : bytes) -> bytes:
 
     return body
 
-def add_fw_meta(chip : str, data : bytes) -> bytes:
+def add_fw_meta(chip: str, data: bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
     body_magic = chip_info[1].encode('ASCII')
 
