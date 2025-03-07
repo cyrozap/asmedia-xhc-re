@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # asm_tool.py - A library for interacting with ASMedia USB host controllers.
-# Copyright (C) 2021-2022, 2024  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2021-2022, 2024-2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ class PciDev:
         4: '<I',
     }
 
-    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False, auto_unbind: bool = False):
+    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False, auto_unbind: bool = False) -> None:
         self.dbsf = dbsf
         self.debug = debug
         self.verbose = debug or verbose
@@ -60,9 +60,9 @@ class PciDev:
         self.vid = int(open("/sys/bus/pci/devices/{}/vendor".format(self.dbsf), "r").read().rstrip('\n'), 16)
         self.did = int(open("/sys/bus/pci/devices/{}/device".format(self.dbsf), "r").read().rstrip('\n'), 16)
 
-        self._mmap = None
+        self._mmap: mmap.mmap | None = None
 
-    def _mmap_init(self):
+    def _mmap_init(self) -> None:
         if self.auto_unbind:
             # Try to unbind the kernel driver if it's attached.
             self.driver_unbind()
@@ -77,14 +77,14 @@ class PciDev:
 
             raise MmapError("Failed to mmap BAR0--you may need to unbind the kernel driver for this device.")
 
-    def driver_unbind(self):
+    def driver_unbind(self) -> None:
         try:
             open("/sys/bus/pci/devices/{}/driver/unbind".format(self.dbsf), "wb").write(self.dbsf.encode('utf-8'))
         except FileNotFoundError:
             # If the file doesn't exist, then the driver isn't attached.
             pass
 
-    def config_reg_read(self, reg: int, width: int):
+    def config_reg_read(self, reg: int, width: int) -> int:
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
 
@@ -101,7 +101,7 @@ class PciDev:
 
         return value
 
-    def config_reg_write(self, reg: int, width: int, value: int, confirm: bool = False):
+    def config_reg_write(self, reg: int, width: int, value: int, confirm: bool = False) -> None:
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
 
@@ -118,42 +118,42 @@ class PciDev:
             while self.config_reg_read(reg, width) != value:
                 continue
 
-    def bar0_reg_read(self, reg: int, width: int):
+    def bar0_reg_read(self, reg: int, width: int) -> int:
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
             print("PciDev.bar0_reg_read: Reading {} bytes from {:#x}...".format(width, reg))
 
-        if self._mmap == None:
+        if self._mmap is None:
             self._mmap_init()
 
         # Reads need to be performed in one transaction, but
         # struct.unpack_from performs one read for every byte. Work around
         # this limitation by performing the read and unpacking the value in
         # two separate steps.
-        value = struct.unpack(self.struct_map[width], self._mmap[reg:reg+width])[0]
+        value = struct.unpack(self.struct_map[width], self._mmap[reg:reg+width])[0]  # type: ignore[index]
 
         if self.debug:
             print("PciDev.bar0_reg_read: Read: {:#x}".format(value))
 
         return value
 
-    def bar0_reg_write(self, reg: int, width: int, value: int, confirm: bool = False):
+    def bar0_reg_write(self, reg: int, width: int, value: int, confirm: bool = False) -> None:
         if width not in self.struct_map.keys():
             raise ValueError("Invalid width: {}".format(width))
 
         if self.debug:
             print("PciDev.bar0_reg_write: Writing {} bytes of {:#x} to {:#x}...".format(width, value, reg))
 
-        if self._mmap == None:
+        if self._mmap is None:
             self._mmap_init()
 
         # Writes need to be performed in one transaction, but struct.pack_into
         # performs one write for every byte. Work around this limitation by
         # packing the value and performing the write in two separate steps.
         data = struct.pack(self.struct_map[width], value)
-        self._mmap[reg:reg+width] = data
+        self._mmap[reg:reg+width] = data  # type: ignore[index]
 
         # If "confirm" is set, repeatedly read the register until its contents
         # match the value written.
@@ -226,7 +226,7 @@ class AsmDev:
     CPU_MODE_NEXT_128K = 0x15040
     CPU_EXEC_CTRL_128K = 0x15042
 
-    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False):
+    def __init__(self, dbsf: str, debug: bool = False, verbose: bool = False) -> None:
         self.debug = debug
         self.verbose = debug or verbose
         self.pci = PciDev(dbsf, debug, verbose)
@@ -237,10 +237,10 @@ class AsmDev:
             raise KeyError("Unrecognized PCI VID:DID pair: {:04x}:{:04x}".format(vid, did))
 
         self.chip = self.ids_map[(vid, did)]
-        self.name = self.chip['name']
-        self.hw_code_and_mmio = self.chip.get('hw_code_and_mmio', None)
+        self.name = self.chip['name']  # type: ignore[index]
+        self.hw_code_and_mmio = self.chip.get('hw_code_and_mmio', None)  # type: ignore[attr-defined]
 
-    def hw_code_write(self, addr: int, code: bytes):
+    def hw_code_write(self, addr: int, code: bytes) -> None:
         if self.hw_code_and_mmio not in (1, 2):
             raise ValueError("{} is not capable of hardware CODE access.".format(self.name))
 
@@ -355,7 +355,7 @@ class AsmDev:
             reg_1500E = self.hw_mmio_reg_read(0x1500E, 1)
             self.hw_mmio_reg_write(0x1500E, 1, reg_1500E & ~(1 << 0), confirm=True)
 
-    def hw_code_load_exec(self, code: bytes, half_speed: bool = True):
+    def hw_code_load_exec(self, code: bytes, half_speed: bool = True) -> None:
         if self.hw_code_and_mmio not in (1, 2):
             raise ValueError("{} is not capable of hardware CODE access.".format(self.name))
 
@@ -388,7 +388,7 @@ class AsmDev:
         # Release the CPU from reset.
         self.hw_mmio_reg_write(cpu_exec_ctrl, 1, 0)
 
-    def hw_mmio_reg_read(self, addr: int, width: int):
+    def hw_mmio_reg_read(self, addr: int, width: int) -> int:
         if self.hw_code_and_mmio not in (1, 2):
             raise ValueError("{} is not capable of hardware MMIO access.".format(self.name))
 
@@ -421,7 +421,7 @@ class AsmDev:
 
         return value
 
-    def hw_mmio_reg_write(self, addr: int, width: int, value: int, confirm: bool = False):
+    def hw_mmio_reg_write(self, addr: int, width: int, value: int, confirm: bool = False) -> None:
         if self.hw_code_and_mmio not in (1, 2):
             raise ValueError("{} is not capable of hardware MMIO access.".format(self.name))
 
@@ -454,7 +454,7 @@ class AsmDev:
                 continue
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("dbsf", type=str, help="The \"<domain>:<bus>:<slot>.<func>\" for the ASMedia USB 3 host controller.")
     args = parser.parse_args()
