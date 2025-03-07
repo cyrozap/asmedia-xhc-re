@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # make_image.py - Script to generate a firmware image from a raw binary.
-# Copyright (C) 2020-2023  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2023, 2025  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,10 +34,10 @@ CHIP_INFO = {
 }
 
 
-def checksum(data : bytes):
+def checksum(data : bytes) -> int:
     return sum(data) & 0xff
 
-def gen_header(chip : str, sig_bypass : bool = False):
+def gen_header(chip : str, sig_bypass : bool = False) -> bytes:
     header_magic = CHIP_INFO[chip][0]
 
     data = bytes()
@@ -93,7 +93,7 @@ def gen_header(chip : str, sig_bypass : bool = False):
 
     return header
 
-def gen_body(chip : str, data : bytes):
+def gen_body(chip : str, data : bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
     body_magic = chip_info[1].encode('ASCII')
     body_len_type = chip_info[2]
@@ -115,7 +115,7 @@ def gen_body(chip : str, data : bytes):
 
     return body
 
-def add_fw_meta(chip : str, data : bytes):
+def add_fw_meta(chip : str, data : bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
     body_magic = chip_info[1].encode('ASCII')
 
@@ -126,7 +126,7 @@ def add_fw_meta(chip : str, data : bytes):
 
     return bytes(data)
 
-def main():
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=str, help="Input binary.")
     parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
