@@ -122,6 +122,8 @@
      - Connected to ASM3242 pin 43 by resistor R359.
    - LED9 (unpopulated)
      - Connected to ASM3242 pin 44 by resistor R360.
+ - Oscillators:
+   - X1: 20 MHz
 
 
 ### IOCrest IO-PCE3242-1C (ASM3242)
@@ -142,6 +144,8 @@
    - Resistors:
      - R44: 100 kΩ
      - R47: 75 kΩ (measured value: 74.4 kΩ)
+   - Oscillators:
+     - X1: 20 MHz
  - Connectors
    - J1 (pin 1 is the one closest to the ASM3242 IC)
      - 1: 3V3
