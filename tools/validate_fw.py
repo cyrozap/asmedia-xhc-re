@@ -62,7 +62,7 @@ def checksum8(data: bytes) -> int:
 def checksum32(data: bytes) -> int:
     return sum(data) & 0xffffffff
 
-def validate_checksum(name: str, data: bytes, expected: int, function: Callable[[bytes], int] = checksum8) -> None:
+def validate_checksum(name: str, data: bytes, expected: int, function: Callable[[bytes], int]) -> None:
     calc_csum: int = function(data)
     exp_csum: int = expected
     if calc_csum != exp_csum:
@@ -104,10 +104,10 @@ def xhc(args: argparse.Namespace, fw_bytes: bytes) -> None:
     fw: asm_fw.AsmFw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
     header_bytes: bytes = fw_bytes[:fw.header.len]
-    validate_checksum("header", header_bytes, fw.header.checksum)
+    validate_checksum("header", header_bytes, fw.header.checksum, checksum8)
     validate_crc32("header", header_bytes, fw.header.crc32)
 
-    validate_checksum("code", fw.body.firmware.code, fw.body.checksum)
+    validate_checksum("code", fw.body.firmware.code, fw.body.checksum, checksum8)
     validate_crc32("code", fw.body.firmware.code, fw.body.crc32)
 
     try:
