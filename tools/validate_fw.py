@@ -56,13 +56,13 @@ CHIP_INFO: dict[str, ChipInfo] = {
 }
 
 
-def checksum(data: bytes) -> int:
+def checksum8(data: bytes) -> int:
     return sum(data) & 0xff
 
-def promontory_checksum(data: bytes) -> int:
+def checksum32(data: bytes) -> int:
     return sum(data) & 0xffffffff
 
-def validate_checksum(name: str, data: bytes, expected: int, function: Callable[[bytes], int] = checksum) -> None:
+def validate_checksum(name: str, data: bytes, expected: int, function: Callable[[bytes], int] = checksum8) -> None:
     calc_csum: int = function(data)
     exp_csum: int = expected
     if calc_csum != exp_csum:
@@ -84,7 +84,7 @@ def format_version(version: bytes) -> str:
 def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     fw: prom_fw.PromFw = prom_fw.PromFw.from_bytes(fw_bytes)
 
-    validate_checksum("code", fw.body.firmware.code, fw.header.checksum, promontory_checksum)
+    validate_checksum("code", fw.body.firmware.code, fw.header.checksum, checksum32)
 
     try:
         print("Code signature: {}".format(fw.body.signature.data.hex()))
