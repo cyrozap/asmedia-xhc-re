@@ -21,7 +21,7 @@
 import argparse
 import pathlib
 import sys
-from typing import Callable
+from typing import Callable, NamedTuple
 from zlib import crc32
 
 try:
@@ -35,6 +35,25 @@ try:
 except ModuleNotFoundError:
     print("Error: Failed to import \"prom_fw.py\". Please run \"make\" in the root directory of this repository to generate that file, then try running this script again.", file=sys.stderr)
     sys.exit(1)
+
+
+class ChipInfo(NamedTuple):
+    name: str
+    data_filename: str | None
+    mmio_offset: int
+
+
+CHIP_INFO: dict[str, ChipInfo] = {
+    "U2104": ChipInfo("ASM1042", "regs-asm1042.yaml", 0),
+    "2104B": ChipInfo("ASM1042A", "regs-asm1042a.yaml", 0),
+    "2114A": ChipInfo("ASM1142", "regs-asm1142.yaml", 0),
+    "2214A": ChipInfo("ASM2142/ASM3142", "regs-asm2142.yaml", 0x10000),
+    "2324A": ChipInfo("ASM3242", "regs-asm3242.yaml", 0x10000),
+    "3306A": ChipInfo("ASM3063/Prom", None, 0x10000),
+    "3306B": ChipInfo("ASM3063A/PromLP", None, 0x10000),
+    "3308A": ChipInfo("ASM3083/Prom19", None, 0x10000),
+    "3328A": ChipInfo("ASM3283/Prom21", None, 0x10000),
+}
 
 
 def checksum(data: bytes) -> int:
@@ -69,13 +88,10 @@ def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     except AttributeError:
         pass
 
-    chip_name: str = {
-        "3306A_FW": "ASM3063/Prom",
-        "3306B_FW": "ASM3063A/PromLP",
-        "3308A_FW": "ASM3083/Prom19",
-        "3328A_FW": "ASM3283/Prom21",
-    }.get(fw.body.firmware.magic, "UNKNOWN (\"{}\")".format(fw.body.firmware.magic))
-    print("Chip: {}".format(chip_name))
+    chip_id: str = fw.body.firmware.magic[:5]
+    chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
+
+    print("Chip: {}".format(chip_info.name))
 
     version_string: str = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
     print("Firmware version: {}".format(version_string))
@@ -111,26 +127,16 @@ def main() -> None:
     except AttributeError:
         pass
 
-    chip_name: str = {
-        "U2104_RCFG": "ASM1042",
-        "2104B_RCFG": "ASM1042A",
-        "2114A_RCFG": "ASM1142",
-        "2214A_RCFG": "ASM2142/ASM3142",
-        "2324A_RCFG": "ASM3242",
-    }.get(fw.header.magic, "UNKNOWN (\"{}\")".format(fw.header.magic))
-    print("Chip: {}".format(chip_name))
+    chip_id: str = fw.header.magic[:5]
+    chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
+
+    print("Chip: {}".format(chip_info.name))
 
     version_string: str = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
     print("Firmware version: {}".format(version_string))
 
     reg_names: list[tuple[int, int, str]] = []
-    chip_data_yaml: str | None = {
-        "U2104_RCFG": "regs-asm1042.yaml",
-        "2104B_RCFG": "regs-asm1042a.yaml",
-        "2114A_RCFG": "regs-asm1142.yaml",
-        "2214A_RCFG": "regs-asm2142.yaml",
-        "2324A_RCFG": "regs-asm3242.yaml",
-    }.get(fw.header.magic, None)
+    chip_data_yaml: str | None = chip_info.data_filename
     if chip_data_yaml:
         try:
             yaml_path: pathlib.Path = pathlib.Path(args.data_dir) / chip_data_yaml
@@ -148,13 +154,7 @@ def main() -> None:
         except ModuleNotFoundError:
             pass
 
-    mmio_offset: int = {
-        "U2104_RCFG": 0,
-        "2104B_RCFG": 0,
-        "2114A_RCFG": 0,
-        "2214A_RCFG": 0x10000,
-        "2324A_RCFG": 0x10000,
-    }.get(fw.header.magic, 0x10000)
+    mmio_offset: int = chip_info.mmio_offset
     header_printed: bool = False
     for config_word in fw.header.data.config_words:
         if isinstance(config_word.info, asm_fw.AsmFw.Header.ConfigWord.WriteData):
