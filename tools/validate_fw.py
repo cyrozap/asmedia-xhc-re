@@ -64,19 +64,17 @@ def checksum32(data: bytes) -> int:
 
 def validate_checksum(name: str, data: bytes, expected: int, function: Callable[[bytes], int]) -> None:
     calc_csum: int = function(data)
-    exp_csum: int = expected
-    if calc_csum != exp_csum:
-        print("Error: Invalid {} checksum: expected {:#04x}, got: {:#04x}".format(name, exp_csum, calc_csum), file=sys.stderr)
+    if calc_csum != expected:
+        print("Error: Invalid {} checksum: expected {:#04x}, got: {:#04x}".format(name, expected, calc_csum), file=sys.stderr)
         sys.exit(1)
-    print("{} checksum OK! 0x{:02x}".format(name.capitalize(), exp_csum))
+    print("{} checksum OK! 0x{:02x}".format(name.capitalize(), expected))
 
 def validate_crc32(name: str, data: bytes, expected: int) -> None:
     calc_crc32: int = crc32(data)
-    exp_crc32: int = expected
-    if calc_crc32 != exp_crc32:
-        print("Error: Invalid {} crc32: expected {:#010x}, got: {:#010x}".format(name, exp_crc32, calc_crc32), file=sys.stderr)
+    if calc_crc32 != expected:
+        print("Error: Invalid {} crc32: expected {:#010x}, got: {:#010x}".format(name, expected, calc_crc32), file=sys.stderr)
         sys.exit(1)
-    print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), exp_crc32))
+    print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), expected))
 
 def format_version(version: bytes) -> str:
     return "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version)

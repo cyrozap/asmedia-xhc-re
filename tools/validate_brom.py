@@ -42,9 +42,8 @@ CHIPS: dict[bytes, str] = {
 
 def validate_crc32(data: bytes, expected: int) -> None:
     calc_crc32: int = crc32(data)
-    exp_crc32: int = expected
-    if calc_crc32 != exp_crc32:
-        raise ValueError("Invalid CRC-32: expected {:#010x}, got: {:#010x}".format(exp_crc32, calc_crc32))
+    if calc_crc32 != expected:
+        raise ValueError("Invalid CRC-32: expected {:#010x}, got: {:#010x}".format(expected, calc_crc32))
 
 def main() -> int:
     parser: argparse.ArgumentParser = argparse.ArgumentParser()
