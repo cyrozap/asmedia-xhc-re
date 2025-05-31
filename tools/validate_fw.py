@@ -81,7 +81,7 @@ def validate_crc32(name: str, data: bytes, expected: int) -> None:
 def format_version(version: bytes) -> str:
     return "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version)
 
-def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
+def promontory(args: argparse.Namespace, fw_bytes: bytes) -> prom_fw.PromFw:
     fw: prom_fw.PromFw = prom_fw.PromFw.from_bytes(fw_bytes)
 
     validate_checksum("code", fw.body.firmware.code, fw.header.checksum, checksum32)
@@ -97,10 +97,9 @@ def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     print("Chip: {}".format(chip_info.name))
     print("Firmware version: {}".format(format_version(fw.body.firmware.version)))
 
-    if args.extract:
-        open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
+    return fw
 
-def xhc(args: argparse.Namespace, fw_bytes: bytes) -> None:
+def xhc(args: argparse.Namespace, fw_bytes: bytes) -> asm_fw.AsmFw:
     fw: asm_fw.AsmFw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
     header_bytes: bytes = fw_bytes[:fw.header.len]
@@ -168,8 +167,7 @@ def xhc(args: argparse.Namespace, fw_bytes: bytes) -> None:
                     formatted_addr = "{}[{}] ({})".format(name, addr-start, formatted_addr)
             print("  {} <= {}".format(formatted_addr, formatted_value))
 
-    if args.extract:
-        open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
+    return fw
 
 def main() -> None:
     project_dir: pathlib.Path = pathlib.Path(__file__).resolve().parents[1]
@@ -181,11 +179,16 @@ def main() -> None:
     parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller firmware image.")
     args: argparse.Namespace = parser.parse_args()
 
+    fw: asm_fw.AsmFw | prom_fw.PromFw
+
     fw_bytes: bytes = open(args.firmware, 'rb').read()
     if fw_bytes.startswith(b"_PT_"):
-        return promontory(args, fw_bytes)
+        fw = promontory(args, fw_bytes)
+    else:
+        fw = xhc(args, fw_bytes)
 
-    return xhc(args, fw_bytes)
+    if args.extract:
+        open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
 
 
 if __name__ == "__main__":
