@@ -99,20 +99,7 @@ def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     if args.extract:
         open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
 
-def main() -> None:
-    project_dir: pathlib.Path = pathlib.Path(__file__).resolve().parents[1]
-    default_data_dir: str = str(project_dir/"data")
-
-    parser: argparse.ArgumentParser = argparse.ArgumentParser()
-    parser.add_argument("-d", "--data-dir", type=str, default=default_data_dir, help="The YAML data directory. Default is \"{}\"".format(default_data_dir))
-    parser.add_argument("-e", "--extract", action="store_true", default=False, help="Extract the code from the firmware image.")
-    parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller firmware image.")
-    args: argparse.Namespace = parser.parse_args()
-
-    fw_bytes: bytes = open(args.firmware, 'rb').read()
-    if fw_bytes.startswith(b"_PT_"):
-        return promontory(args, fw_bytes)
-
+def xhc(args: argparse.Namespace, fw_bytes: bytes) -> None:
     fw: asm_fw.AsmFw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
     header_bytes: bytes = fw_bytes[:fw.header.len]
@@ -184,6 +171,22 @@ def main() -> None:
 
     if args.extract:
         open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
+
+def main() -> None:
+    project_dir: pathlib.Path = pathlib.Path(__file__).resolve().parents[1]
+    default_data_dir: str = str(project_dir/"data")
+
+    parser: argparse.ArgumentParser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--data-dir", type=str, default=default_data_dir, help="The YAML data directory. Default is \"{}\"".format(default_data_dir))
+    parser.add_argument("-e", "--extract", action="store_true", default=False, help="Extract the code from the firmware image.")
+    parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller firmware image.")
+    args: argparse.Namespace = parser.parse_args()
+
+    fw_bytes: bytes = open(args.firmware, 'rb').read()
+    if fw_bytes.startswith(b"_PT_"):
+        return promontory(args, fw_bytes)
+
+    return xhc(args, fw_bytes)
 
 
 if __name__ == "__main__":
