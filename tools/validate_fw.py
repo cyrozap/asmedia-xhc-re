@@ -78,6 +78,9 @@ def validate_crc32(name: str, data: bytes, expected: int) -> None:
         sys.exit(1)
     print("{} CRC32 OK! 0x{:08x}".format(name.capitalize(), exp_crc32))
 
+def format_version(version: bytes) -> str:
+    return "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version)
+
 def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     fw: prom_fw.PromFw = prom_fw.PromFw.from_bytes(fw_bytes)
 
@@ -92,9 +95,7 @@ def promontory(args: argparse.Namespace, fw_bytes: bytes) -> None:
     chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
 
     print("Chip: {}".format(chip_info.name))
-
-    version_string: str = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
-    print("Firmware version: {}".format(version_string))
+    print("Firmware version: {}".format(format_version(fw.body.firmware.version)))
 
     if args.extract:
         open('.'.join(args.firmware.split('.')[:-1]) + ".code.bin", 'wb').write(fw.body.firmware.code)
@@ -118,9 +119,7 @@ def xhc(args: argparse.Namespace, fw_bytes: bytes) -> None:
     chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
 
     print("Chip: {}".format(chip_info.name))
-
-    version_string: str = "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*fw.body.firmware.version)
-    print("Firmware version: {}".format(version_string))
+    print("Firmware version: {}".format(format_version(fw.body.firmware.version)))
 
     reg_names: list[tuple[int, int, str]] = []
     chip_data_yaml: str | None = chip_info.data_filename
