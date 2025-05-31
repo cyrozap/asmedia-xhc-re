@@ -79,11 +79,14 @@ def validate_crc32(name: str, data: bytes, expected: int) -> None:
 def format_version(version: bytes) -> str:
     return "{:02X}{:02X}{:02X}_{:02X}_{:02X}_{:02X}".format(*version)
 
+def get_chip_info(magic: str) -> ChipInfo:
+    chip_id: str = magic[:5]
+    return CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
+
 def promontory(args: argparse.Namespace, fw_bytes: bytes) -> prom_fw.PromFw:
     fw: prom_fw.PromFw = prom_fw.PromFw.from_bytes(fw_bytes)
 
-    chip_id: str = fw.body.firmware.magic[:5]
-    chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
+    chip_info: ChipInfo = get_chip_info(fw.body.firmware.magic)
 
     print("Chip: {}".format(chip_info.name))
     print("Firmware version: {}".format(format_version(fw.body.firmware.version)))
@@ -100,8 +103,7 @@ def promontory(args: argparse.Namespace, fw_bytes: bytes) -> prom_fw.PromFw:
 def xhc(args: argparse.Namespace, fw_bytes: bytes) -> asm_fw.AsmFw:
     fw: asm_fw.AsmFw = asm_fw.AsmFw.from_bytes(fw_bytes)
 
-    chip_id: str = fw.header.magic[:5]
-    chip_info: ChipInfo = CHIP_INFO.get(chip_id, ChipInfo("UNKNOWN (\"{}\")".format(chip_id), None, 0x10000))
+    chip_info: ChipInfo = get_chip_info(fw.header.magic)
 
     print("Chip: {}".format(chip_info.name))
     print("Firmware version: {}".format(format_version(fw.body.firmware.version)))
