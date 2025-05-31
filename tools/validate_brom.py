@@ -52,7 +52,10 @@ def main() -> int:
     parser.add_argument("firmware", type=str, help="The ASMedia USB 3 host controller boot ROM binary.")
     args: argparse.Namespace = parser.parse_args()
 
-    fw_bytes: bytes = open(args.firmware, 'rb').read()
+    fw_bytes: bytes
+    with open(args.firmware, "rb") as f:
+        fw_bytes = f.read()
+
     chip_magic: bytes = fw_bytes[0x87:0x87+8]
     chip_name: str = CHIPS.get(chip_magic, "Unknown magic: {!r}".format(chip_magic))
 
