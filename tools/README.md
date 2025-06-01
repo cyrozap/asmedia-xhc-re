@@ -59,6 +59,13 @@ DCBAAP: Expected 0x12345678abcdefc0, got 0x12345678abcdefc0: OK
 ```
 
 
+## [extract\_promontory\_fw.py](extract_promontory_fw.py)
+
+This is a Python script for extracting Promontory chipset firmware images from
+other files. Useful for extracting Promontory firmware images from UEFI
+firmware images.
+
+
 ## [generate\_docs.py](generate_docs.py)
 
 This is a Python script that generates XHTML documentation pages from the YAML
