@@ -18,11 +18,13 @@
   - PMEM/CODE size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
     - ASM2142/ASM3142: 96 kB (48 kB common bank + 3 × 16 kB banks)
-    - ASM3242: 112 kB (48 kB common bank + 4 × 16 kB banks)
+    - ASM3242, Prom, Prom-LP, Prom-19: 112 kB (48 kB common bank + 4 × 16 kB banks)
+    - Prom-21: 128 kB (48 kB common bank + 5 × 16 kB banks)
   - XDATA (XRAM + MMIO) size:
     - ASM1042, ASM1042A, ASM1142: 64 kB
-    - ASM2142/ASM3142, ASM3242: 128 kB (2 × 64 kB banks)
-  - Bank-switching (ASM2142/ASM3142 and ASM3242 only):
+    - ASM2142/ASM3142, ASM3242, Prom, Prom-LP, Prom-19: 128 kB (2 × 64 kB banks)
+    - Prom-21: 192 kB (3 × 64 kB banks)
+  - Bank-switching (ASM2142/ASM3142, ASM3242, Prom, Prom-LP, Prom-19, and Prom-21 only):
     - `DPX` (SFR 0x93) is used as an extra data pointer byte for the `MOVX`
       instruction. Practically, however, because XDATA addresses are only 17
       bits wide only the lowest bit of `DPX` is used.
