@@ -23,7 +23,7 @@ import argparse
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 
 import markdown  # type: ignore[import-untyped]
 import yaml  # type: ignore[import-untyped]
@@ -433,7 +433,7 @@ def gen_xhtml(filename, doc) -> bytes:
         )
     except subprocess.CalledProcessError:
         git_rev = "UNKNOWN"
-    date_string = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    date_string = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     footer = ET.SubElement(body, 'p')
     ET.SubElement(footer, 'i').text = "Generated from {} version {} on {}.".format(filename, git_rev, date_string)
 
