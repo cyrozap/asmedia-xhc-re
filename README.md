@@ -130,7 +130,7 @@ Except where otherwise noted:
 [pyyaml]: https://pyyaml.org/
 [urls]: doc/firmware-urls.txt
 [ide]: https://ide.kaitai.io/
-[ksy]: tools/asm_fw.ksy
+[ksy]: doc/fw/asm_fw.ksy
 [doc]: doc/out
 [gpl]: COPYING.txt
 [cc-by-sa]: https://creativecommons.org/licenses/by-sa/4.0/

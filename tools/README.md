@@ -19,12 +19,6 @@ Scripts for [Ghidra][ghidra] that can help with reverse engineering host
 controller firmware.
 
 
-## [asm\_fw.ksy](asm_fw.ksy)
-
-A [Kaitai Struct][kaitai] definition for the ASMedia USB host controller
-firmware image format.
-
-
 ## [asm\_tool.py](asm_tool.py)
 
 A Python library for interacting with ASMedia USB host controllers over PCIe.
@@ -87,12 +81,6 @@ and execute it without having to first write the code to flash.
 Currently only the ASM1042A, ASM1142, and ASM2142/ASM3142 are supported.
 
 
-## [prom\_fw.ksy](prom_fw.ksy)
-
-A [Kaitai Struct][kaitai] definition for the Promontory chipset firmware image
-format.
-
-
 ## [validate\_brom.py](validate_brom.py)
 
 Validates a BROM (boot ROM/mask ROM) dump by verifying the CRC-32 checksum
@@ -107,5 +95,4 @@ the sequence of config words in the header.
 
 
 [ghidra]: https://ghidra-sre.org/
-[kaitai]: https://kaitai.io/
 [data]: ../data

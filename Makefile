@@ -27,7 +27,7 @@ TOOL_TARGETS := tools/asm_fw.py tools/prom_fw.py
 
 all: $(TOOL_TARGETS)
 
-tools/%.py: tools/%.ksy
+tools/%.py: doc/fw/%.ksy
 	$(KAITAI_STRUCT_COMPILER) --target=python --outdir=$(@D) $<
 
 doc/out/%.xhtml: data/%.yaml tools/generate_docs.py
