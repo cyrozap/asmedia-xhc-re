@@ -6,10 +6,10 @@
 - CPU
   - Compatible with the MCS-51 (8051) instruction set.
   - One clock cycle per machine cycle ("1T").
-    - Instruction cycle counts match the STCmicro STC15 series with the STC-Y5
+    - Instruction cycle counts match the [Digital Core Design DP8051][dp8051]
       8051 core, with the exception of the MOVX instructions, which each seem
-      to take between 2 and 5 clock cycles. See the instruction set summary
-      starting on page 340 of [this PDF][stc] for a list of instructions and
+      to take between 2 and 5 clock cycles. See the instructions set brief
+      starting on page 7 of [this PDF][dp805x] for a list of instructions and
       their cycle counts.
   - Operating frequency (high/low):
     - ASM1042, ASM1042A: 125 MHz/62.5 MHz
@@ -158,7 +158,8 @@
        - Connected to ASM3242 pin 15.
 
 
-[stc]: https://web.archive.org/web/20200305112930/http://stcmicro.com/datasheet/STC15F2K60S2-en.pdf
+[dp8051]: https://web.archive.org/web/20260916015003/https://www.dcd.pl/product/dp8051/
+[dp805x]: https://web.archive.org/web/20201028093846if_/https://www.keil.com/dd/docs/datashts/dcd/dp805x_instr.pdf
 [ASM1042]: https://web.archive.org/web/20100830082618/http://www.asmedia.com.tw/eng/e_show_products.php?item=100&cate_index=98
 [ASM1042A]: https://web.archive.org/web/20131216093704/http://www.asmedia.com.tw/eng/e_show_products.php?cate_index=98&item=143
 [ASM1042AE]: https://web.archive.org/web/20131216094546/http://www.asmedia.com.tw/eng/e_show_products.php?cate_index=98&item=144
