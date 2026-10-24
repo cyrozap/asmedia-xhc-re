@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # validate_brom.py - A tool to validate that a boot ROM was dumped properly.
-# Copyright (C) 2021, 2024-2025  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2021, 2024-2026  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,10 @@ CHIPS: dict[bytes, str] = {
     b"2114A_FW": "ASM1142",
     b"2214A_FW": "ASM2142/ASM3142",
     b"2324A_FW": "ASM3242",
-    b"3306A_FW": "ASM3063/Prom",
-    b"3306B_FW": "ASM3063A/PromLP",
-    b"3308A_FW": "ASM3083/Prom19",
-    b"3328A_FW": "ASM3283/Prom21",
+    b"3306A_FW": "Promontory",
+    b"3306B_FW": "Promontory-LP",
+    b"3308A_FW": "Promontory-19",
+    b"3328A_FW": "Promontory-21",
 }
 
 

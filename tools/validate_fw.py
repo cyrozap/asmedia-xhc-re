@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # validate_fw.py - A tool to validate a firmware image.
-# Copyright (C) 2020-2021, 2025  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2021, 2025-2026  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -49,10 +49,10 @@ CHIP_INFO: dict[str, ChipInfo] = {
     "2114A": ChipInfo("ASM1142", "regs-asm1142.yaml", 0),
     "2214A": ChipInfo("ASM2142/ASM3142", "regs-asm2142.yaml", 0x10000),
     "2324A": ChipInfo("ASM3242", "regs-asm3242.yaml", 0x10000),
-    "3306A": ChipInfo("ASM3063/Prom", None, 0x10000),
-    "3306B": ChipInfo("ASM3063A/PromLP", None, 0x10000),
-    "3308A": ChipInfo("ASM3083/Prom19", None, 0x10000),
-    "3328A": ChipInfo("ASM3283/Prom21", None, 0x10000),
+    "3306A": ChipInfo("Promontory", None, 0x10000),
+    "3306B": ChipInfo("Promontory-LP", None, 0x10000),
+    "3308A": ChipInfo("Promontory-19", None, 0x10000),
+    "3328A": ChipInfo("Promontory-21", None, 0x10000),
 }
 
 
