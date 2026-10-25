@@ -147,9 +147,7 @@ def build_bypass_sequence(chip_info: ChipInfo) -> bytes:
 
     return data
 
-def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
-    chip_info = CHIP_INFO[chip]
-
+def build_header(chip_info: ChipInfo, sig_bypass: bool = False) -> bytes:
     data = bytes()
     # The mask ROM starts reading config words at 0x10 on older chips and at
     # 0x20 on ASM2142 and later.
@@ -167,15 +165,12 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
 
     return header
 
-def gen_body(chip: str, data: bytes) -> bytes:
-    chip_info = CHIP_INFO[chip]
-    body_magic = chip_info.body_magic
+def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
+    body = struct.pack('<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(firmware))
+    body += firmware
+    body += struct.pack('8s', chip_info.body_magic)
 
-    body = struct.pack('<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(data))
-    body += data
-    body += struct.pack('8s', body_magic)
-
-    body += trailer(data)
+    body += trailer(firmware)
 
     if chip_info.has_signature:
         # Append a null signature to enable the Kaitai Struct definition and
@@ -186,9 +181,10 @@ def gen_body(chip: str, data: bytes) -> bytes:
 
     return body
 
-def add_fw_meta(chip: str, data: bytes) -> bytes:
-    chip_info = CHIP_INFO[chip]
+def build_image(chip_info: ChipInfo, firmware: bytes, sig_bypass: bool = False) -> bytes:
+    return build_header(chip_info, sig_bypass) + build_body(chip_info, firmware)
 
+def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
     data = bytearray(data)
     bcd_timestamp = bytes.fromhex(datetime.utcnow().strftime('%y%m%d%H%M%S'))
     struct.pack_into('6s', data, FW_VERSION_OFFSET, bcd_timestamp)
@@ -206,13 +202,12 @@ def main() -> int:
     args = parser.parse_args()
 
     binary = open(args.input, 'rb').read()
+    chip_info = CHIP_INFO[args.chip]
 
     if args.type == "bin":
-        image = add_fw_meta(args.chip, binary)
+        image = add_fw_meta(chip_info, binary)
     elif args.type == "image":
-        header = gen_header(args.chip, args.sig_bypass)
-        body = gen_body(args.chip, binary)
-        image = header + body
+        image = build_image(chip_info, binary, args.sig_bypass)
     else:
         print("Error: Unrecognized image type: {}".format(args.type))
         return 1
