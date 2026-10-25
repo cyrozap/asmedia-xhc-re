@@ -98,7 +98,15 @@ def trailer(data: bytes) -> bytes:
 def encode_mmio_write(addr: int, size: int, value: int) -> bytes:
     return struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, size, addr, value)
 
-def build_bypass_sequence(chip_info: ChipInfo) -> bytes:
+def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
+    if firmware_size > BYPASS_READ_LEN:
+        raise FirmwareBuildError(
+            "{} firmware is too large for the signature check bypass: "
+            "{} bytes (maximum is {})".format(
+                chip_info.name, firmware_size, BYPASS_READ_LEN
+            )
+        )
+
     # Bypass the signature check via ROM config MMIO writes.
     xram_addr = 0x000000  # Always zero.
     data_len = BYPASS_READ_LEN  # Limited by the flash read speed.
@@ -110,6 +118,21 @@ def build_bypass_sequence(chip_info: ChipInfo) -> bytes:
         BYPASS_HEADER_SIZE
         - (HEADER_FIXED_SIZE + config_len + CONFIG_WORD_SIZE * cc_words)
     ) // CONFIG_WORD_SIZE
+    if delay_writes < len(BYPASS_LOADING_STRING):
+        raise FirmwareBuildError(
+            "not enough room in the {} image header for the loading message".format(
+                chip_info.name
+            )
+        )
+
+    header_len = HEADER_FIXED_SIZE + config_len + CONFIG_WORD_SIZE * (cc_words + delay_writes)
+    if header_len != BYPASS_HEADER_SIZE:
+        raise FirmwareBuildError(
+            "cannot pad the {} image header to {} bytes".format(
+                chip_info.name, BYPASS_HEADER_SIZE
+            )
+        )
+
     firmware_flash_addr = (
         HEADER_FIXED_SIZE
         + config_len
@@ -151,14 +174,14 @@ def build_bypass_sequence(chip_info: ChipInfo) -> bytes:
 
     return data
 
-def build_header(chip_info: ChipInfo, sig_bypass: bool = False) -> bytes:
+def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = False) -> bytes:
     data = bytes()
     # The mask ROM starts reading config words at 0x10 on older chips and at
     # 0x20 on ASM2142 and later.
     data += bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
 
     if chip_info.supports_sig_bypass and sig_bypass:
-        data += build_bypass_sequence(chip_info)
+        data += build_bypass_sequence(chip_info, firmware_size)
 
     header = struct.pack(
         '<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), chip_info.header_magic
@@ -197,7 +220,7 @@ def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
     return body
 
 def build_image(chip_info: ChipInfo, firmware: bytes, sig_bypass: bool = False) -> bytes:
-    return build_header(chip_info, sig_bypass) + build_body(chip_info, firmware)
+    return build_header(chip_info, len(firmware), sig_bypass) + build_body(chip_info, firmware)
 
 def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
     required_len = FW_MAGIC_OFFSET + len(chip_info.body_magic)
