@@ -76,7 +76,7 @@ FIXED_TIMESTAMP = bytes.fromhex("260102030405")
 def checksum8(data: bytes) -> int:
     return sum(data) & 0xff
 
-def run_generator(data: bytes, args: list[str]) -> bytes:
+def run_generator_process(data: bytes, args: list[str]) -> tuple[subprocess.CompletedProcess, bytes | None]:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_dir = pathlib.Path(tmp)
         input_path = tmp_dir / "input.bin"
@@ -87,10 +87,22 @@ def run_generator(data: bytes, args: list[str]) -> bytes:
             [sys.executable, str(SCRIPT), *args, "-o", str(output_path), str(input_path)],
             capture_output=True,
         )
-        if proc.returncode != 0:
-            raise RuntimeError("make_image.py failed: {}".format(proc.stderr.decode(errors="replace")))
+        output = output_path.read_bytes() if proc.returncode == 0 else None
 
-        return output_path.read_bytes()
+        return proc, output
+
+def run_generator(data: bytes, args: list[str]) -> bytes:
+    proc, output = run_generator_process(data, args)
+    if proc.returncode != 0:
+        raise RuntimeError("make_image.py failed: {}".format(proc.stderr.decode(errors="replace")))
+    assert output is not None
+    return output
+
+def run_generator_error(data: bytes, args: list[str]) -> str:
+    proc, _ = run_generator_process(data, args)
+    if proc.returncode == 0:
+        raise AssertionError("make_image.py unexpectedly succeeded")
+    return proc.stderr.decode(errors="replace")
 
 def normalize_timestamp(data: bytes) -> bytes:
     data = bytearray(data)
@@ -180,6 +192,31 @@ class GeneratedImageFormatTest(unittest.TestCase):
         }
         flash_addr = writes[0x506b] | (writes[0x506d] << 16)
         self.assertEqual(flash_addr, expected_flash_addr)
+
+
+class ValidationTest(unittest.TestCase):
+    def assert_rejected(self, data: bytes, args: list[str], expected: str) -> None:
+        stderr = run_generator_error(data, args)
+        self.assertIn(expected, stderr)
+        self.assertNotIn("Traceback", stderr)
+
+    def test_empty_image(self) -> None:
+        self.assert_rejected(b"", ["-t", "image", "-c", "ASM1142"], "is empty")
+
+    def test_body_length_limit(self) -> None:
+        max_len = (1 << 16) - 1
+        for chip in ("ASM1042", "ASM1042A", "ASM1142"):
+            with self.subTest(chip=chip):
+                run_generator(bytes(max_len), ["-t", "image", "-c", chip])
+                self.assert_rejected(bytes(max_len + 1), ["-t", "image", "-c", chip], "too large")
+
+    def test_body_length_accepts_64k_with_u4(self) -> None:
+        run_generator(bytes(1 << 16), ["-t", "image", "-c", "ASM2142"])
+
+    def test_raw_minimum_length(self) -> None:
+        required_len = 0x87 + 8
+        run_generator(bytes(required_len), ["-t", "bin", "-c", "ASM1142"])
+        self.assert_rejected(bytes(required_len - 1), ["-t", "bin", "-c", "ASM1142"], "too small")
 
 
 if __name__ == "__main__":

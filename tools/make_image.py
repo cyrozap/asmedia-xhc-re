@@ -85,6 +85,10 @@ CHIP_INFO: dict[str, ChipInfo] = {
 }
 
 
+class FirmwareBuildError(Exception):
+    pass
+
+
 def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
@@ -166,6 +170,17 @@ def build_header(chip_info: ChipInfo, sig_bypass: bool = False) -> bytes:
     return header
 
 def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
+    if not firmware:
+        raise FirmwareBuildError("{} firmware is empty".format(chip_info.name))
+
+    max_len = (1 << (8 * chip_info.body_len_width)) - 1
+    if len(firmware) > max_len:
+        raise FirmwareBuildError(
+            "{} firmware is too large: {} bytes (maximum is {})".format(
+                chip_info.name, len(firmware), max_len
+            )
+        )
+
     body = struct.pack('<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(firmware))
     body += firmware
     body += struct.pack('8s', chip_info.body_magic)
@@ -185,6 +200,14 @@ def build_image(chip_info: ChipInfo, firmware: bytes, sig_bypass: bool = False) 
     return build_header(chip_info, sig_bypass) + build_body(chip_info, firmware)
 
 def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
+    required_len = FW_MAGIC_OFFSET + len(chip_info.body_magic)
+    if len(data) < required_len:
+        raise FirmwareBuildError(
+            "{} firmware is too small: {} bytes (minimum is {})".format(
+                chip_info.name, len(data), required_len
+            )
+        )
+
     data = bytearray(data)
     bcd_timestamp = bytes.fromhex(datetime.utcnow().strftime('%y%m%d%H%M%S'))
     struct.pack_into('6s', data, FW_VERSION_OFFSET, bcd_timestamp)
@@ -204,12 +227,16 @@ def main() -> int:
     binary = open(args.input, 'rb').read()
     chip_info = CHIP_INFO[args.chip]
 
-    if args.type == "bin":
-        image = add_fw_meta(chip_info, binary)
-    elif args.type == "image":
-        image = build_image(chip_info, binary, args.sig_bypass)
-    else:
-        print("Error: Unrecognized image type: {}".format(args.type))
+    try:
+        if args.type == "bin":
+            image = add_fw_meta(chip_info, binary)
+        elif args.type == "image":
+            image = build_image(chip_info, binary, args.sig_bypass)
+        else:
+            print("Error: Unrecognized image type: {}".format(args.type))
+            return 1
+    except FirmwareBuildError as e:
+        print("Error: {}".format(e), file=sys.stderr)
         return 1
 
     output = open(args.output, 'wb')
