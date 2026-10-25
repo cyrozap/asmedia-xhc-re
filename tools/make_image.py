@@ -21,13 +21,13 @@
 import argparse
 import struct
 import sys
+from dataclasses import dataclass
 from datetime import datetime
 from zlib import crc32
 
 
 HEADER_FIXED_SIZE = 16
 CONFIG_WORD_SIZE = 8
-CONFIG_PAD_SIZE = 16
 CHECKSUM_SIZE = 1
 CRC_SIZE = 4
 TRAILER_SIZE = CHECKSUM_SIZE + CRC_SIZE
@@ -35,6 +35,8 @@ TRAILER_SIZE = CHECKSUM_SIZE + CRC_SIZE
 FW_VERSION_OFFSET = 0x80
 FW_MAGIC_OFFSET = 0x87
 SIGNATURE_SIZE = 0x20
+
+BODY_LEN_FORMATS = {2: "H", 4: "I"}
 
 BYPASS_HEADER_SIZE = 0x400
 BYPASS_READ_LEN = 0x008000
@@ -60,12 +62,26 @@ CPU_MODE_NEXT = 0x5040
 CPU_EXEC_CTRL = 0x5042
 
 
-CHIP_INFO = {
-    "ASM1042": ("U2104_RCFG", "U2104_FW", "H"),
-    "ASM1042A": ("2104B_RCFG", "2104B_FW", "H"),
-    "ASM1142": ("2114A_RCFG", "2114A_FW", "H"),
-    "ASM2142": ("2214A_RCFG", "2214A_FW", "I"),
-    "ASM3242": ("2324A_RCFG", "2324A_FW", "I"),
+@dataclass(frozen=True)
+class ChipInfo:
+    name: str
+    header_magic: bytes
+    body_magic: bytes
+    body_len_width: int  # Width in bytes of the body length field.
+    config_offset: int  # Offset at which the ROM starts reading config words.
+    has_signature: bool = False
+    supports_sig_bypass: bool = False
+
+
+CHIP_INFO: dict[str, ChipInfo] = {
+    "ASM1042": ChipInfo("ASM1042", b"U2104_RCFG", b"U2104_FW", 2, 0x10),
+    "ASM1042A": ChipInfo("ASM1042A", b"2104B_RCFG", b"2104B_FW", 2, 0x10),
+    "ASM1142": ChipInfo("ASM1142", b"2114A_RCFG", b"2114A_FW", 2, 0x10),
+    "ASM2142": ChipInfo("ASM2142", b"2214A_RCFG", b"2214A_FW", 4, 0x20),
+    "ASM3242": ChipInfo(
+        "ASM3242", b"2324A_RCFG", b"2324A_FW", 4, 0x20,
+        has_signature=True, supports_sig_bypass=True,
+    ),
 }
 
 
@@ -73,14 +89,14 @@ def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
 def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
-    header_magic = CHIP_INFO[chip][0]
+    chip_info = CHIP_INFO[chip]
 
     data = bytes()
-    if CHIP_INFO[chip][2] == "I":
-        # Config words start at 0x20 on ASM2142 and later.
-        data += bytes([0] * CONFIG_PAD_SIZE)
+    # The mask ROM starts reading config words at 0x10 on older chips and at
+    # 0x20 on ASM2142 and later.
+    data += bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
 
-    if chip == "ASM3242" and sig_bypass:
+    if chip_info.supports_sig_bypass and sig_bypass:
         # Bypass the signature check via ROM config MMIO writes.
         xram_addr = 0x000000  # Always zero.
         data_len = BYPASS_READ_LEN  # Limited by the flash read speed.
@@ -95,7 +111,7 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
             + len(data)
             + CONFIG_WORD_SIZE * (cc_words + delay_writes)
             + TRAILER_SIZE
-            + struct.calcsize('<' + CHIP_INFO[chip][2])
+            + chip_info.body_len_width
         )
 
         writes_pre_delay = (
@@ -128,7 +144,9 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
         for addr, count, value in writes_post_delay:
             data += struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, count, addr, value)
 
-    header = struct.pack('<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), header_magic.encode('ASCII'))
+    header = struct.pack(
+        '<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), chip_info.header_magic
+    )
     header += data
 
     csum = checksum(header)
@@ -139,10 +157,9 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
 
 def gen_body(chip: str, data: bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
-    body_magic = chip_info[1].encode('ASCII')
-    body_len_type = chip_info[2]
+    body_magic = chip_info.body_magic
 
-    body = struct.pack('<' + body_len_type, len(data))
+    body = struct.pack('<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(data))
     body += data
     body += struct.pack('8s', body_magic)
 
@@ -150,7 +167,7 @@ def gen_body(chip: str, data: bytes) -> bytes:
     crc = crc32(data)
     body += struct.pack('<BI', csum, crc)
 
-    if body_magic == b"2324A_FW":
+    if chip_info.has_signature:
         # Append a null signature to enable the Kaitai Struct definition and
         # firmware validation script to work on custom ASM3242 firmware
         # images.
@@ -161,12 +178,11 @@ def gen_body(chip: str, data: bytes) -> bytes:
 
 def add_fw_meta(chip: str, data: bytes) -> bytes:
     chip_info = CHIP_INFO[chip]
-    body_magic = chip_info[1].encode('ASCII')
 
     data = bytearray(data)
     bcd_timestamp = bytes.fromhex(datetime.utcnow().strftime('%y%m%d%H%M%S'))
     struct.pack_into('6s', data, FW_VERSION_OFFSET, bcd_timestamp)
-    struct.pack_into('8s', data, FW_MAGIC_OFFSET, body_magic)
+    struct.pack_into('8s', data, FW_MAGIC_OFFSET, chip_info.body_magic)
 
     return bytes(data)
 
