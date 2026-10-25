@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2020-2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2021, 2026  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,10 +53,10 @@ monitor.ihx: main.rel sfr.rel vectors.rel build_info.rel
 	$(OBJCOPY) -I ihex -O binary $< $@
 
 $(BINARIES): monitor.bin
-	./make_image.py -t bin -c $$(echo $@ | sed -e 's/monitor-\([0-9a-z]\+\)\.bin/\1/g' | tr a-z A-Z) -o $@ $<
+	../tools/make_image.py -t bin -c $$(echo $@ | sed -e 's/monitor-\([0-9a-z]\+\)\.bin/\1/g' | tr a-z A-Z) -o $@ $<
 
 %.img: %.bin
-	./make_image.py -t image -c $$(echo $@ | sed -e 's/monitor-\([0-9a-z]\+\)\.img/\1/g' | tr a-z A-Z) -o $@ $<
+	../tools/make_image.py -t image -c $$(echo $@ | sed -e 's/monitor-\([0-9a-z]\+\)\.img/\1/g' | tr a-z A-Z) -o $@ $<
 
 %.flash: %.img
 	cp $< $@

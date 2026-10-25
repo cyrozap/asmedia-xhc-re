@@ -81,6 +81,17 @@ and execute it without having to first write the code to flash.
 Currently only the ASM1042A, ASM1142, and ASM2142/ASM3142 are supported.
 
 
+## [make\_image.py](make_image.py)
+
+This Python script wraps a raw firmware binary in the ASMedia xHC firmware
+image format. With `-t bin`, it adds the firmware version and magic string to a
+raw binary, and with `-t image` it additionally generates the header that the
+flash loader expects. The header can optionally contain MMIO writes that bypass
+the ASM3242 signature check.
+
+The [monitor][monitor] build uses this script to produce flashable images.
+
+
 ## [validate\_brom.py](validate_brom.py)
 
 Validates a BROM (boot ROM/mask ROM) dump by verifying the CRC-32 checksum
@@ -96,3 +107,4 @@ the sequence of config words in the header.
 
 [ghidra]: https://ghidra-sre.org/
 [data]: ../data
+[monitor]: ../monitor
