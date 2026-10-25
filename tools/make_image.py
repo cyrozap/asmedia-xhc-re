@@ -175,6 +175,11 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
     return data
 
 def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = False) -> bytes:
+    if sig_bypass and not chip_info.supports_sig_bypass:
+        raise FirmwareBuildError(
+            "{} does not support the signature check bypass".format(chip_info.name)
+        )
+
     data = bytes()
     # The mask ROM starts reading config words at 0x10 on older chips and at
     # 0x20 on ASM2142 and later.
@@ -251,6 +256,9 @@ def main() -> int:
     chip_info = CHIP_INFO[args.chip]
 
     try:
+        if args.sig_bypass and args.type == "bin":
+            raise FirmwareBuildError("the signature check bypass only applies to images")
+
         if args.type == "bin":
             image = add_fw_meta(chip_info, binary)
         elif args.type == "image":

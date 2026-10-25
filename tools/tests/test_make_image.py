@@ -223,6 +223,18 @@ class ValidationTest(unittest.TestCase):
         run_generator(bytes(0x8000), args)
         self.assert_rejected(bytes(0x8001), args, "too large for the signature check bypass")
 
+    def test_sig_bypass_unsupported_chip(self) -> None:
+        self.assert_rejected(
+            bytes(16), ["-t", "image", "-c", "ASM1142", "-s"],
+            "does not support the signature check bypass",
+        )
+
+    def test_sig_bypass_requires_image(self) -> None:
+        self.assert_rejected(
+            bytes(0x100), ["-t", "bin", "-c", "ASM3242", "-s"],
+            "only applies to images",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
