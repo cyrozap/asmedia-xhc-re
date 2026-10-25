@@ -249,8 +249,9 @@ def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
 def write_output(path: pathlib.Path, data: bytes) -> None:
     # Write to a temporary file in the destination directory and rename it, so
     # an interrupted or failed build cannot leave a truncated image behind.
-    fd, tmp_path = tempfile.mkstemp(dir=path.resolve().parent)
+    tmp_path = None
     try:
+        fd, tmp_path = tempfile.mkstemp(dir=path.resolve().parent)
         with os.fdopen(fd, 'wb') as output:
             output.write(data)
 
@@ -259,12 +260,15 @@ def write_output(path: pathlib.Path, data: bytes) -> None:
         os.chmod(tmp_path, 0o666 & ~umask)
 
         os.replace(tmp_path, path)
-    except BaseException:
-        try:
-            os.unlink(tmp_path)
-        except FileNotFoundError:
-            pass
-        raise
+        tmp_path = None
+    except OSError as e:
+        raise OSError(e.errno, e.strerror, str(path)) from e
+    finally:
+        if tmp_path is not None:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(

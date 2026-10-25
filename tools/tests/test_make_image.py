@@ -264,6 +264,7 @@ class ValidationTest(unittest.TestCase):
         stderr = proc.stderr.decode(errors="replace")
         self.assertEqual(proc.returncode, 1)
         self.assertIn("Error:", stderr)
+        self.assertIn(str(tmp_dir), stderr)
         self.assertNotIn("Traceback", stderr)
 
     def test_failed_build_preserves_existing_output(self) -> None:
