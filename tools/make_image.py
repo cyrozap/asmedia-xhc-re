@@ -286,11 +286,8 @@ def main(argv: list[str] | None = None) -> int:
 
         if args.type == "bin":
             image = add_fw_meta(chip_info, binary)
-        elif args.type == "image":
-            image = build_image(chip_info, binary, args.sig_bypass)
         else:
-            print("Error: Unrecognized image type: {}".format(args.type))
-            return 1
+            image = build_image(chip_info, binary, args.sig_bypass)
 
         write_output(args.output, image)
     except FirmwareBuildError as e:
