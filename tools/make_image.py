@@ -267,12 +267,41 @@ def write_output(path: pathlib.Path, data: bytes) -> None:
         raise
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=pathlib.Path, help="Input binary.")
-    parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
-    parser.add_argument("-o", "--output", type=pathlib.Path, default=pathlib.Path("monitor.img"), help="Output image.")
-    parser.add_argument("-c", "--chip", type=str, choices=CHIP_INFO.keys(), default="ASM1142", help="Chip to target.")
-    parser.add_argument("-s", "--sig-bypass", default=False, action="store_true", help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
+    parser = argparse.ArgumentParser(
+        description="Build an ASMedia xHC firmware image.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "input",
+        type=pathlib.Path,
+        metavar="INPUT",
+        help="Raw firmware binary to read.",
+    )
+    parser.add_argument(
+        "-t", "--type",
+        choices=["bin", "image"],
+        default="image",
+        help="\"bin\" stamps the version and magic string on raw firmware; "
+             "\"image\" builds a complete flash image.",
+    )
+    parser.add_argument(
+        "-o", "--output",
+        type=pathlib.Path,
+        default=pathlib.Path("monitor.img"),
+        help="Output file.",
+    )
+    parser.add_argument(
+        "-c", "--chip",
+        choices=CHIP_INFO.keys(),
+        default="ASM1142",
+        help="Chip to target.",
+    )
+    parser.add_argument(
+        "-s", "--sig-bypass",
+        action="store_true",
+        help="Add MMIO writes to the image header that bypass the ASM3242 "
+             "signature check (ASM3242 images only).",
+    )
     args = parser.parse_args(argv)
 
     try:
