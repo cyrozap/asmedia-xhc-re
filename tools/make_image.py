@@ -170,15 +170,20 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
     loading_string = BYPASS_LOADING_STRING
     loading_string += b"." * (delay_writes - len(loading_string))
 
-    data = bytes()
-    for addr, count, value in writes_pre_delay:
-        data += encode_mmio_write(addr, count, value)
-    for char in loading_string:
-        data += encode_mmio_write(BYPASS_LOADING_ADDR, 4, char << 8)
-    for addr, count, value in writes_post_delay:
-        data += encode_mmio_write(addr, count, value)
+    writes = [
+        encode_mmio_write(addr, count, value)
+        for addr, count, value in writes_pre_delay
+    ]
+    writes.extend(
+        encode_mmio_write(BYPASS_LOADING_ADDR, 4, char << 8)
+        for char in loading_string
+    )
+    writes.extend(
+        encode_mmio_write(addr, count, value)
+        for addr, count, value in writes_post_delay
+    )
 
-    return data
+    return b"".join(writes)
 
 
 def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = False) -> bytes:
@@ -187,10 +192,9 @@ def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = Fal
             "{} does not support the signature check bypass".format(chip_info.name)
         )
 
-    data = bytes()
     # The mask ROM starts reading config words at 0x10 on older chips and at
     # 0x20 on ASM2142 and later.
-    data += bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
+    data = bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
 
     if chip_info.supports_sig_bypass and sig_bypass:
         data += build_bypass_sequence(chip_info, firmware_size)
@@ -200,9 +204,7 @@ def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = Fal
     )
     header += data
 
-    header += trailer(header)
-
-    return header
+    return header + trailer(header)
 
 
 def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
@@ -217,20 +219,23 @@ def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
             )
         )
 
-    body = struct.pack('<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(firmware))
-    body += firmware
-    body += struct.pack('8s', chip_info.body_magic)
-
-    body += trailer(firmware)
+    parts = [
+        struct.pack(
+            '<' + BODY_LEN_FORMATS[chip_info.body_len_width], len(firmware)
+        ),
+        firmware,
+        struct.pack('8s', chip_info.body_magic),
+        trailer(firmware),
+    ]
 
     if chip_info.has_signature:
         # Append a null signature to enable the Kaitai Struct definition and
         # firmware validation script to work on custom ASM3242 firmware
         # images.
-        body += struct.pack('BBB', 0, 3 << 1, 0x00 >> 2)
-        body += bytes(SIGNATURE_SIZE)
+        parts.append(struct.pack('BBB', 0, 3 << 1, 0x00 >> 2))
+        parts.append(bytes(SIGNATURE_SIZE))
 
-    return body
+    return b"".join(parts)
 
 
 def build_image(chip_info: ChipInfo, firmware: bytes, sig_bypass: bool = False) -> bytes:
