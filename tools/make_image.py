@@ -91,6 +91,9 @@ def checksum(data: bytes) -> int:
 def trailer(data: bytes) -> bytes:
     return struct.pack('<BI', checksum(data), crc32(data))
 
+def encode_mmio_write(addr: int, size: int, value: int) -> bytes:
+    return struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, size, addr, value)
+
 def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     chip_info = CHIP_INFO[chip]
 
@@ -141,11 +144,11 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
         loading_string += b"." * (delay_writes - len(loading_string))
 
         for addr, count, value in writes_pre_delay:
-            data += struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, count, addr, value)
+            data += encode_mmio_write(addr, count, value)
         for char in loading_string:
-            data += struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, 4, BYPASS_LOADING_ADDR, char << 8)
+            data += encode_mmio_write(BYPASS_LOADING_ADDR, 4, char << 8)
         for addr, count, value in writes_post_delay:
-            data += struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, count, addr, value)
+            data += encode_mmio_write(addr, count, value)
 
     header = struct.pack(
         '<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), chip_info.header_magic
