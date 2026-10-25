@@ -94,6 +94,59 @@ def trailer(data: bytes) -> bytes:
 def encode_mmio_write(addr: int, size: int, value: int) -> bytes:
     return struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, size, addr, value)
 
+def build_bypass_sequence(chip_info: ChipInfo) -> bytes:
+    # Bypass the signature check via ROM config MMIO writes.
+    xram_addr = 0x000000  # Always zero.
+    data_len = BYPASS_READ_LEN  # Limited by the flash read speed.
+
+    config_len = chip_info.config_offset - HEADER_FIXED_SIZE
+
+    cc_words = 14
+    delay_writes = (
+        BYPASS_HEADER_SIZE
+        - (HEADER_FIXED_SIZE + config_len + CONFIG_WORD_SIZE * cc_words)
+    ) // CONFIG_WORD_SIZE
+    firmware_flash_addr = (
+        HEADER_FIXED_SIZE
+        + config_len
+        + CONFIG_WORD_SIZE * (cc_words + delay_writes)
+        + TRAILER_SIZE
+        + chip_info.body_len_width
+    )
+
+    writes_pre_delay = (
+        (FLASH_CON_DATA_LEN, 2, data_len & 0xffff),
+        (FLASH_CON_DATA_LEN_HI, 1, (data_len >> 16) & 0xff),
+        (FLASH_CON_DIV, 1, 0x01),
+        (FLASH_CON_ADDR_LEN, 1, 0x03),
+        (FLASH_CON_JEDEC_CMD, 1, 0x03),
+        (FLASH_CON_MODE, 1, 0x00),
+        (FLASH_CON_MEMSEL, 1, 0x01),
+        (FLASH_CON_XRAM_ADDR, 2, xram_addr & 0xffff),
+        (FLASH_CON_XRAM_ADDR_HI, 1, (xram_addr >> 16) & 0xff),
+        (FLASH_CON_FLASH_ADDR, 2, firmware_flash_addr & 0xffff),
+        (FLASH_CON_FLASH_ADDR_HI, 1, (firmware_flash_addr >> 16) & 0xff),
+        (FLASH_CON_CSR, 1, 0x04 | 0x08 | 0x01),
+    )
+
+    writes_post_delay = (
+        (CPU_MODE_NEXT, 1, 0x03),
+        (CPU_EXEC_CTRL, 1, 0x01),
+    )
+
+    loading_string = BYPASS_LOADING_STRING
+    loading_string += b"." * (delay_writes - len(loading_string))
+
+    data = bytes()
+    for addr, count, value in writes_pre_delay:
+        data += encode_mmio_write(addr, count, value)
+    for char in loading_string:
+        data += encode_mmio_write(BYPASS_LOADING_ADDR, 4, char << 8)
+    for addr, count, value in writes_post_delay:
+        data += encode_mmio_write(addr, count, value)
+
+    return data
+
 def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     chip_info = CHIP_INFO[chip]
 
@@ -103,52 +156,7 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     data += bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
 
     if chip_info.supports_sig_bypass and sig_bypass:
-        # Bypass the signature check via ROM config MMIO writes.
-        xram_addr = 0x000000  # Always zero.
-        data_len = BYPASS_READ_LEN  # Limited by the flash read speed.
-
-        cc_words = 14
-        delay_writes = (
-            BYPASS_HEADER_SIZE
-            - (HEADER_FIXED_SIZE + len(data) + CONFIG_WORD_SIZE * cc_words)
-        ) // CONFIG_WORD_SIZE
-        firmware_flash_addr = (
-            HEADER_FIXED_SIZE
-            + len(data)
-            + CONFIG_WORD_SIZE * (cc_words + delay_writes)
-            + TRAILER_SIZE
-            + chip_info.body_len_width
-        )
-
-        writes_pre_delay = (
-            (FLASH_CON_DATA_LEN, 2, data_len & 0xffff),
-            (FLASH_CON_DATA_LEN_HI, 1, (data_len >> 16) & 0xff),
-            (FLASH_CON_DIV, 1, 0x01),
-            (FLASH_CON_ADDR_LEN, 1, 0x03),
-            (FLASH_CON_JEDEC_CMD, 1, 0x03),
-            (FLASH_CON_MODE, 1, 0x00),
-            (FLASH_CON_MEMSEL, 1, 0x01),
-            (FLASH_CON_XRAM_ADDR, 2, xram_addr & 0xffff),
-            (FLASH_CON_XRAM_ADDR_HI, 1, (xram_addr >> 16) & 0xff),
-            (FLASH_CON_FLASH_ADDR, 2, firmware_flash_addr & 0xffff),
-            (FLASH_CON_FLASH_ADDR_HI, 1, (firmware_flash_addr >> 16) & 0xff),
-            (FLASH_CON_CSR, 1, 0x04 | 0x08 | 0x01),
-        )
-
-        writes_post_delay = (
-            (CPU_MODE_NEXT, 1, 0x03),
-            (CPU_EXEC_CTRL, 1, 0x01),
-        )
-
-        loading_string = BYPASS_LOADING_STRING
-        loading_string += b"." * (delay_writes - len(loading_string))
-
-        for addr, count, value in writes_pre_delay:
-            data += encode_mmio_write(addr, count, value)
-        for char in loading_string:
-            data += encode_mmio_write(BYPASS_LOADING_ADDR, 4, char << 8)
-        for addr, count, value in writes_post_delay:
-            data += encode_mmio_write(addr, count, value)
+        data += build_bypass_sequence(chip_info)
 
     header = struct.pack(
         '<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), chip_info.header_magic
