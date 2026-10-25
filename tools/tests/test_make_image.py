@@ -76,6 +76,9 @@ FIXED_TIMESTAMP = bytes.fromhex("260102030405")
 def checksum8(data: bytes) -> int:
     return sum(data) & 0xff
 
+def run_cli(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run([sys.executable, str(SCRIPT), *args], capture_output=True)
+
 def run_generator_process(data: bytes, args: list[str]) -> tuple[subprocess.CompletedProcess, bytes | None]:
     with tempfile.TemporaryDirectory() as tmp:
         tmp_dir = pathlib.Path(tmp)
@@ -83,10 +86,7 @@ def run_generator_process(data: bytes, args: list[str]) -> tuple[subprocess.Comp
         output_path = tmp_dir / "output.bin"
 
         input_path.write_bytes(data)
-        proc = subprocess.run(
-            [sys.executable, str(SCRIPT), *args, "-o", str(output_path), str(input_path)],
-            capture_output=True,
-        )
+        proc = run_cli(*args, "-o", str(output_path), str(input_path))
         output = output_path.read_bytes() if proc.returncode == 0 else None
 
         return proc, output
@@ -234,6 +234,50 @@ class ValidationTest(unittest.TestCase):
             bytes(0x100), ["-t", "bin", "-c", "ASM3242", "-s"],
             "only applies to images",
         )
+
+    def test_missing_input(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = pathlib.Path(tmp)
+            proc = run_cli(
+                "-t", "image", "-c", "ASM1142",
+                "-o", str(tmp_dir / "output.img"), str(tmp_dir / "missing.bin"),
+            )
+
+        stderr = proc.stderr.decode(errors="replace")
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("Error:", stderr)
+        self.assertNotIn("Traceback", stderr)
+
+    def test_unwritable_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = pathlib.Path(tmp)
+            input_path = tmp_dir / "input.bin"
+            input_path.write_bytes(PAYLOAD)
+            proc = run_cli(
+                "-t", "image", "-c", "ASM1142",
+                "-o", str(tmp_dir), str(input_path),
+            )
+
+        stderr = proc.stderr.decode(errors="replace")
+        self.assertEqual(proc.returncode, 1)
+        self.assertIn("Error:", stderr)
+        self.assertNotIn("Traceback", stderr)
+
+    def test_failed_build_preserves_existing_output(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = pathlib.Path(tmp)
+            input_path = tmp_dir / "input.bin"
+            input_path.write_bytes(b"")
+            output_path = tmp_dir / "output.img"
+            output_path.write_bytes(b"sentinel")
+
+            proc = run_cli(
+                "-t", "image", "-c", "ASM1142",
+                "-o", str(output_path), str(input_path),
+            )
+
+            self.assertEqual(proc.returncode, 1)
+            self.assertEqual(output_path.read_bytes(), b"sentinel")
 
 
 if __name__ == "__main__":

@@ -19,8 +19,10 @@
 
 
 import argparse
+import os
 import struct
 import sys
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime
 from zlib import crc32
@@ -243,6 +245,27 @@ def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
 
     return bytes(data)
 
+def write_output(path: str, data: bytes) -> None:
+    # Write to a temporary file in the destination directory and rename it, so
+    # an interrupted or failed build cannot leave a truncated image behind.
+    directory = os.path.dirname(os.path.abspath(path))
+    fd, tmp_path = tempfile.mkstemp(dir=directory)
+    try:
+        with os.fdopen(fd, 'wb') as output:
+            output.write(data)
+
+        umask = os.umask(0)
+        os.umask(umask)
+        os.chmod(tmp_path, 0o666 & ~umask)
+
+        os.replace(tmp_path, path)
+    except BaseException:
+        try:
+            os.unlink(tmp_path)
+        except FileNotFoundError:
+            pass
+        raise
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=str, help="Input binary.")
@@ -252,10 +275,12 @@ def main() -> int:
     parser.add_argument("-s", "--sig-bypass", default=False, action="store_true", help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
     args = parser.parse_args()
 
-    binary = open(args.input, 'rb').read()
-    chip_info = CHIP_INFO[args.chip]
-
     try:
+        with open(args.input, 'rb') as input_file:
+            binary = input_file.read()
+
+        chip_info = CHIP_INFO[args.chip]
+
         if args.sig_bypass and args.type == "bin":
             raise FirmwareBuildError("the signature check bypass only applies to images")
 
@@ -266,13 +291,14 @@ def main() -> int:
         else:
             print("Error: Unrecognized image type: {}".format(args.type))
             return 1
+
+        write_output(args.output, image)
     except FirmwareBuildError as e:
         print("Error: {}".format(e), file=sys.stderr)
         return 1
-
-    output = open(args.output, 'wb')
-    output.write(image)
-    output.close()
+    except OSError as e:
+        print("Error: {}".format(e), file=sys.stderr)
+        return 1
 
     return 0
 
