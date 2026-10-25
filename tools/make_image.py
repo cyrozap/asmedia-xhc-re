@@ -64,6 +64,8 @@ FLASH_CON_CSR = 0x506e
 CPU_MODE_NEXT = 0x5040
 CPU_EXEC_CTRL = 0x5042
 
+HARDWARE_ACCESS = 0x5087
+
 
 @dataclass(frozen=True)
 class ChipInfo:
@@ -74,6 +76,7 @@ class ChipInfo:
     config_offset: int  # Offset at which the ROM starts reading config words.
     has_signature: bool = False
     supports_sig_bypass: bool = False
+    enable_hardware_access: bool = False
 
 
 CHIP_INFO: dict[str, ChipInfo] = {
@@ -84,6 +87,7 @@ CHIP_INFO: dict[str, ChipInfo] = {
     "ASM3242": ChipInfo(
         "ASM3242", b"2324A_RCFG", b"2324A_FW", 4, 0x20,
         has_signature=True, supports_sig_bypass=True,
+        enable_hardware_access=True,
     ),
 }
 
@@ -104,7 +108,9 @@ def encode_mmio_write(addr: int, size: int, value: int) -> bytes:
     return struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, size, addr, value)
 
 
-def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
+def build_bypass_sequence(
+    chip_info: ChipInfo, firmware_size: int, header_prefix_size: int
+) -> bytes:
     if firmware_size > BYPASS_READ_LEN:
         raise FirmwareBuildError(
             "{} firmware is too large for the signature check bypass: "
@@ -117,12 +123,13 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
     xram_addr = 0x000000  # Always zero.
     data_len = BYPASS_READ_LEN  # Limited by the flash read speed.
 
-    config_len = chip_info.config_offset - HEADER_FIXED_SIZE
-
+    # The header prefix (the fixed header, the config word padding, and any
+    # config words emitted before this sequence) counts towards the fixed
+    # bypass header size, so it has to be accounted for here.
     cc_words = 14
     delay_writes = (
         BYPASS_HEADER_SIZE
-        - (HEADER_FIXED_SIZE + config_len + CONFIG_WORD_SIZE * cc_words)
+        - (header_prefix_size + CONFIG_WORD_SIZE * cc_words)
     ) // CONFIG_WORD_SIZE
     if delay_writes < len(BYPASS_LOADING_STRING):
         raise FirmwareBuildError(
@@ -131,7 +138,7 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
             )
         )
 
-    header_len = HEADER_FIXED_SIZE + config_len + CONFIG_WORD_SIZE * (cc_words + delay_writes)
+    header_len = header_prefix_size + CONFIG_WORD_SIZE * (cc_words + delay_writes)
     if header_len != BYPASS_HEADER_SIZE:
         raise FirmwareBuildError(
             "cannot pad the {} image header to {} bytes".format(
@@ -139,13 +146,7 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
             )
         )
 
-    firmware_flash_addr = (
-        HEADER_FIXED_SIZE
-        + config_len
-        + CONFIG_WORD_SIZE * (cc_words + delay_writes)
-        + TRAILER_SIZE
-        + chip_info.body_len_width
-    )
+    firmware_flash_addr = header_len + TRAILER_SIZE + chip_info.body_len_width
 
     writes_pre_delay = (
         (FLASH_CON_DATA_LEN, 2, data_len & 0xffff),
@@ -196,8 +197,14 @@ def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = Fal
     # 0x20 on ASM2142 and later.
     data = bytes(chip_info.config_offset - HEADER_FIXED_SIZE)
 
+    if chip_info.enable_hardware_access:
+        # Enable access to the chip's MMIO registers over PCI BAR0.
+        data += encode_mmio_write(HARDWARE_ACCESS, 1, 0x1a)
+
     if chip_info.supports_sig_bypass and sig_bypass:
-        data += build_bypass_sequence(chip_info, firmware_size)
+        data += build_bypass_sequence(
+            chip_info, firmware_size, HEADER_FIXED_SIZE + len(data)
+        )
 
     header = struct.pack(
         '<HHH10s', 0, 1, HEADER_FIXED_SIZE + len(data), chip_info.header_magic

@@ -196,6 +196,25 @@ class GeneratedImageFormatTest(unittest.TestCase):
         flash_addr = writes[0x506b] | (writes[0x506d] << 16)
         self.assertEqual(flash_addr, expected_flash_addr)
 
+    def test_hardware_access_config_word(self) -> None:
+        for sig_bypass in (False, True):
+            with self.subTest(sig_bypass=sig_bypass):
+                firmware = generate_raw("ASM3242")
+                image = generate_image("ASM3242", firmware, sig_bypass=sig_bypass)
+                fw = asm_fw.AsmFw.from_bytes(image)
+
+                first_write = next(
+                    config_word
+                    for config_word in fw.header.data.config_words
+                    if config_word.type == 0xcc
+                )
+                self.assertEqual(first_write.info.addr, 0x5087)
+                self.assertEqual(first_write.info.size, 1)
+                self.assertEqual(first_write.info.value, 0x1a)
+
+                expected_header_len = 0x400 if sig_bypass else 0x28
+                self.assertEqual(fw.header.len, expected_header_len)
+
 
 class ValidationTest(unittest.TestCase):
     def assert_rejected(self, data: bytes, args: list[str], expected: str) -> None:
