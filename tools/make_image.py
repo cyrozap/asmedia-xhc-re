@@ -266,14 +266,14 @@ def write_output(path: str, data: bytes) -> None:
             pass
         raise
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=str, help="Input binary.")
     parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
     parser.add_argument("-o", "--output", type=str, default="monitor.img", help="Output image.")
     parser.add_argument("-c", "--chip", type=str, choices=CHIP_INFO.keys(), default="ASM1142", help="Chip to target.")
     parser.add_argument("-s", "--sig-bypass", default=False, action="store_true", help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         with open(args.input, 'rb') as input_file:

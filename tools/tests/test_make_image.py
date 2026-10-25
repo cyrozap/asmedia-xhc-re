@@ -47,6 +47,9 @@ SCRIPT = TOOLS_DIR / "make_image.py"
 
 sys.path.insert(0, str(TOOLS_DIR))
 
+import make_image
+
+
 try:
     import asm_fw
 except ModuleNotFoundError:
@@ -278,6 +281,23 @@ class ValidationTest(unittest.TestCase):
 
             self.assertEqual(proc.returncode, 1)
             self.assertEqual(output_path.read_bytes(), b"sentinel")
+
+
+class MainEntryPointTest(unittest.TestCase):
+    def test_main_accepts_argv(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_dir = pathlib.Path(tmp)
+            input_path = tmp_dir / "firmware.bin"
+            output_path = tmp_dir / "firmware.img"
+            input_path.write_bytes(PAYLOAD)
+
+            result = make_image.main([
+                "-t", "image", "-c", "ASM1142",
+                "-o", str(output_path), str(input_path),
+            ])
+
+            self.assertEqual(result, 0)
+            self.assertEqual(output_path.read_bytes(), generate_image("ASM1142", PAYLOAD))
 
 
 if __name__ == "__main__":
