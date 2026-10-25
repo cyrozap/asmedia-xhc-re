@@ -1,0 +1,4 @@
+# Firmware images are binary data, not text, so don't let Git normalize their
+# line endings.
+*.img binary
+*.bin binary

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-# Copyright (C) 2020-2021  Forest Crossman <cyrozap@gmail.com>
+# Copyright (C) 2020-2021, 2026  Forest Crossman <cyrozap@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,9 @@ TOOL_TARGETS := tools/asm_fw.py tools/prom_fw.py
 
 all: $(TOOL_TARGETS)
 
+test: $(TOOL_TARGETS)
+	python3 -m unittest discover -s tools/tests
+
 tools/%.py: doc/fw/%.ksy
 	$(KAITAI_STRUCT_COMPILER) --target=python --outdir=$(@D) $<
 
@@ -42,4 +45,4 @@ clean:
 	rm -f $(TOOL_TARGETS) $(DOC_TARGETS)
 
 
-.PHONY: clean doc
+.PHONY: clean doc test
