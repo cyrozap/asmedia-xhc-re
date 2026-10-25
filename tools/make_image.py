@@ -88,6 +88,9 @@ CHIP_INFO: dict[str, ChipInfo] = {
 def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
+def trailer(data: bytes) -> bytes:
+    return struct.pack('<BI', checksum(data), crc32(data))
+
 def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     chip_info = CHIP_INFO[chip]
 
@@ -149,9 +152,7 @@ def gen_header(chip: str, sig_bypass: bool = False) -> bytes:
     )
     header += data
 
-    csum = checksum(header)
-    crc = crc32(header)
-    header += struct.pack('<BI', csum, crc)
+    header += trailer(header)
 
     return header
 
@@ -163,9 +164,7 @@ def gen_body(chip: str, data: bytes) -> bytes:
     body += data
     body += struct.pack('8s', body_magic)
 
-    csum = checksum(data)
-    crc = crc32(data)
-    body += struct.pack('<BI', csum, crc)
+    body += trailer(data)
 
     if chip_info.has_signature:
         # Append a null signature to enable the Kaitai Struct definition and
