@@ -95,11 +95,14 @@ class FirmwareBuildError(Exception):
 def checksum(data: bytes) -> int:
     return sum(data) & 0xff
 
+
 def trailer(data: bytes) -> bytes:
     return struct.pack('<BI', checksum(data), crc32(data))
 
+
 def encode_mmio_write(addr: int, size: int, value: int) -> bytes:
     return struct.pack('<BBHI', CONFIG_WORD_TYPE_WRITE, size, addr, value)
+
 
 def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
     if firmware_size > BYPASS_READ_LEN:
@@ -177,6 +180,7 @@ def build_bypass_sequence(chip_info: ChipInfo, firmware_size: int) -> bytes:
 
     return data
 
+
 def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = False) -> bytes:
     if sig_bypass and not chip_info.supports_sig_bypass:
         raise FirmwareBuildError(
@@ -199,6 +203,7 @@ def build_header(chip_info: ChipInfo, firmware_size: int, sig_bypass: bool = Fal
     header += trailer(header)
 
     return header
+
 
 def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
     if not firmware:
@@ -227,8 +232,10 @@ def build_body(chip_info: ChipInfo, firmware: bytes) -> bytes:
 
     return body
 
+
 def build_image(chip_info: ChipInfo, firmware: bytes, sig_bypass: bool = False) -> bytes:
     return build_header(chip_info, len(firmware), sig_bypass) + build_body(chip_info, firmware)
+
 
 def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
     required_len = FW_MAGIC_OFFSET + len(chip_info.body_magic)
@@ -246,6 +253,7 @@ def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
     struct.pack_into('8s', data, FW_MAGIC_OFFSET, chip_info.body_magic)
 
     return bytes(data)
+
 
 def write_output(path: pathlib.Path, data: bytes) -> None:
     # Write to a temporary file in the destination directory and rename it, so
@@ -270,6 +278,7 @@ def write_output(path: pathlib.Path, data: bytes) -> None:
                 os.unlink(tmp_path)
             except OSError:
                 pass
+
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
