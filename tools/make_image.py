@@ -20,6 +20,7 @@
 
 import argparse
 import os
+import pathlib
 import struct
 import sys
 import tempfile
@@ -245,11 +246,10 @@ def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
 
     return bytes(data)
 
-def write_output(path: str, data: bytes) -> None:
+def write_output(path: pathlib.Path, data: bytes) -> None:
     # Write to a temporary file in the destination directory and rename it, so
     # an interrupted or failed build cannot leave a truncated image behind.
-    directory = os.path.dirname(os.path.abspath(path))
-    fd, tmp_path = tempfile.mkstemp(dir=directory)
+    fd, tmp_path = tempfile.mkstemp(dir=path.resolve().parent)
     try:
         with os.fdopen(fd, 'wb') as output:
             output.write(data)
@@ -268,15 +268,15 @@ def write_output(path: str, data: bytes) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("input", type=str, help="Input binary.")
+    parser.add_argument("input", type=pathlib.Path, help="Input binary.")
     parser.add_argument("-t", "--type", type=str, choices=["bin", "image"], default="image", help="Image type.")
-    parser.add_argument("-o", "--output", type=str, default="monitor.img", help="Output image.")
+    parser.add_argument("-o", "--output", type=pathlib.Path, default=pathlib.Path("monitor.img"), help="Output image.")
     parser.add_argument("-c", "--chip", type=str, choices=CHIP_INFO.keys(), default="ASM1142", help="Chip to target.")
     parser.add_argument("-s", "--sig-bypass", default=False, action="store_true", help="Add MMIO writes in the image header to bypass the signature check, when applicable.")
     args = parser.parse_args(argv)
 
     try:
-        with open(args.input, 'rb') as input_file:
+        with args.input.open('rb') as input_file:
             binary = input_file.read()
 
         chip_info = CHIP_INFO[args.chip]
