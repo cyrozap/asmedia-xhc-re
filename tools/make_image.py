@@ -25,7 +25,7 @@ import struct
 import sys
 import tempfile
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from zlib import crc32
 
 
@@ -240,7 +240,8 @@ def add_fw_meta(chip_info: ChipInfo, data: bytes) -> bytes:
         )
 
     data = bytearray(data)
-    bcd_timestamp = bytes.fromhex(datetime.utcnow().strftime('%y%m%d%H%M%S'))
+    now = datetime.now(timezone.utc)
+    bcd_timestamp = bytes.fromhex(now.strftime('%y%m%d%H%M%S'))
     struct.pack_into('6s', data, FW_VERSION_OFFSET, bcd_timestamp)
     struct.pack_into('8s', data, FW_MAGIC_OFFSET, chip_info.body_magic)
 
