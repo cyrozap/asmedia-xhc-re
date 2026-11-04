@@ -240,6 +240,67 @@ class AsmDev:
         self.name = self.chip['name']  # type: ignore[index]
         self.hw_code_and_mmio = self.chip.get('hw_code_and_mmio', None)  # type: ignore[attr-defined]
 
+    @staticmethod
+    def _hw_code_write_data(code: bytes, i: int) -> int:
+        word_ev = struct.unpack_from('<H', code, i)[0]
+        word_od = 0
+
+        word_od_i = i + 0x8000
+        if word_od_i < len(code):
+            word_od = struct.unpack_from('<H', code, word_od_i)[0]
+
+        return struct.unpack('<I', struct.pack('<HH', word_ev, word_od))[0]
+
+    @classmethod
+    def _hw_code_write_order(cls, addr: int, code: bytes) -> list[int]:
+        offsets = []
+        i = 0
+        while i < len(code):
+            offsets.append(i)
+
+            i += 2
+
+            if i & 0x8000:
+                i -= 0x8000
+                i += 0x10000
+
+        # On at least some ASM2142/ASM3142 chips, a write to CODE_RAM_ADDR also
+        # stores its data at CODE_RAM_ADDR + 2, wrapping at 0x10000. The next
+        # write in an ascending sequence replaces that copy, but the copy made
+        # by the last write stays. A write that covers every address wraps
+        # around, so ending on 0xFFFE would overwrite address 0, the reset
+        # vector. Start the sequence so that it ends on an address that holds
+        # the same data as the next one. The order doesn't matter on chips
+        # that don't do this.
+        if addr == 0 and len(offsets) == 0x8000:
+            for k in reversed(range(len(offsets))):
+                next_i = offsets[(k + 1) % len(offsets)]
+                if cls._hw_code_write_data(code, offsets[k]) == cls._hw_code_write_data(code, next_i):
+                    offsets = offsets[k + 1:] + offsets[:k + 1]
+                    break
+
+        return offsets
+
+    @staticmethod
+    def _hw_code_readback_matches(readback: bytes, code: bytes) -> bool:
+        if readback == code:
+            return True
+
+        # On at least some ASM2142/ASM3142 chips, the read data registers
+        # return the word after the addressed one, wrapping inside each 16 kB
+        # read bank. Accept that form too. The last word of a partial bank
+        # comes from outside the code, so it can't be compared.
+        bank_size = 0x4000
+        for start in range(0, len(code), bank_size):
+            bank = code[start:start + bank_size]
+            bank_readback = readback[start:start + bank_size]
+            if bank_readback[:-2] != bank[2:]:
+                return False
+            if len(bank) == bank_size and bank_readback[-2:] != bank[:2]:
+                return False
+
+        return True
+
     def hw_code_write(self, addr: int, code: bytes) -> None:
         if self.hw_code_and_mmio not in (1, 2):
             raise ValueError("{} is not capable of hardware CODE access.".format(self.name))
@@ -284,16 +345,8 @@ class AsmDev:
                 while self.pci.config_reg_read(self.CODE_RAM_ADDR, 2) == masked_addr:
                     pass
         elif self.hw_code_and_mmio == 2:
-            i = 0
-            while i < len(code):
-                word_ev = struct.unpack_from('<H', code, i)[0]
-                word_od = 0
-
-                word_od_i = i + 0x8000
-                if word_od_i < len(code):
-                    word_od = struct.unpack_from('<H', code, word_od_i)[0]
-
-                data = struct.unpack('<I', struct.pack('<HH', word_ev, word_od))[0]
+            for i in self._hw_code_write_order(addr, code):
+                data = self._hw_code_write_data(code, i)
 
                 offset_addr = addr + i
                 masked_addr = ((offset_addr & 0x10000) >> 1) | (offset_addr & 0x7ffe)
@@ -301,12 +354,6 @@ class AsmDev:
                 self.pci.bar0_reg_write(self.CODE_RAM_WRITE_DATA_BAR0, 4, data)
                 while self.pci.config_reg_read(self.CODE_RAM_ADDR, 2) == masked_addr:
                     pass
-
-                i += 2
-
-                if i & 0x8000:
-                    i -= 0x8000
-                    i += 0x10000
 
             # Enable hardware CODE read access.
             self.pci.config_reg_write(0xef, 1, self.pci.config_reg_read(0xef, 1) | (1 << 6), confirm=True)
@@ -344,7 +391,7 @@ class AsmDev:
                     i -= 0x4000
                     i += 0x10000
 
-            assert readback == code
+            assert self._hw_code_readback_matches(readback, code)
 
         # Disable hardware CODE write access.
         if self.hw_code_and_mmio == 1:
